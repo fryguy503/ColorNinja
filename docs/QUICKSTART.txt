@@ -1,0 +1,60 @@
+ColorNinja Studio 1.0.0-alpha.1 - Windows x64
+
+ALPHA: This is an early testing release. Review output before printing.
+
+Extract this folder, then double-click ColorNinja.exe.
+The GUI needs Microsoft Edge WebView2 Runtime. Python, Node.js, and Go are
+not required to run these executables. This local build is unsigned.
+
+GET STARTED
+Open an image or try the built-in artwork. Adjust the color budget and detail
+smoothing, compare the result, then click Export PNG. Scroll to zoom and drag
+to pan. Choose Side by side for separate Original and Result panes with linked
+zoom/pan, or Compare for the sliding divider. Fit and 1:1 help inspect detail.
+Preview and PNG export use
+the same full-resolution processed pixels; no dithering is added.
+
+Original and Result show their unique color counts above the previews. Large
+counts use labels such as 32K colors; hover for the exact number. Counts use
+visible RGB colors at full resolution, ignoring fully transparent pixels.
+
+Perceptual mode has separate budgets for chromatic and achromatic populations.
+A budget of 8 can therefore produce up to 16 output colors. Switching modes
+preserves your budget. Built-in presets change the budget only. Saved presets
+restore tuning while keeping the current mode. Reset restores mode defaults.
+
+Preserve details is on by default in all three modes. It protects contrasting
+edges while smoothing similar colors, and improves constrained color mapping
+and stack planning. Turn it off to compare the original reduction; the CLI
+equivalent is --preserve-details=false. Set smoothing to zero to disable only
+the smoothing step. Very tight color/filament budgets can still merge features.
+
+For filament guidance, open the Filaments tab and choose your HueForge library.
+The usual personal_library.json path is detected automatically. Only eligible
+owned colors are used unless you enable additional entries. Your library is
+read-only. Open guided PNG output in HueForge for the final print plan.
+
+Use true black is on by default in filament-guided and global-stack modes.
+It models dark, near-neutral filaments named Black as #000000. Turn it off to
+use the stored library colors. Your library file and transmission values are
+unchanged. The CLI equivalent to turn it off is --true-black=false.
+
+Global stack mode provides an independent approximate layer plan. Review it
+before printing. Its optional 16-bit layer map stores literal layer numbers
+(0 = transparent); it is not a normalized height image, STL, or G-code.
+
+PROJECTS AND PREFERENCES
+Ctrl+S saves a project, Ctrl+Shift+O opens one. Projects reference image and
+library paths; keep those originals available. Ctrl+O opens an image, Ctrl+E
+exports PNG, and Ctrl+Z / Ctrl+Shift+Z undo / redo settings. Preferences are
+saved under %APPDATA%\ColorNinja. Presets store processing options.
+
+COMMAND LINE
+colorninja-cli.exe input.jpg -o output.png --colors 8
+colorninja-cli.exe --help
+Use --force to replace existing output files. The CLI needs no WebView2.
+
+See docs/user-guide.md, docs/architecture.md, and docs/validation.md for help,
+processing details, and test scope. LICENSE contains ColorNinja's MIT license.
+SHA256SUMS.txt records checksums; THIRD-PARTY-NOTICES.txt contains dependency
+licenses. BUILD-INFO.json identifies the original build artifact and toolchain.

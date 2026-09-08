@@ -1,0 +1,17 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "ColorNinja",
+  "outputfilename": "ColorNinja",
+  "frontend:install": "node ../.tools/npm/package/bin/npm-cli.js ci",
+  "frontend:build": "node ../.tools/npm/package/bin/npm-cli.js run build",
+  "frontend:dev:watcher": "node ../.tools/npm/package/bin/npm-cli.js run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": { "name": "ColorNinja", "email": "" },
+  "info": {
+    "companyName": "ColorNinja",
+    "productName": "ColorNinja Studio",
+    "productVersion": "1.0.0",
+    "copyright": "Copyright (c) 2026 Fryguy",
+    "comments": "1.0.0-alpha.1 - Perceptual color reduction and filament-guided image preparation"
+  }
+}

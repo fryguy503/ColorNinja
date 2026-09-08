@@ -1,0 +1,40 @@
+{
+  "Filaments": [
+    {
+      "Brand": "Test",
+      "Name": "Black",
+      "Color": "#000000",
+      "Transmissivity": 0.5,
+      "Type": "PLA",
+      "Owned": true,
+      "uuid": "Black"
+    },
+    {
+      "Brand": "Test",
+      "Name": "White",
+      "Color": "#FFFFFF",
+      "Transmissivity": 1,
+      "Type": "PLA",
+      "Owned": true,
+      "uuid": "White"
+    },
+    {
+      "Brand": "Test",
+      "Name": "Red",
+      "Color": "#FF0000",
+      "Transmissivity": 0.8,
+      "Type": "PLA",
+      "Owned": true,
+      "uuid": "Red"
+    },
+    {
+      "Brand": "Test",
+      "Name": "Blue",
+      "Color": "#0000FF",
+      "Transmissivity": 2,
+      "Type": "PLA",
+      "Owned": true,
+      "uuid": "Blue"
+    }
+  ]
+}

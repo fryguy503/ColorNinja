@@ -1,0 +1,17 @@
+.tools/
+.venv/
+__pycache__/
+*.pyc
+build/bin/
+build/releases/
+frontend/node_modules/
+frontend/dist/
+artifacts/
+*.test.exe
+.env
+.env.*
+*.colorninja.json
+personal_library.json
+settings.json
+.codex/
+.agents/
