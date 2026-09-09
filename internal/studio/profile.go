@@ -22,6 +22,8 @@ type SettingsProfile struct {
 
 func ProfilePath(output string) string { return output + ".colorninja-profile.json" }
 
+func ProjectPath(output string) string { return output + ".colorninja" }
+
 func SaveSettingsProfile(path, name string, options engine.Options, filter engine.LibraryFilter, library []byte, overwrite bool) error {
 	if err := options.Validate(); err != nil {
 		return err
@@ -77,12 +79,16 @@ func LoadProfile(path string) (SettingsProfile, error) {
 	return p, nil
 }
 
-// Both paths are checked before publishing anything. Individual files are
-// written atomically; a second-file I/O failure reports the completed export.
-func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool, overwriteProfile ...bool) error {
+// Every companion path is checked before publishing anything. Individual files
+// are written atomically; later I/O failures identify the completed exports.
+// Companion overwrite approvals are ordered profile first, then project.
+func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool, overwriteCompanions ...bool) error {
 	s.mu.RLock()
 	req, source, r, include := s.resultRequest, s.source, s.result, s.settings.Preferences.ExportProfile
 	library, projectPath := s.resultLibrary, s.projectPath
+	// Freeze the document so every exported file contains the same source,
+	// rendered result and filament snapshot even if another image opens.
+	export := &Studio{ctx: s.ctx, image: s.image, source: source, result: r, resultRequest: req, resultLibrary: library, embeddedLibrary: library}
 	s.mu.RUnlock()
 	if r == nil || req.ID != id || req.Revision != revision || source.Revision != revision {
 		return fmt.Errorf("generate a current preview before exporting")
@@ -93,26 +99,56 @@ func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool, 
 		}
 	}
 	profilePath := ProfilePath(path)
-	replaceProfile := len(overwriteProfile) > 0 && overwriteProfile[0]
+	companionProject := ProjectPath(path)
+	replaceProfile := len(overwriteCompanions) > 0 && overwriteCompanions[0]
+	replaceProject := len(overwriteCompanions) > 1 && overwriteCompanions[1]
 	if include {
-		if err := engine.DistinctPaths(profilePath, path, source.Path, req.LibraryPath, projectPath); err != nil {
+		if err := engine.DistinctPaths(profilePath, projectPath); err != nil {
 			return err
 		}
-		if info, err := os.Stat(profilePath); err == nil {
-			if info.IsDir() || !replaceProfile {
-				return fmt.Errorf("settings profile already exists: %s", profilePath)
-			}
-		} else if !os.IsNotExist(err) {
+		paths := []string{profilePath, path, source.Path, req.LibraryPath}
+		if kind != "project" {
+			paths = append(paths, companionProject, projectPath)
+		}
+		if err := engine.DistinctPaths(paths...); err != nil {
 			return err
+		}
+		if err := checkCompanion(profilePath, "settings profile", replaceProfile); err != nil {
+			return err
+		}
+		if kind != "project" {
+			if err := checkCompanion(companionProject, "ColorNinja project", replaceProject); err != nil {
+				return err
+			}
 		}
 	}
-	if err := s.exportSingle(kind, path, id, revision, overwrite); err != nil {
+	if err := export.exportSingle(kind, path, id, revision, overwrite); err != nil {
 		return err
 	}
 	if include {
-		if err := writeProfile(profilePath, makeProfile(source.Name, req, library), replaceProfile); err != nil {
-			return fmt.Errorf("export saved to %s, but its settings profile could not be saved: %w", path, err)
+		if kind != "project" {
+			if err := export.SaveProject(companionProject, req, replaceProject); err != nil {
+				return fmt.Errorf("export saved to %s, but its ColorNinja project could not be saved: %w", path, err)
+			}
 		}
+		if err := writeProfile(profilePath, makeProfile(source.Name, req, library), replaceProfile); err != nil {
+			saved := path
+			if kind != "project" {
+				saved += " and " + companionProject
+			}
+			return fmt.Errorf("saved %s, but the settings profile could not be saved: %w", saved, err)
+		}
+	}
+	return nil
+}
+
+func checkCompanion(path, label string, overwrite bool) error {
+	if info, err := os.Stat(path); err == nil {
+		if info.IsDir() || !overwrite {
+			return fmt.Errorf("%s already exists: %s", label, path)
+		}
+	} else if !os.IsNotExist(err) {
+		return err
 	}
 	return nil
 }

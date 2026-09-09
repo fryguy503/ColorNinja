@@ -9,19 +9,21 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current release: `v1.0.0-beta.2` — Windows x64.** This beta adds portable
-projects, settings profiles beside exports, and easier preset management, alongside
-Front Lit planning, automatic depth selection, and HueForge project export. Review your output before printing.
+**Current release: `v1.0.0-beta.3` — Windows x64.** This beta fixes the export
+option to save a complete portable project alongside the exported file and settings
+profile. It also clarifies project/profile imports. Front Lit planning, automatic
+depth selection, presets, and HueForge project export remain available. Review
+your output before printing.
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.2)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.3)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
 
 ## Download and run
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.2)
-   and download **`ColorNinja-1.0.0-beta.2-windows-x64.zip`** from **Assets**.
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.3)
+   and download **`ColorNinja-1.0.0-beta.3-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and **Export PNG**.
@@ -41,7 +43,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.2-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.3-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
@@ -58,7 +60,7 @@ Get-FileHash .\ColorNinja-1.0.0-beta.2-windows-x64.zip -Algorithm SHA256
 - Zoom, pan, inspect unique color counts, and review palettes, coverage, and quality metrics.
 - Save portable projects with embedded images, filaments, settings, and exact results.
 - Create and manage named presets, load/save settings profiles, and optionally write
-  a profile beside every export. Undo settings and export PNGs and palette reports.
+  a portable project and profile beside every export. Undo settings and export PNGs and palette reports.
 - Preserve source dimensions and transparency; apply EXIF orientation and supported ICC profiles.
 - Read PNG, JPEG, WebP, GIF, TIFF, and BMP. Animated inputs use the first frame.
 

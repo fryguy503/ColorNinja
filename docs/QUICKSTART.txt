@@ -1,4 +1,4 @@
-ColorNinja Studio 1.0.0-beta.2 - Windows x64
+ColorNinja Studio 1.0.0-beta.3 - Windows x64
 
 BETA: This is a testing release. Review output before printing.
 
@@ -80,7 +80,11 @@ Ctrl+S saves a portable .colorninja project; Ctrl+Shift+O opens one. New project
 include the source image, filament library snapshot, settings, and current result.
 Old .colorninja.json projects still need their originals until saved again.
 The export menu also offers ColorNinja project (.colorninja). Enable Also save
-settings profile there to save a reusable profile beside every exported file.
+project and settings profile to include both beside every exported file.
+For example, Totoro_Test1.hfp also saves Totoro_Test1.hfp.colorninja (open with
+Open project) and Totoro_Test1.hfp.colorninja-profile.json (use Load profile).
+The project contains the image, filaments, settings, and exact result. Exporting
+a project adds only its settings profile, without a duplicate project.
 
 Presets & profiles appears below Workflow. Create, rename, apply, and delete
 named settings. Keep current workflow starts enabled; clear it to restore the

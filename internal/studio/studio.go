@@ -3,6 +3,7 @@
 package studio
 
 import (
+	"bytes"
 	"colorninja/internal/engine"
 	"context"
 	"encoding/json"
@@ -46,7 +47,8 @@ type Preferences struct {
 	Advanced           bool `json:"advanced"`
 	CheckOnStartup     bool `json:"checkOnStartup"`
 	IncludePrereleases bool `json:"includePrereleases"`
-	ExportProfile      bool `json:"exportProfile"`
+	// Retain the Beta 2 preference key; the option now saves both companions.
+	ExportProfile bool `json:"exportProfile"`
 }
 type Snapshot struct {
 	Source   Source          `json:"source"`
@@ -429,15 +431,35 @@ func (s *Studio) openLegacyProject(path string) (Snapshot, error) {
 	if e != nil {
 		return Snapshot{}, e
 	}
-	var d Document
-	if e = json.Unmarshal(raw, &d); e != nil {
+	var d struct {
+		Document
+		Format string          `json:"format"`
+		Engine string          `json:"engine"`
+		Result json.RawMessage `json:"result"`
+	}
+	if e = json.Unmarshal(bytes.TrimPrefix(raw, []byte{239, 187, 191}), &d); e != nil {
 		return Snapshot{}, fmt.Errorf("invalid ColorNinja project: %w", e)
+	}
+	if d.Format == "ColorNinja settings" {
+		return Snapshot{}, fmt.Errorf("this is a settings profile; use Presets & profiles > Load profile to apply it to an image. To restore the full project, open the .colorninja file")
+	}
+	if d.Engine != "" || d.Result != nil {
+		return Snapshot{}, fmt.Errorf("this is a palette report; open the .colorninja file to restore your project")
+	}
+	if d.Format != "" {
+		return Snapshot{}, fmt.Errorf("this file is not a supported ColorNinja project; open a .colorninja file")
 	}
 	if d.SchemaVersion != 1 {
 		return Snapshot{}, fmt.Errorf("unsupported project version")
 	}
+	if !d.Demo && strings.TrimSpace(d.Source) == "" {
+		return Snapshot{}, fmt.Errorf("this older project is missing its source image path; open a .colorninja project or reopen the original image")
+	}
 	if e = d.Options.Validate(); e != nil {
 		return Snapshot{}, e
+	}
+	if d.Options.Mode != "standard" && strings.TrimSpace(d.LibraryPath) == "" {
+		return Snapshot{}, fmt.Errorf("this older project is missing its filament library path; reopen the original image, select a library, and save a .colorninja project")
 	}
 	if d.LibraryPath != "" && !filepath.IsAbs(d.LibraryPath) {
 		d.LibraryPath = filepath.Join(filepath.Dir(path), d.LibraryPath)

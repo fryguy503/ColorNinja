@@ -7,6 +7,13 @@ production compilation, and source formatting checks to pass.
 
 ## Automated coverage
 
+The Beta 3 export companion fix passes 107 Go tests, eight frontend tests,
+formatting checks, Go vet, and the TypeScript/Windows production build. Its
+regressions cover portable companions for every export kind, exact reopening and
+rerendering without original inputs in all three workflows, separate overwrite
+approvals, option opt-out, and profile/report JSON rejection without changing the
+current document.
+
 Beta 2 adds exact portable project round trips in all three modes, including
 alpha, metadata, stack cores and layer maps after original files are removed;
 changed-on-disk library snapshots; corrupt archives; legacy JSON projects;
@@ -116,7 +123,7 @@ the checked fixtures, not universal error bounds.
 
 ## Desktop validation boundary
 
-The beta release gate includes 104 Go tests (with 246 Front Lit reference
+The beta release gate includes 107 Go tests (with 246 Front Lit reference
 subcases and five Python reference cases), eight frontend tests, TypeScript and
 production builds, formatting, Go vet, and Windows Wails/CLI compilation.
 The final packaged executables are checked after extraction: file checksums,

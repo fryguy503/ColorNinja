@@ -863,7 +863,12 @@ function App() {
           p.revision,
           ...(path ? [path] : []),
         );
-        if (output) notify(`Saved ${output}`);
+        if (output)
+          notify(
+            preferences.exportProfile
+              ? `Saved ${output} with ${kind === "project" ? "its settings profile" : "a ColorNinja project and settings profile"}.`
+              : `Saved ${output}`,
+          );
       } catch (e) {
         handleError(e);
       } finally {
@@ -1203,7 +1208,7 @@ function App() {
                     }
                     onClick={() => exportFile("palette")}
                   >
-                    <SwatchBook size={15} /> Palette & settings JSON
+                    <SwatchBook size={15} /> Palette report (.json)
                   </button>
                   <button
                     disabled={
@@ -1242,9 +1247,10 @@ function App() {
                       }
                     />
                     <span>
-                      Also save settings profile
+                      Also save project and settings profile
                       <small>
-                        A reusable profile beside every exported file.
+                        Reopen the .colorninja project. Reuse the JSON settings
+                        with Load profile.
                       </small>
                     </span>
                   </label>

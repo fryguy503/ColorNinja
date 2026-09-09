@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -58,6 +59,16 @@ func TestPortableProjectRestoresExactPixelsAndStackWithoutOriginalFiles(t *testi
 			if err = os.WriteFile(libpath, []byte("changed after processing"), 0600); err != nil {
 				t.Fatal(err)
 			}
+			prefs := s.settings.Preferences
+			prefs.ExportProfile = true
+			if _, err = s.SavePreferences(prefs); err != nil {
+				t.Fatal(err)
+			}
+			// The same export checkbox must include the portable document.
+			exportPath := filepath.Join(dir, "export.png")
+			if err = s.Export("png", exportPath, preview.ID, preview.Revision, false); err != nil {
+				t.Fatal(err)
+			}
 			if err = s.SaveProject(path, r, false); err != nil {
 				t.Fatal(err)
 			}
@@ -87,6 +98,19 @@ func TestPortableProjectRestoresExactPixelsAndStackWithoutOriginalFiles(t *testi
 			}
 			if rebuilt.Result.SHA256 != preview.Result.SHA256 {
 				t.Fatal("embedded source/inventory did not reproduce output")
+			}
+			companion := New(context.Background(), filepath.Join(dir, "companion", "settings.json"))
+			defer companion.Shutdown()
+			restored, err := companion.OpenProject(ProjectPath(exportPath))
+			if err != nil {
+				t.Fatal("export companion could not reopen without the original files", err)
+			}
+			if restored.Preview == nil || !bytes.Equal(restored.Preview.Result.Image.Pix, preview.Result.Image.Pix) || !bytes.Equal(companion.image.Pix, s.image.Pix) || !reflect.DeepEqual(restored.Preview.Result.Stack, preview.Result.Stack) || !reflect.DeepEqual(restored.Preview.Result.LayerMap, preview.Result.LayerMap) || restored.Settings.Options != r.Options || !reflect.DeepEqual(restored.Settings.Filter, r.Filter) || !reflect.DeepEqual(restored.Source.Metadata, s.source.Metadata) {
+				t.Fatal("export companion did not preserve the full document")
+			}
+			regenerated, err := companion.Process(Request{ID: 10, Revision: restored.Source.Revision, Options: restored.Settings.Options, LibraryPath: restored.Settings.LibraryPath, Filter: restored.Settings.Filter})
+			if err != nil || regenerated.Result.SHA256 != preview.Result.SHA256 {
+				t.Fatal("export companion could not reproduce the saved result", err)
 			}
 			if mode == "stack" {
 				if err = fresh.Export("hfp", filepath.Join(dir, "restored.hfp"), rebuilt.ID, rebuilt.Revision, false); err != nil {
@@ -211,7 +235,7 @@ func TestLegacyProjectRemainsReadable(t *testing.T) {
 	}
 }
 
-func TestEveryExportCanWriteExactSettingsProfileAndProtectExistingFiles(t *testing.T) {
+func TestEveryExportCanWriteProjectAndProfileAndProtectExistingFiles(t *testing.T) {
 	s := fixture(t)
 	r := req(s, 1)
 	r.Options.Mode = "stack"
@@ -242,6 +266,20 @@ func TestEveryExportCanWriteExactSettingsProfileAndProtectExistingFiles(t *testi
 			if err := s.Export(kind, path, p.ID, p.Revision, false, true); err != nil {
 				t.Fatal(err)
 			}
+			project := path
+			if kind == "project" {
+				if _, err := os.Stat(ProjectPath(path)); !os.IsNotExist(err) {
+					t.Fatal("project export wrote a redundant project companion")
+				}
+			} else {
+				project = ProjectPath(path)
+			}
+			fresh := New(context.Background(), filepath.Join(t.TempDir(), "settings.json"))
+			defer fresh.Shutdown()
+			snap, err := fresh.OpenProject(project)
+			if err != nil || snap.Preview == nil || snap.Preview.Result.SHA256 != p.Result.SHA256 || snap.Settings.Options != r.Options {
+				t.Fatal("export did not include a reopenable project with the exact result", err)
+			}
 			profile, err := LoadProfile(sidecar)
 			if err != nil || profile.Options != r.Options || !reflect.DeepEqual(profile.Filter, r.Filter) || profile.LibrarySHA256 != p.Result.Stack.LibrarySHA256 {
 				t.Fatal("profile settings differ from exported result", err)
@@ -259,6 +297,58 @@ func TestEveryExportCanWriteExactSettingsProfileAndProtectExistingFiles(t *testi
 	}
 	if _, err = os.Stat(ProfilePath(path)); !os.IsNotExist(err) {
 		t.Fatal("unchecked option wrote profile")
+	}
+	if _, err = os.Stat(ProjectPath(path)); !os.IsNotExist(err) {
+		t.Fatal("unchecked option wrote project")
+	}
+}
+
+func TestProjectCompanionNeedsSeparateOverwriteApproval(t *testing.T) {
+	s := fixture(t)
+	r := req(s, 1)
+	p, err := s.Process(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	prefs := s.settings.Preferences
+	prefs.ExportProfile = true
+	if _, err = s.SavePreferences(prefs); err != nil {
+		t.Fatal(err)
+	}
+	for _, directory := range []bool{false, true} {
+		path := filepath.Join(t.TempDir(), "image.png")
+		project := ProjectPath(path)
+		if directory {
+			err = os.Mkdir(project, 0700)
+		} else {
+			err = os.WriteFile(project, []byte("keep this project"), 0600)
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		// Approval to overwrite a profile must never approve replacing a project.
+		if err = s.Export("png", path, p.ID, p.Revision, false, true, directory); err == nil {
+			t.Fatal("existing project companion was not protected")
+		}
+		for _, unwritten := range []string{path, ProfilePath(path)} {
+			if _, err = os.Stat(unwritten); !os.IsNotExist(err) {
+				t.Fatal("export wrote files before checking its project companion")
+			}
+		}
+		if !directory {
+			raw, err := os.ReadFile(project)
+			if err != nil || string(raw) != "keep this project" {
+				t.Fatal("project companion was changed without approval", err)
+			}
+			if err = s.Export("png", path, p.ID, p.Revision, false, false, true); err != nil {
+				t.Fatal("approved project replacement failed", err)
+			}
+			fresh := New(context.Background(), filepath.Join(t.TempDir(), "settings.json"))
+			defer fresh.Shutdown()
+			if _, err = fresh.OpenProject(project); err != nil {
+				t.Fatal("approved companion is not a valid project", err)
+			}
+		}
 	}
 }
 
@@ -282,5 +372,73 @@ func TestPresetRenameAndProfileValidation(t *testing.T) {
 	os.WriteFile(path, []byte(`{"format":"ColorNinja settings","schemaVersion":99}`), 0600)
 	if _, err := LoadProfile(path); err == nil {
 		t.Fatal("unsupported profile accepted")
+	}
+}
+
+func TestOpenProjectIdentifiesExportedJSONWithoutChangingDocument(t *testing.T) {
+	for _, mode := range []string{"standard", "guided", "stack"} {
+		t.Run(mode, func(t *testing.T) {
+			s := fixture(t)
+			r := req(s, 1)
+			r.Options.Mode = mode
+			r.Options.HueForge.MaxDepth = .72
+			r.LibraryPath = filepath.Join("..", "engine", "testdata", "library.json")
+			p, err := s.Process(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			prefs := s.settings.Preferences
+			prefs.ExportProfile = true
+			if _, err = s.SavePreferences(prefs); err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(t.TempDir(), "export-palette.json")
+			if err = s.Export("palette", path, p.ID, p.Revision, false); err != nil {
+				t.Fatal(err)
+			}
+			before := s.Snapshot()
+			for file, want := range map[string]string{path: "palette report", ProfilePath(path): "Load profile"} {
+				if _, err = s.OpenProject(file); err == nil || !strings.Contains(err.Error(), want) {
+					t.Errorf("opening %s should identify its type and recovery action, got %v", filepath.Base(file), err)
+				}
+				if after := s.Snapshot(); !reflect.DeepEqual(after, before) {
+					t.Fatal("opening a non-project changed the current document")
+				}
+			}
+			if profile, err := LoadProfile(ProfilePath(path)); err != nil || profile.Options != r.Options {
+				t.Fatal("exported profile no longer loads through the profile workflow", err)
+			}
+		})
+	}
+}
+
+func TestLegacyProjectRejectsMissingInputsBeforeLoading(t *testing.T) {
+	s := fixture(t)
+	r := req(s, 1)
+	if _, err := s.Process(r); err != nil {
+		t.Fatal(err)
+	}
+	before := s.Snapshot()
+	for _, field := range []string{"source image", "filament library"} {
+		d := Document{1, s.source.Path, false, r.Options, "", r.Filter}
+		if field == "source image" {
+			d.Source = ""
+		} else {
+			d.Options.Mode = "stack"
+		}
+		b, err := json.Marshal(d)
+		if err != nil {
+			t.Fatal(err)
+		}
+		path := filepath.Join(t.TempDir(), "legacy.json")
+		if err = os.WriteFile(path, b, 0600); err != nil {
+			t.Fatal(err)
+		}
+		if _, err = s.OpenProject(path); err == nil || !strings.Contains(err.Error(), field) {
+			t.Errorf("missing %s should be explained, got %v", field, err)
+		}
+		if after := s.Snapshot(); !reflect.DeepEqual(after, before) {
+			t.Fatal("invalid legacy project changed the current document")
+		}
 	}
 }

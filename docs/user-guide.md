@@ -229,12 +229,25 @@ refer to library entries, so they are retained only when the library fingerprint
 matches; otherwise the desktop clears individual exclusions. Save imported settings
 as a named preset if you want to keep them in the preset list.
 
-Enable **Also save settings profile** in the export menu to write a companion
-profile for every exported PNG, palette report, layer map, HFP, or ColorNinja
-project. For example, `art.png` receives `art.png.colorninja-profile.json`. The
-checkbox is remembered. Profiles describe the exported preview's actual settings.
-Existing profile files require their own overwrite approval. Each file is saved
-atomically; a later companion-file I/O failure reports the successful main export.
+Enable **Also save project and settings profile** in the export menu to save a
+portable project and a reusable settings profile beside every PNG, palette report,
+layer map, or HFP export. For example, exporting `Totoro_Test1.hfp` also creates:
+
+- `Totoro_Test1.hfp.colorninja`: open this with **Open project** to restore the
+  source image, embedded filaments, settings, and exact rendered result.
+- `Totoro_Test1.hfp.colorninja-profile.json`: use **Presets & profiles → Load
+  profile** to apply the settings to another image.
+
+Exporting a ColorNinja project adds only the profile, without a duplicate project.
+The checkbox is remembered, including a checked Beta 2 **Also save settings profile**
+preference. Both companions describe the exported preview's actual settings.
+Existing companion files require separate overwrite approval before any files are
+written. Each file is saved atomically; a later I/O failure identifies the files
+already saved. With the option unchecked, only the selected export is written.
+
+A settings profile or palette report cannot restore a full project. **Open
+project** identifies these JSON files and explains how to use them. The default
+file filter shows projects; **Older project JSON** also shows legacy JSON names.
 
 Ctrl+O opens an image, Ctrl+E exports PNG, and Ctrl+Z / Ctrl+Shift+Z undo/redo tuning.
 Preferences live under `%APPDATA%\ColorNinja`.

@@ -186,7 +186,7 @@ func (a *App) SaveProject(req studio.Request) (string, error) {
 	return path, nil
 }
 func (a *App) OpenProject() (*studio.Snapshot, error) {
-	path, e := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Open ColorNinja project", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja project", Pattern: "*.colorninja;*.json"}}})
+	path, e := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Open ColorNinja project", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja project", Pattern: "*.colorninja;*.colorninja.json"}, {DisplayName: "Older project JSON", Pattern: "*.json"}}})
 	if e != nil || path == "" {
 		return nil, e
 	}
@@ -240,14 +240,20 @@ func (a *App) Export(kind string, id, revision uint64) (string, error) {
 	if e != nil {
 		return "", e
 	}
-	profileOverwrite := false
+	profileOverwrite, projectOverwrite := false, false
 	if s.Settings.Preferences.ExportProfile {
+		if kind != "project" {
+			projectOverwrite, e = a.confirmOverwrite(studio.ProjectPath(path))
+			if e != nil {
+				return "", e
+			}
+		}
 		profileOverwrite, e = a.confirmOverwrite(studio.ProfilePath(path))
 		if e != nil {
 			return "", e
 		}
 	}
-	if e = a.studio.Export(kind, path, id, revision, overwrite, profileOverwrite); e != nil {
+	if e = a.studio.Export(kind, path, id, revision, overwrite, profileOverwrite, projectOverwrite); e != nil {
 		return "", e
 	}
 	return path, nil
