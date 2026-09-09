@@ -9,24 +9,28 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current release: `v1.0.0-beta.3` — Windows x64.** This beta fixes the export
-option to save a complete portable project alongside the exported file and settings
-profile. It also clarifies project/profile imports. Front Lit planning, automatic
-depth selection, presets, and HueForge project export remain available. Review
-your output before printing.
+**Current release: `v1.0.0-beta.4` — Windows x64.** The redesigned workspace groups
+settings into Tune, Filaments, and Layers or Optics, with a larger preview and a
+compact output dock. Maximum Filaments defaults to 8 and its main slider reaches
+32; larger saved budgets remain supported. Existing processing, project, preset,
+and export options are retained. See the [beta.4 notes](docs/releases/v1.0.0-beta.4.md).
+Review your output before printing.
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.3)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.4)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
 
 ## Download and run
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.3)
-   and download **`ColorNinja-1.0.0-beta.3-windows-x64.zip`** from **Assets**.
+If you already have a Windows ZIP, start at step 2. Local builds are packaged in
+`build/releases`.
+
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.4)
+   and download **`ColorNinja-1.0.0-beta.4-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
-4. Choose a mode, adjust the color budget, compare the preview, and **Export PNG**.
+4. Choose a mode, adjust the color budget, compare the preview, and choose **Export → Full-resolution PNG**.
 
 The desktop app requires Windows x64 and the
 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
@@ -43,7 +47,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.3-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.4-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
@@ -85,10 +89,13 @@ changing the library. Both options can be disabled for comparison.
 For ordinary image reduction, start with **Simple reducer**, choose a maximum
 color count, then use **Off / Gentle / Balanced / Strong** smoothing. Balanced
 keeps the existing edge-aware filter; Strong flattens more texture and can soften
-low-contrast detail. **Advanced** reveals technical tuning and image metrics
-without resetting settings. Older projects retain their original split budgets.
+low-contrast detail. **Advanced** reveals technical tuning without resetting
+settings; the output dock's **Image info** view shows image metrics. Older
+projects retain their original split budgets. The right-hand inspector separates
+tuning, filament libraries, and layers/optics; presets and exports have dedicated
+dialogs. See the [complete feature map](docs/ui-redesign.md).
 
-Click the version in the bottom bar for **Version & updates**. Startup checks
+Click **Preferences** in the bottom bar for **Preferences & updates**. Startup checks
 can be disabled; **Include beta / alpha builds** opts into prereleases. The
 checker opens GitHub release notes and downloads for manual installation.
 Image processing remains local and works offline.

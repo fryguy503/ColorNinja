@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUpRight, RefreshCw, X } from "lucide-react";
 import { desktop, invoke } from "./bridge";
 import type { Preferences, UpdateResult } from "./types";
@@ -7,10 +7,12 @@ export function Updates({
   preferences,
   savePreferences,
   ready,
+  workspaceControls,
 }: {
   preferences: Preferences;
   savePreferences: (p: Preferences) => Promise<void>;
   ready: boolean;
+  workspaceControls?: ReactNode;
 }) {
   const [version, setVersion] = useState("");
   const [open, setOpen] = useState(false);
@@ -132,11 +134,11 @@ export function Updates({
         ref={trigger}
         className={"update-trigger " + (result?.available ? "available" : "")}
         onClick={() => setOpen(true)}
-        title="Version and updates"
+        title="Preferences, version and updates"
       >
         {result?.available
           ? "Update available"
-          : `ColorNinja ${version || "…"}`}{" "}
+          : `Preferences · ${version || "…"}`}{" "}
         <ArrowUpRight size={12} />
       </button>
       {open && (
@@ -155,7 +157,7 @@ export function Updates({
             tabIndex={-1}
           >
             <div className="updates-heading">
-              <h2 id="updates-title">Version & updates</h2>
+              <h2 id="updates-title">Preferences & updates</h2>
               <button
                 className="icon-button"
                 aria-label="Close updates"
@@ -164,6 +166,12 @@ export function Updates({
                 <X size={18} />
               </button>
             </div>
+            {workspaceControls && (
+              <section className="preferences-workspace">
+                <h3>Workspace</h3>
+                {workspaceControls}
+              </section>
+            )}
             <p>
               Installed version: <strong>{version || "Loading…"}</strong>
             </p>

@@ -16,7 +16,7 @@ Open `build/bin/ColorNinja-Studio.exe`, or extract a portable archive from
 x64 and Microsoft Edge WebView2 Runtime. The CLI does not require WebView2.
 These local builds are unsigned.
 
-1. Click **Open image**, drop an image into the window, or try the built-in artwork.
+1. Choose **File → Open image**, drop an image into the window, or try the built-in artwork under **File → Recent images**.
 2. Start with **Simple reducer**, choose the maximum colors, and select
    **Off**, **Gentle**, **Balanced**, or **Strong** smoothing.
 3. Auto preview renders after a short pause. Turn it off to make several changes
@@ -24,11 +24,13 @@ These local builds are unsigned.
 4. Use **Compare** for a sliding divider or **Side by side** for separate
    Original and Result panes. Scroll to zoom, drag to pan, and use Fit or 1:1
    to inspect details. Both side-by-side panes share zoom and pan.
-5. **Export PNG** saves the rendered result at its original dimensions. The
-   adjacent menu exports a palette report or, in stack mode, a 16-bit layer map.
+5. **Export** opens a dialog for PNG, palette reports, portable projects, and,
+   in stack mode, layer maps and HueForge projects. PNG keeps original dimensions.
 
-The palette panel shows output colors, coverage, and selected filaments.
-**Advanced** reveals technical tuning and quality metrics. Its saved toggle
+The output dock beneath the image has **Colors**, **Filaments**, and **Image info**
+views. It retains hex-color copying, proportional coverage, selected filaments,
+and quality metrics. Collapse it with the chevron; the image toolbar's output
+button restores it. **Advanced** reveals technical tuning. Its saved toggle
 only changes visibility; it never resets your processing options. Presets,
 undo/redo, recent images, projects, and library filters remain available.
 
@@ -57,6 +59,14 @@ of the current mode and its best use. Click again or press Escape to close it.
 Switching modes preserves your color budget and other tuning. Built-in presets
 change only the color budget; custom presets restore saved tuning while keeping
 the active mode. **Reset** deliberately restores default settings for that mode.
+New desktop settings and Reset use 8 colors/filaments. The slider covers 1–32;
+larger saved budgets expand it automatically. **Advanced → Color & detail
+controls → Exact budget** retains the full supported range.
+
+The inspector separates **Tune**, **Filaments**, and **Layers** (or **Optics**
+in Filament Guide). Simple Reducer shows Tune directly; **File → Filament library**
+still opens the collection without changing workflows. Explanations are available
+from the workflow information button and the collapsed help sections.
 
 **Preserve details** is enabled by default in every mode, including older
 projects and presets that did not explicitly turn it off. It protects small,
@@ -115,7 +125,7 @@ use more memory and processing time.
 
 ## Filament libraries and layer maps
 
-In **Global Stack → Front Lit & layers**, enable **Choose depth automatically**
+In **Global Stack → Layers**, enable **Choose depth automatically**
 and enter a **Hard maximum depth**, for example **4.0 mm**. The ceiling includes
 the base and first layer. A value between printable layer heights rounds down.
 The base thickness, spool budget, filament filters, color priority, and run limit
@@ -130,7 +140,7 @@ and detail settings affect that score. Deeper ceilings increase planning time;
 no extra thickness is added merely to fill the ceiling. The result reports the
 chosen depth, printable ceiling, and number of depths compared.
 
-Choose **Visualize stack** beneath the output's stack summary to open the
+Choose **Visualize stack** in the output dock's heading to open the
 interactive **Stack map**. Its horizontal tracks show physical filament runs,
 predicted Front Lit colors at each layer, and the Color Match mesh targets.
 Click a cell or use **Inspect layer** to see its height, filament/material/TD,
@@ -178,7 +188,7 @@ and the library file remain unchanged; reports retain overridden `libraryRGB`.
 
 Guidance is the usual preprocessing workflow. Global stack mode uses
 TD-aware Front Lit layer-color predictions with HueForge 0.9.4.3 compatibility.
-Under **Front Lit & layers**, match the lighting, first layer height, regular
+Under **Layers** or **Optics**, match the lighting, first layer height, regular
 layer height, base depth, and maximum total depth. New defaults use a 0.16 mm
 first layer and 0.08 mm regular layers: a 0.48 mm base is five physical layers.
 Old saved calculations keep the legacy approximation; explicitly select
@@ -195,9 +205,10 @@ and stack schedule. For layer N above zero, height is first-layer height plus
 `(N - 1) * regular-layer height`.
 
 Global Stack also supports **Allow filament returns**, with a separate run limit
-while the filament budget counts unique spools. Enable **Advanced** to configure
-**HueForge project export**. Start with **Color Match** and **Match planned layers**,
-refresh, then use the export menu's **HueForge project (.hfp)** option. The project
+while the filament budget counts unique spools. Open **Export** and select
+**HueForge project (.hfp)** to configure mesh mode/core, width, and detail.
+Start with **Color Match** and **Match planned layers**, then refresh from the
+dialog if the preview is stale before exporting. The project
 embeds the reduced image, physical Color Core, and virtual Mesh Core. See
 [the HFP guide](hueforge-project.md) for the tested import workflow and limits.
 
@@ -215,7 +226,7 @@ The export menu includes **ColorNinja project (.colorninja)** for preserving the
 exact current export. Older `.colorninja.json` projects can still be opened when
 their referenced files exist. Save again to make them portable.
 
-**Presets & profiles**, directly below Workflow, contains named reusable settings.
+**Presets & profiles**, directly below Workflow, opens a dialog with named reusable settings.
 Create a preset from the current settings, click its name to apply it, or use its
 rename/delete controls. Saving the same name replaces that preset. Presets keep
 the current workflow by default; clear **Keep current workflow** to restore the
@@ -260,7 +271,8 @@ Portable project libraries are limited to 32 MB.
 
 ## Version and updates
 
-Click the version in the bottom bar. **Check now** reads this project's public
+Click **Preferences** in the bottom bar. Workspace preferences and version/update
+settings share this dialog. **Check now** reads this project's public
 GitHub releases; **Check for updates on startup** is enabled initially and can
 be disabled. **Include beta / alpha builds** is off initially; enable it to
 receive preview builds. The latest eligible semantic version is offered, even

@@ -25,13 +25,12 @@ import {
   X,
   Info,
   Search,
-  PanelRightClose,
-  PanelRightOpen,
   Trash2,
   Image as ImageIcon,
 } from "lucide-react";
 import { invoke, on, desktop } from "./bridge";
 import { Updates } from "./Updates";
+import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
 import {
   applyColorBudget,
@@ -66,6 +65,7 @@ import {
   type Filament,
 } from "./types";
 import "./style.css";
+import "./studio.css";
 
 const copy = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 const errorMessage = (e: unknown) =>
@@ -209,6 +209,10 @@ function Range({
         }
         onChange={(e) => onChange(Number(e.target.value))}
       />
+      <div className="range-captions">
+        <span>{format ? format(min) : min}</span>
+        <span>{format ? format(max) : max}</span>
+      </div>
     </div>
   );
 }
@@ -237,7 +241,13 @@ function Viewer({
   preview,
   busy,
   dirty,
+  onInspect,
+  onTogglePalette,
+  showPalette,
 }: {
+  onInspect: () => void;
+  onTogglePalette: () => void;
+  showPalette: boolean;
   source: Source | null;
   preview: Preview | null;
   busy: boolean;
@@ -245,7 +255,7 @@ function Viewer({
 }) {
   const [view, setView] = useState<
     "original" | "reduced" | "split" | "side-by-side"
-  >("split");
+  >("reduced");
   const sideBySide = view === "side-by-side";
   const [split, setSplit] = useState(50);
   const [zoom, setZoom] = useState(1);
@@ -273,8 +283,8 @@ function Viewer({
     ? Math.max(
         0.000001,
         Math.min(
-          Math.max(1, size.w - (sideBySide ? 32 : 80)) / source.width,
-          Math.max(1, size.h - (sideBySide ? 32 : 92)) / source.height,
+          Math.max(1, size.w - (sideBySide ? 32 : 48)) / source.width,
+          Math.max(1, size.h - (sideBySide ? 32 : 64)) / source.height,
         ),
       )
     : 1;
@@ -310,7 +320,7 @@ function Viewer({
           role="group"
           aria-label="Preview comparison"
         >
-          {(["original", "split", "side-by-side", "reduced"] as const).map(
+          {(["original", "reduced", "split", "side-by-side"] as const).map(
             (v) => (
               <button
                 key={v}
@@ -357,6 +367,15 @@ function Viewer({
           >
             1:1
           </button>
+          <IconButton title="Image information" onClick={onInspect}>
+            <Info size={15} />
+          </IconButton>
+          <IconButton
+            title={showPalette ? "Hide output panel" : "Show output panel"}
+            onClick={onTogglePalette}
+          >
+            <SwatchBook size={15} />
+          </IconButton>
         </div>
       </div>
       {!sideBySide && source && (
@@ -405,16 +424,6 @@ function Viewer({
           drag.current = null;
         }}
       >
-        <div className="canvas-caption">
-          <span>
-            <span className="status-dot" />{" "}
-            {source?.demo ? "SAMPLE IMAGE" : "IMAGE WORKSPACE"}
-          </span>
-          <span>
-            {source?.metadata.colorProfile ?? "sRGB"}{" "}
-            <span className="caption-dot">·</span> Alpha preserved
-          </span>
-        </div>
         {source && sideBySide ? (
           <div className="side-by-side-view">
             <section
@@ -503,16 +512,6 @@ function Viewer({
                 />
               </>
             )}
-            <div className="image-badges">
-              {view !== "reduced" && <span>ORIGINAL</span>}
-              {view !== "original" && preview && (
-                <span>
-                  {dirty
-                    ? "PREVIOUS RESULT"
-                    : `${preview.result.palette.length} COLORS`}
-                </span>
-              )}
-            </div>
           </div>
         ) : (
           <div className="loading-document">
@@ -550,7 +549,7 @@ function Viewer({
         <span>
           <Check size={13} /> Full-resolution output. No dithering.
         </span>
-        <span>Made for deliberate color.</span>
+        <span>{source?.metadata.colorProfile ?? "sRGB"} · Alpha preserved</span>
       </div>
     </section>
   );
@@ -579,7 +578,7 @@ function App() {
     [filter, setFilter] = useState<Filter>(copy(emptyFilter)),
     [presets, setPresets] = useState<Preset[]>([]),
     [recent, setRecent] = useState<string[]>([]);
-  const [tab, setTab] = useState<"adjust" | "filaments">("adjust"),
+  const [tab, setTab] = useState<"adjust" | "filaments" | "layers">("adjust"),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
     [exporting, setExporting] = useState(false),
@@ -596,8 +595,23 @@ function App() {
     [showExport, setShowExport] = useState(false),
     [showPalette, setShowPalette] = useState(true),
     [search, setSearch] = useState("");
+  const [showFile, setShowFile] = useState(false);
+  const [showPresets, setShowPresets] = useState(false);
+  const [exportKind, setExportKind] = useState("png");
+  const [resultTab, setResultTab] = useState<
+    "palette" | "filaments" | "insights"
+  >("palette");
+  useEffect(() => {
+    if (options.mode === "standard" && tab === "layers") setTab("adjust");
+    if (
+      options.mode !== "stack" &&
+      (exportKind === "hfp" || exportKind === "layers")
+    )
+      setExportKind("png");
+  }, [options.mode, tab]);
   const [keepWorkflow, setKeepWorkflow] = useState(true);
   const [modeHelp, setModeHelp] = useState<Options["mode"] | null>(null);
+  const [dialogError, setDialogError] = useState("");
   const [dialog, setDialog] = useState<{
     title: string;
     label: string;
@@ -779,7 +793,13 @@ function App() {
     label: string,
     value: string,
     submit: (v: string) => Promise<void>,
-  ) => setDialog({ title, label, value, submit });
+  ) => {
+    setShowFile(false);
+    setShowPresets(false);
+    setShowExport(false);
+    setDialogError("");
+    setDialog({ title, label, value, submit });
+  };
   const open = async () => {
     if (!desktop) {
       textDialog("Open image", "Absolute image path", "", loadPath);
@@ -970,8 +990,12 @@ function App() {
       if (e.key === "Escape") {
         setDialog(null);
         setShowExport(false);
+        setShowFile(false);
+        setShowPresets(false);
         setModeHelp(null);
       }
+      if ((e.target as HTMLElement).closest("dialog, [role=dialog], .modal"))
+        return;
       if (!(e.ctrlKey || e.metaKey)) return;
       const target = e.target as HTMLElement;
       if (e.key.toLowerCase() === "z" && !target.closest("input,textarea")) {
@@ -1096,23 +1120,983 @@ function App() {
     preview?.result.guidance?.selectedFilaments ??
     preview?.result.stack?.runs.map((r) => r.filament) ??
     [];
+  useEffect(() => {
+    if (!selected.length && resultTab === "filaments") setResultTab("palette");
+  }, [selected.length, resultTab]);
   const visibleFilaments =
     library?.filaments.filter((f) =>
       `${f.name} ${f.brand} ${f.material}`
         .toLowerCase()
         .includes(search.toLowerCase()),
     ) ?? [];
+  const workflowControl = (
+    <>
+      <div className="simple-mode">
+        <label className="select-field">
+          Workflow
+          <select
+            aria-label="Processing mode"
+            value={options.mode}
+            onChange={(e) => {
+              setModeHelp(null);
+              update(
+                changeProcessingMode(
+                  options,
+                  e.target.value as Options["mode"],
+                ),
+              );
+            }}
+          >
+            <option value="standard">Simple reducer</option>
+            <option value="guided">Filament Guide</option>
+            <option value="stack">Global stack · experimental</option>
+          </select>
+        </label>
+        <button
+          className="mode-help-toggle"
+          aria-label={`About ${modeInfo[options.mode][0]}`}
+          aria-expanded={modeHelp === options.mode}
+          aria-controls="workflow-help"
+          onClick={() =>
+            setModeHelp(modeHelp === options.mode ? null : options.mode)
+          }
+        >
+          <Info size={15} />
+        </button>
+      </div>
+      <div
+        id="workflow-help"
+        className="mode-help"
+        hidden={modeHelp !== options.mode}
+      >
+        <p>{modeInfo[options.mode][1]}</p>
+        <p>{modeInfo[options.mode][2]}</p>
+      </div>
+    </>
+  );
+
+  const presetsContent = (
+    <>
+      <p className="field-help">
+        Save named settings for other images. Profiles let you share or import
+        settings.
+      </p>
+      <div className="preset-buttons">
+        <button onClick={() => update(applyColorBudget(options, 4))}>
+          Minimal · 4
+        </button>
+        <button onClick={() => update(applyColorBudget(options, 8))}>
+          Balanced · 8
+        </button>
+        <button onClick={() => update(applyColorBudget(options, 16))}>
+          Detailed · 16
+        </button>
+      </div>
+      <label className="check-field">
+        <input
+          type="checkbox"
+          checked={keepWorkflow}
+          onChange={(e) => setKeepWorkflow(e.target.checked)}
+        />
+        Keep current workflow when applying a preset
+      </label>
+      {presets.map((p) => (
+        <div className="custom-preset" key={p.name}>
+          <button
+            onClick={() =>
+              update(applySavedPreset(options, p.options, keepWorkflow))
+            }
+          >
+            {p.name}
+          </button>
+          <IconButton
+            title={`Rename preset ${p.name}`}
+            onClick={() => renamePreset(p)}
+          >
+            <Pencil size={13} />
+          </IconButton>
+          <IconButton
+            title={`Delete preset ${p.name}`}
+            onClick={() =>
+              invoke<Preset[]>("DeletePreset", p.name)
+                .then(setPresets)
+                .catch(handleError)
+            }
+          >
+            <Trash2 size={13} />
+          </IconButton>
+        </div>
+      ))}
+      <button className="text-button save-preset" onClick={savePreset}>
+        <Plus size={13} /> Create preset from current settings
+      </button>
+      <div className="profile-actions">
+        <button className="text-button" onClick={saveProfile}>
+          <Save size={13} /> Save profile
+        </button>
+        <button className="text-button" onClick={openProfile}>
+          <FolderOpen size={13} /> Load profile
+        </button>
+      </div>
+    </>
+  );
+
+  const recentContent = (
+    <>
+      {recent.length ? (
+        recent.map((path) => (
+          <button
+            className="recent-file"
+            key={path}
+            title={path}
+            onClick={() => loadPath(path)}
+          >
+            <FileImage size={13} />
+            {path.split(/[\\/]/).pop()}
+          </button>
+        ))
+      ) : (
+        <p className="field-help">
+          Your recently opened images will appear here.
+        </p>
+      )}
+      <button className="text-button" onClick={demo}>
+        <ImageIcon size={13} /> Load sample artwork
+      </button>
+    </>
+  );
+
+  const tuningContent = (
+    <>
+      <Range
+        label={
+          options.mode === "standard"
+            ? options.totalColors || prioritizesColors(options)
+              ? "Maximum colors"
+              : "Colors per population"
+            : "Maximum filaments"
+        }
+        value={displayedColorBudget(options)}
+        min={1}
+        max={Math.max(32, displayedColorBudget(options))}
+        step={displayedColorBudget(options) > 256 ? 2 : 1}
+        onChange={(v) => update(applyDisplayedColorBudget(options, v))}
+      />
+
+      <label className="select-field">
+        Color priority
+        <select
+          aria-label="Color priority"
+          value={options.colorPriority || "balanced"}
+          onChange={(e) =>
+            update(
+              applyColorPriority(
+                options,
+                e.target.value as Options["colorPriority"],
+              ),
+            )
+          }
+        >
+          <option value="balanced">Overall balance</option>
+          <option value="distinctive">Distinctive colors</option>
+          <option value="vivid">Vivid colors</option>
+        </select>
+      </label>
+
+      <div className="smoothing-control">
+        <div className="group-heading">
+          Smoothing <small>{smoothingPreset(options)}</small>
+        </div>
+        <div className="smoothing-presets">
+          {(Object.keys(smoothingPresets) as SmoothingPreset[]).map((name) => (
+            <button
+              key={name}
+              aria-pressed={smoothingPreset(options) === name}
+              onClick={() => update(applySmoothing(options, name))}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className="check-field">
+        <input
+          type="checkbox"
+          checked={options.preserveDetails}
+          onChange={(e) => change("preserveDetails", e.target.checked)}
+        />
+        Preserve details
+      </label>
+
+      <Section title="Tuning help">
+        <p className="field-help">
+          {options.mode === "standard"
+            ? prioritizesColors(options)
+              ? `Up to ${displayedColorBudget(options)} colors shared across color families, including essential light and dark tones.`
+              : options.totalColors
+                ? `At most ${options.colors} colors total, including neutrals.`
+                : `Separate budgets: up to ${options.colors * 2} colors. Change this in Advanced.`
+            : "The output can contain more colors than physical filaments."}
+        </p>
+        <p className="field-help">
+          {options.colorPriority === "vivid"
+            ? "Favor vivid accents more strongly, with fewer similar shades. Protects essential neutrals without adding saturation."
+            : options.colorPriority === "distinctive"
+              ? "Give distinctive hues and smaller accents more room while keeping the tones that define shapes."
+              : "Balance colors by how much of the image they cover. Choose Distinctive colors to give accents more room."}
+        </p>
+        <p className="field-help">
+          Keep small marks and similar-colored shapes distinct. Smoothing works
+          with either setting.
+        </p>
+        <p className="field-help">
+          Balanced protects outlines. Strong smooths more texture. Off keeps
+          original pixel detail.
+        </p>
+      </Section>
+    </>
+  );
+
+  const advancedTuningContent = (
+    <>
+      {advanced && (
+        <Numeric
+          label="Exact budget"
+          value={displayedColorBudget(options)}
+          min={1}
+          max={Math.max(256, displayedColorBudget(options))}
+          step={displayedColorBudget(options) > 256 ? 2 : 1}
+          onChange={(v) => update(applyDisplayedColorBudget(options, v))}
+        />
+      )}
+      {advanced && options.mode === "guided" && (
+        <>
+          <Range
+            label="Filament guidance"
+            value={options.guidanceStrength}
+            min={0}
+            max={1}
+            step={0.05}
+            format={pct}
+            onChange={(v) => change("guidanceStrength", v)}
+          />
+          <div className="range-captions">
+            <span>Keep image hues</span>
+            <span>Favor filaments</span>
+          </div>
+        </>
+      )}
+      {advanced && options.mode !== "standard" && (
+        <div className="true-black-option">
+          <label className="check-field">
+            <input
+              type="checkbox"
+              checked={options.trueBlack}
+              onChange={(e) => change("trueBlack", e.target.checked)}
+            />
+            Use true black
+            <span className="true-black-chip" aria-hidden="true" />
+          </label>
+        </div>
+      )}
+      {advanced && (
+        <Range
+          label="Detail smoothing"
+          help={
+            options.legacyColorPipeline
+              ? "Legacy pre-blur affects palette discovery only. Choose a smoothing preset or change the radius to smooth the output too."
+              : "Smooth similar neighboring colors before analysis and mapping, while protecting contrasting edges. Zero disables smoothing."
+          }
+          value={options.preblurSigma}
+          min={0}
+          max={Math.max(5, options.preblurSigma)}
+          step={0.1}
+          format={(v) => `${v.toFixed(1)} px`}
+          onChange={(v) =>
+            update({
+              ...options,
+              preblurSigma: v,
+              legacyColorPipeline: false,
+            })
+          }
+        />
+      )}
+      {advanced && options.mode !== "standard" && (
+        <Numeric
+          label="Output color limit"
+          value={options.hueforge.maxPerceivedColors}
+          min={1}
+          max={256}
+          onChange={(v) => changeHF("maxPerceivedColors", v)}
+        />
+      )}
+      {options.mode === "standard" && !prioritizesColors(options) && (
+        <>
+          <label className="check-field">
+            <input
+              type="checkbox"
+              checked={!options.totalColors}
+              onChange={(e) => change("totalColors", !e.target.checked)}
+            />
+            Separate color and neutral budgets
+          </label>
+        </>
+      )}
+      <Numeric
+        label="Smoothing color tolerance"
+        value={options.smoothingColorSigma || 5}
+        min={1}
+        max={25}
+        step={0.5}
+        onChange={(v) =>
+          update({
+            ...options,
+            smoothingColorSigma: v,
+            legacyColorPipeline: false,
+          })
+        }
+      />
+
+      <Numeric
+        label="Neutral chroma threshold"
+        value={options.neutralChroma}
+        min={0}
+        max={200}
+        step={0.5}
+        onChange={(v) => change("neutralChroma", v)}
+      />
+      <Numeric
+        label="Minimum cluster"
+        value={Number((options.minClusterFraction * 100).toFixed(4))}
+        min={0}
+        max={99}
+        step={0.1}
+        suffix="%"
+        onChange={(v) => change("minClusterFraction", v / 100)}
+      />
+      <Numeric
+        label="Histogram precision"
+        value={options.histogramBits}
+        min={3}
+        max={7}
+        suffix="bits"
+        onChange={(v) => change("histogramBits", v)}
+      />
+      <Numeric
+        label="Clustering iterations"
+        value={options.iterations}
+        min={1}
+        max={1000}
+        onChange={(v) => change("iterations", v)}
+      />
+      <Numeric
+        label={
+          options.legacyColorPipeline
+            ? "Legacy pre-blur radius"
+            : "Detail smoothing radius"
+        }
+        value={options.preblurSigma}
+        min={0}
+        max={100}
+        step={0.1}
+        suffix="px"
+        onChange={(v) =>
+          update({
+            ...options,
+            preblurSigma: v,
+            legacyColorPipeline: false,
+          })
+        }
+      />
+      <label className="select-field">
+        Analysis resolution
+        <select
+          aria-label="Analysis resolution"
+          value={
+            [250000, 1000000, 6291456, 0].includes(options.analysisMaxPixels)
+              ? options.analysisMaxPixels
+              : "custom"
+          }
+          onChange={(e) => {
+            if (e.target.value !== "custom")
+              change("analysisMaxPixels", Number(e.target.value));
+          }}
+        >
+          <option value={250000}>250K pixels · fast</option>
+          <option value={1000000}>1 megapixel · balanced</option>
+          <option value={6291456}>6 megapixels · detailed</option>
+          <option value={0}>Every source pixel</option>
+          <option value="custom">Custom pixel limit</option>
+        </select>
+      </label>
+      <Numeric
+        label="Analysis pixel limit"
+        value={options.analysisMaxPixels}
+        min={0}
+        max={100000000}
+        step={1000}
+        onChange={(v) => change("analysisMaxPixels", v)}
+      />
+
+      <Section title="About advanced tuning">
+        <p className="field-help">
+          Use #000000 for black filaments. Keeps your library unchanged.
+        </p>
+        <p className="field-help">
+          Allows up to twice the selected count. Existing projects keep this
+          setting.
+        </p>
+        <p className="field-help">
+          Higher values flatten stronger texture and may soften low-contrast
+          details. Works with either Preserve details setting.
+        </p>
+        <p className="field-help">
+          0 analyzes every pixel. Export dimensions always match the original.
+        </p>
+      </Section>
+    </>
+  );
+
+  const layersContent = (
+    <>
+      {options.mode === "stack" && (
+        <>
+          <label className="check-field">
+            <input
+              type="checkbox"
+              checked={(options.hueforge.maxRuns || 0) > 0}
+              onChange={(e) =>
+                changeHF(
+                  "maxRuns",
+                  e.target.checked ? Math.min(64, options.colors + 2) : 0,
+                )
+              }
+            />
+            Allow filament returns
+          </label>
+
+          {(options.hueforge.maxRuns || 0) > 0 && (
+            <Numeric
+              label="Maximum filament runs"
+              value={options.hueforge.maxRuns}
+              min={1}
+              max={64}
+              onChange={(v) => changeHF("maxRuns", v)}
+            />
+          )}
+        </>
+      )}
+      <label className="select-field">
+        Front Lit model
+        <select
+          value={options.hueforge.opticalModel}
+          onChange={(e) =>
+            update({
+              ...options,
+              hueforge: {
+                ...applyAutoDepth(
+                  options,
+                  e.target.value === "legacy-exponential"
+                    ? false
+                    : (options.hueforge.autoDepth ?? false),
+                ).hueforge,
+                opticalModel: e.target.value as HueForgeOptions["opticalModel"],
+              },
+            })
+          }
+        >
+          <option value="hueforge-0.9.4.3-frontlit-v1">
+            HueForge Front Lit
+          </option>
+          <option value="legacy-exponential">Legacy approximation</option>
+        </select>
+      </label>
+      {options.hueforge.opticalModel === "hueforge-0.9.4.3-frontlit-v1" && (
+        <label className="select-field">
+          Lighting
+          <select
+            value={options.hueforge.lightPreset || "neutral-white"}
+            onChange={(e) =>
+              changeHF(
+                "lightPreset",
+                e.target.value as HueForgeOptions["lightPreset"],
+              )
+            }
+          >
+            <option value="hueforge-default">
+              HueForge default · setting 1
+            </option>
+            <option value="neutral-white">Neutral white · setting 2</option>
+            <option value="warm-white">Warm white · setting 0</option>
+          </select>
+        </label>
+      )}
+
+      <Numeric
+        label="First layer height"
+        value={
+          options.hueforge.firstLayerHeight || options.hueforge.layerHeight
+        }
+        min={0.01}
+        max={1}
+        step={0.01}
+        suffix="mm"
+        onChange={(v) => changeHF("firstLayerHeight", v)}
+      />
+      <Numeric
+        label="Layer height"
+        value={options.hueforge.layerHeight}
+        min={0.01}
+        max={1}
+        step={0.01}
+        suffix="mm"
+        onChange={(v) => changeHF("layerHeight", v)}
+      />
+      <Numeric
+        label="Base depth"
+        value={options.hueforge.baseDepth}
+        min={0.01}
+        max={20}
+        step={0.08}
+        suffix="mm"
+        onChange={(v) => changeHF("baseDepth", v)}
+      />
+      {options.mode === "stack" && (
+        <>
+          <label className="check-field">
+            <input
+              type="checkbox"
+              checked={options.hueforge.autoDepth ?? false}
+              onChange={(e) =>
+                update(applyAutoDepth(options, e.target.checked))
+              }
+            />
+            Choose depth automatically
+          </label>
+        </>
+      )}
+      <Numeric
+        label={
+          options.mode === "stack" && options.hueforge.autoDepth
+            ? "Hard maximum depth"
+            : "Maximum total depth"
+        }
+        value={options.hueforge.maxDepth}
+        min={0.02}
+        max={40}
+        step={options.hueforge.autoDepth ? 0.01 : 0.08}
+        suffix="mm"
+        onChange={(v) => changeHF("maxDepth", v)}
+      />
+
+      <Section title="Layer planning help">
+        <p className="field-help">
+          Reuse a filament after another color, such as black → yellow → black.
+          The filament budget counts unique spools.
+        </p>
+        <p className="field-help">
+          Match the lighting, first layer, regular layers, and filament TD
+          values in HueForge. Printed results still depend on the filament
+          measurements.
+        </p>
+        <p className="field-help">
+          Compare printable depths and prefer the thinnest plan within 1% of the
+          best color score found. The ceiling includes the base.
+        </p>
+        <p className="field-help">
+          Total depth is the first layer plus whole regular layers.
+          {options.hueforge.autoDepth
+            ? " A ceiling between layers rounds down. Try 4.0 mm to allow a deeper search."
+            : " The maximum includes the base."}
+        </p>
+      </Section>
+    </>
+  );
+
+  const calibrationContent = (
+    <>
+      {options.mode === "stack" && (
+        <Numeric
+          label="Search beam width"
+          value={options.hueforge.beamWidth}
+          min={1}
+          max={512}
+          onChange={(v) => changeHF("beamWidth", v)}
+        />
+      )}
+      <Numeric
+        label="Analysis colors per population"
+        value={options.hueforge.analysisColors}
+        min={1}
+        max={256}
+        onChange={(v) => changeHF("analysisColors", v)}
+      />
+      {options.hueforge.opticalModel !== "hueforge-0.9.4.3-frontlit-v1" && (
+        <>
+          <Numeric
+            label="TD scale"
+            value={options.hueforge.tdScale}
+            min={0.001}
+            max={100}
+            step={0.01}
+            onChange={(v) => changeHF("tdScale", v)}
+          />
+          <Numeric
+            label="Transmission at one TD"
+            value={options.hueforge.tdTransmission}
+            min={0.001}
+            max={0.999}
+            step={0.01}
+            onChange={(v) => changeHF("tdTransmission", v)}
+          />
+          <Numeric
+            label="Base transmission limit"
+            value={options.hueforge.baseTransmissionLimit}
+            min={0.001}
+            max={1}
+            step={0.01}
+            onChange={(v) => changeHF("baseTransmissionLimit", v)}
+          />
+        </>
+      )}
+    </>
+  );
+
+  const hfpContent = (
+    <>
+      <label className="select-field">
+        Mesh mode
+        <select
+          value={options.hueforge.meshMode || "color-match"}
+          onChange={(e) =>
+            changeHF("meshMode", e.target.value as HueForgeOptions["meshMode"])
+          }
+        >
+          <option value="color-match">Color Match</option>
+          <option value="combo">Combo</option>
+          <option value="color-aware">Color Aware</option>
+          <option value="color-pop">Color Pop</option>
+        </select>
+      </label>
+      {!options.hueforge.meshMode ||
+      options.hueforge.meshMode === "color-match" ? (
+        <>
+          <label className="select-field">
+            Mesh core
+            <select
+              value={options.hueforge.meshCore || "planned-colors"}
+              onChange={(e) =>
+                changeHF(
+                  "meshCore",
+                  e.target.value as HueForgeOptions["meshCore"],
+                )
+              }
+            >
+              <option value="planned-colors">Match planned layers</option>
+              <option value="filament-blends">Use filament blends</option>
+            </select>
+          </label>
+          <p className="field-help">
+            The Color Core uses the optimized print stack. Match planned layers
+            builds a separate Mesh Core from the output colors; filament blends
+            copies the print stack into both cores.
+          </p>
+        </>
+      ) : (
+        <p className="field-help">
+          HueForge will rebuild heights in this mode. Its mesh and colors can
+          differ from this preview. Use Color Match to retain the planned
+          color-to-layer assignments.
+        </p>
+      )}
+      <Numeric
+        label="Export width"
+        value={options.hueforge.exportWidthMm || 200}
+        min={1}
+        max={2000}
+        step={1}
+        suffix="mm"
+        onChange={(v) => changeHF("exportWidthMm", v)}
+      />
+      <Numeric
+        label="Mesh detail"
+        value={options.hueforge.meshDetailMm || 0.2}
+        min={0.01}
+        max={10}
+        step={0.01}
+        suffix="mm"
+        onChange={(v) => changeHF("meshDetailMm", v)}
+      />
+      <p className="field-help">
+        HFP embeds the simplified image and keeps its aspect ratio. Mesh detail
+        controls HueForge's sampling resolution. Partially transparent pixels
+        become solid mesh.
+      </p>
+    </>
+  );
+
+  const libraryContent = (
+    <>
+      <button className="button secondary full" onClick={chooseLibrary}>
+        <FolderOpen size={15} />{" "}
+        {libraryPath ? "Change library" : "Load filament library"}
+      </button>
+      {libraryPath && (
+        <div className="library-path" title={libraryPath}>
+          {libraryPath === "embedded:project-filaments"
+            ? "Project filaments (embedded)"
+            : libraryPath.split(/[\\/]/).pop()}
+          <button
+            className="text-button"
+            onClick={() => refreshLibrary()}
+            aria-label="Reload filament library"
+          >
+            <RotateCcw size={12} />
+          </button>
+        </div>
+      )}
+      <p className="field-help">
+        Reads your HueForge library. Your original library is never modified.
+      </p>
+      <Section title="Library filters">
+        <label className="check-field">
+          <input
+            type="checkbox"
+            checked={filter.avoidSilkMetallic}
+            disabled={!libraryPath}
+            onChange={(e) =>
+              refreshLibrary({
+                ...filter,
+                avoidSilkMetallic: e.target.checked,
+              })
+            }
+          />{" "}
+          Avoid silk &amp; metallic finishes
+        </label>
+        <p className="field-help">
+          Excludes silk, metallic, pearl, Elixir, and Starlight from Filament
+          Guide and Global Stack. Checks material, name, and tags.
+        </p>
+        <label className="check-field">
+          <input
+            type="checkbox"
+            checked={filter.includeUnowned}
+            disabled={!libraryPath}
+            onChange={(e) =>
+              refreshLibrary({
+                ...filter,
+                includeUnowned: e.target.checked,
+              })
+            }
+          />{" "}
+          Include unowned filaments
+        </label>
+        <label className="check-field">
+          <input
+            type="checkbox"
+            checked={filter.allowSecondary}
+            disabled={!libraryPath}
+            onChange={(e) =>
+              refreshLibrary({
+                ...filter,
+                allowSecondary: e.target.checked,
+              })
+            }
+          />{" "}
+          Use primary color of dual-color filaments
+        </label>
+        <label className="select-field">
+          Material filter
+          <input
+            aria-label="Material filter"
+            placeholder="All materials, or PLA, PLA+…"
+            defaultValue={filter.materialTypes.join(", ")}
+            key={filter.materialTypes.join(",")}
+            onBlur={(e) => {
+              const types = e.target.value
+                .split(",")
+                .map((v) => v.trim())
+                .filter(Boolean);
+              if (
+                JSON.stringify(types) !== JSON.stringify(filter.materialTypes)
+              )
+                refreshLibrary({ ...filter, materialTypes: types });
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.currentTarget.blur();
+            }}
+          />
+        </label>
+        <p className="field-help">
+          Use compatible materials together. Separate material names with
+          commas.
+        </p>
+      </Section>
+      {library ? (
+        <>
+          <div className="collection-summary">
+            <strong>{library.filaments.length}</strong>
+            <span>
+              eligible filaments{" "}
+              <small>of {library.total} library entries</small>
+            </span>
+          </div>
+          {library.skippedFinish > 0 && (
+            <p className="field-help">
+              {library.skippedFinish} excluded for silk or metallic finish.
+            </p>
+          )}
+          <div className="search-field">
+            <Search size={14} />
+            <input
+              aria-label="Search filaments"
+              placeholder="Search your collection"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="filament-list">
+            {visibleFilaments.map((f) => (
+              <div
+                className="filament-card"
+                key={f.sourceIndex}
+                title={filamentDescription(f)}
+              >
+                <span
+                  className="filament-color"
+                  style={{ background: f.hex }}
+                />
+                <div>
+                  <strong>{f.name}</strong>
+                  <span>
+                    {f.brand} · {f.material || "Unspecified"}
+                  </span>
+                </div>
+                <small title={`Transmission distance: ${f.td} mm`}>
+                  {f.td}
+                  <br />
+                  TD mm
+                </small>
+              </div>
+            ))}
+          </div>
+          {!visibleFilaments.length && (
+            <p className="field-help">No matching filaments.</p>
+          )}
+        </>
+      ) : (
+        <div className="empty-library">
+          <SwatchBook size={35} />
+          <strong>Bring your palette along.</strong>
+          <p>
+            Load your HueForge personal library to see available colors and
+            guide the image toward your collection.
+          </p>
+        </div>
+      )}
+    </>
+  );
+
+  const advancedControl = (
+    <>
+      <div className="advanced-heading">
+        <label className="switch-label">
+          <input
+            type="checkbox"
+            checked={advanced}
+            disabled={preferencesSaving || !preferencesReady}
+            onChange={(e) =>
+              savePreferences({
+                ...preferences,
+                advanced: e.target.checked,
+              }).catch(handleError)
+            }
+          />
+          <span className="switch" />
+          Advanced
+        </label>
+      </div>
+    </>
+  );
+
+  const historyControls = (
+    <>
+      <div className="history-controls">
+        <IconButton
+          title="Undo settings (Ctrl+Z)"
+          disabled={historyIndex <= 0}
+          onClick={undo}
+        >
+          <Undo2 size={15} />
+        </IconButton>
+        <IconButton
+          title="Redo settings (Ctrl+Shift+Z)"
+          disabled={historyIndex >= history.length - 1}
+          onClick={redo}
+        >
+          <Redo2 size={15} />
+        </IconButton>
+      </div>
+    </>
+  );
+
+  const autoControl = (
+    <>
+      <label className="switch-label">
+        <input
+          type="checkbox"
+          checked={auto}
+          onChange={(e) => {
+            setAuto(e.target.checked);
+          }}
+        />
+        <span className="switch" /> Auto preview
+      </label>
+    </>
+  );
+
+  const previewAction = (
+    <>
+      {busy ? (
+        <button className="button secondary full" onClick={cancel}>
+          <X size={14} /> Cancel processing
+        </button>
+      ) : (
+        <button
+          className="button preview-button full"
+          disabled={!source || loading}
+          onClick={() => setRerun((v) => v + 1)}
+        >
+          <Sparkles size={15} />{" "}
+          {dirty ? "Generate preview" : "Refresh preview"}
+        </button>
+      )}
+    </>
+  );
+
+  const exportBlocked =
+    !preview || dirty || busy || loading || exporting || preferencesSaving;
+  const exportNeedsStack = exportKind === "hfp" || exportKind === "layers";
+  const matchingPreset = presets.find(
+    (p) => JSON.stringify(p.options) === JSON.stringify(options),
+  );
   return (
-    <div className="app-shell">
+    <div className="app-shell redesigned-studio">
       <header className="app-header">
         <div className="brand">
           <div className="brand-mark">
-            <Aperture size={25} strokeWidth={1.6} />
+            <Aperture size={23} strokeWidth={1.6} />
           </div>
-          <div>
-            ColorNinja<span>STUDIO</span>
-          </div>
+          <div>ColorNinja</div>
         </div>
+        <button
+          className="text-button file-trigger"
+          onClick={() => setShowFile(true)}
+          disabled={loading}
+        >
+          File <ChevronDown size={14} />
+        </button>
         <div className="document-title">
           <FileImage size={15} />
           <span>{source?.name ?? "Untitled"}</span>
@@ -1120,9 +2104,6 @@ function App() {
           {dirty && source && <i title="Settings differ from the preview" />}
         </div>
         <div className="header-actions">
-          <IconButton title="Open project (Ctrl+Shift+O)" onClick={openProject}>
-            <FolderOpen size={17} />
-          </IconButton>
           <IconButton
             title="Save project (Ctrl+S)"
             onClick={saveProject}
@@ -1130,1397 +2111,368 @@ function App() {
           >
             <Save size={17} />
           </IconButton>
-          <span className="header-divider" />
           <button
-            className="button secondary"
-            onClick={open}
-            disabled={loading}
+            className="button primary"
+            onClick={() => setShowExport(true)}
+            disabled={exporting || loading}
           >
-            <Plus size={16} /> Open image
+            {exporting ? (
+              <LoaderCircle className="spin" size={16} />
+            ) : (
+              <ArrowDownToLine size={16} />
+            )}{" "}
+            Export
           </button>
-          <div className="export-container">
-            <button
-              className="button primary"
-              onClick={() => exportFile("png")}
-              disabled={
-                !preview ||
-                dirty ||
-                busy ||
-                exporting ||
-                preferencesSaving ||
-                loading
-              }
-            >
-              {exporting ? (
-                <LoaderCircle className="spin" size={16} />
-              ) : (
-                <ArrowDownToLine size={16} />
-              )}{" "}
-              Export PNG
-            </button>
-            <button
-              className="export-caret"
-              aria-label="More export options"
-              onClick={() => setShowExport(!showExport)}
-              disabled={exporting || preferencesSaving || loading}
-            >
-              <ChevronDown size={15} />
-            </button>
-            {showExport && (
-              <>
-                <button
-                  className="menu-backdrop"
-                  aria-label="Close export menu"
-                  onClick={() => setShowExport(false)}
-                />
-                <div className="dropdown export-menu">
-                  <button
-                    disabled={
-                      !preview ||
-                      dirty ||
-                      busy ||
-                      preferencesSaving ||
-                      exporting
-                    }
-                    onClick={() => exportFile("project")}
-                  >
-                    <Save size={15} /> ColorNinja project (.colorninja)
-                  </button>
-                  <button
-                    disabled={
-                      !preview ||
-                      dirty ||
-                      busy ||
-                      preferencesSaving ||
-                      exporting
-                    }
-                    onClick={() => exportFile("png")}
-                  >
-                    <FileImage size={15} /> Full-resolution PNG
-                  </button>
-                  <button
-                    disabled={
-                      !preview ||
-                      dirty ||
-                      busy ||
-                      preferencesSaving ||
-                      exporting
-                    }
-                    onClick={() => exportFile("palette")}
-                  >
-                    <SwatchBook size={15} /> Palette report (.json)
-                  </button>
-                  <button
-                    disabled={
-                      !preview?.result.stack ||
-                      dirty ||
-                      busy ||
-                      preferencesSaving ||
-                      exporting
-                    }
-                    onClick={() => exportFile("layers")}
-                  >
-                    <Layers size={15} /> 16-bit layer map
-                  </button>
-                  <button
-                    disabled={
-                      !preview?.result.stack ||
-                      dirty ||
-                      busy ||
-                      preferencesSaving ||
-                      exporting
-                    }
-                    onClick={() => exportFile("hfp")}
-                  >
-                    <Layers size={15} /> HueForge project (.hfp)
-                  </button>
-                  <label className="export-profile-option">
-                    <input
-                      type="checkbox"
-                      checked={preferences.exportProfile}
-                      disabled={preferencesSaving || exporting}
-                      onChange={(e) =>
-                        savePreferences({
-                          ...preferences,
-                          exportProfile: e.target.checked,
-                        }).catch(handleError)
-                      }
-                    />
-                    <span>
-                      Also save project and settings profile
-                      <small>
-                        Reopen the .colorninja project. Reuse the JSON settings
-                        with Load profile.
-                      </small>
-                    </span>
-                  </label>
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </header>
-      <div
-        className={"studio-layout " + (!showPalette ? "palette-hidden" : "")}
-      >
-        <aside className="controls-panel">
-          <div className="panel-tabs">
-            <button
-              className={tab === "adjust" ? "active" : ""}
-              onClick={() => setTab("adjust")}
-            >
-              <SlidersHorizontal size={15} /> Adjust
-            </button>
-            <button
-              className={tab === "filaments" ? "active" : ""}
-              onClick={() => setTab("filaments")}
-            >
-              <Layers size={15} /> Filaments{" "}
-              {library && <small>{library.filaments.length}</small>}
-            </button>
-          </div>
-          <div className="controls-scroll">
-            {tab === "adjust" ? (
-              <>
-                <div className="panel-heading">
-                  <span>A simpler image, in a few clicks.</span>
-                  <p>Choose colors, smooth, and export.</p>
-                </div>
-                <div className="simple-mode">
-                  <label className="select-field">
-                    Workflow
-                    <select
-                      aria-label="Processing mode"
-                      value={options.mode}
-                      onChange={(e) => {
-                        setModeHelp(null);
-                        update(
-                          changeProcessingMode(
-                            options,
-                            e.target.value as Options["mode"],
-                          ),
-                        );
-                      }}
-                    >
-                      <option value="standard">Simple reducer</option>
-                      <option value="guided">Filament guided</option>
-                      <option value="stack">Global stack · experimental</option>
-                    </select>
-                  </label>
-                  <button
-                    className="mode-help-toggle"
-                    aria-label={`About ${modeInfo[options.mode][0]}`}
-                    aria-expanded={modeHelp === options.mode}
-                    aria-controls="workflow-help"
-                    onClick={() =>
-                      setModeHelp(
-                        modeHelp === options.mode ? null : options.mode,
-                      )
-                    }
-                  >
-                    <Info size={15} />
-                  </button>
-                </div>
+      <div className="studio-layout">
+        <main className="image-workspace">
+          <Viewer
+            source={source}
+            preview={preview}
+            busy={busy}
+            dirty={dirty}
+            showPalette={showPalette}
+            onTogglePalette={() => setShowPalette(!showPalette)}
+            onInspect={() => {
+              setShowPalette(true);
+              setResultTab("insights");
+            }}
+          />
+          {showPalette && (
+            <section className="results-panel" aria-label="Output panel">
+              <div className="results-heading">
                 <div
-                  id="workflow-help"
-                  className="mode-help"
-                  hidden={modeHelp !== options.mode}
+                  className="result-tabs"
+                  role="group"
+                  aria-label="Output details"
                 >
-                  <p>{modeInfo[options.mode][1]}</p>
-                  <p>{modeInfo[options.mode][2]}</p>
-                </div>
-                <Section title="Presets & profiles">
-                  <p className="field-help">
-                    Save named settings for other images. Profiles let you share
-                    or import settings.
-                  </p>
-                  <div className="preset-buttons">
-                    <button
-                      onClick={() => update(applyColorBudget(options, 4))}
-                    >
-                      Minimal · 4
-                    </button>
-                    <button
-                      onClick={() => update(applyColorBudget(options, 8))}
-                    >
-                      Balanced · 8
-                    </button>
-                    <button
-                      onClick={() => update(applyColorBudget(options, 16))}
-                    >
-                      Detailed · 16
-                    </button>
-                  </div>
-                  <label className="check-field">
-                    <input
-                      type="checkbox"
-                      checked={keepWorkflow}
-                      onChange={(e) => setKeepWorkflow(e.target.checked)}
-                    />
-                    Keep current workflow when applying a preset
-                  </label>
-                  {presets.map((p) => (
-                    <div className="custom-preset" key={p.name}>
-                      <button
-                        onClick={() =>
-                          update(
-                            applySavedPreset(options, p.options, keepWorkflow),
-                          )
-                        }
-                      >
-                        {p.name}
-                      </button>
-                      <IconButton
-                        title={`Rename preset ${p.name}`}
-                        onClick={() => renamePreset(p)}
-                      >
-                        <Pencil size={13} />
-                      </IconButton>
-                      <IconButton
-                        title={`Delete preset ${p.name}`}
-                        onClick={() =>
-                          invoke<Preset[]>("DeletePreset", p.name)
-                            .then(setPresets)
-                            .catch(handleError)
-                        }
-                      >
-                        <Trash2 size={13} />
-                      </IconButton>
-                    </div>
-                  ))}
                   <button
-                    className="text-button save-preset"
-                    onClick={savePreset}
+                    aria-pressed={resultTab === "palette"}
+                    onClick={() => setResultTab("palette")}
                   >
-                    <Plus size={13} /> Create preset from current settings
+                    Colors <small>{preview?.result.uniqueColors ?? "—"}</small>
                   </button>
-                  <div className="profile-actions">
-                    <button className="text-button" onClick={saveProfile}>
-                      <Save size={13} /> Save profile
-                    </button>
-                    <button className="text-button" onClick={openProfile}>
-                      <FolderOpen size={13} /> Load profile
-                    </button>
-                  </div>
-                </Section>
-                <div className="settings-group">
-                  <div className="group-heading">
-                    Palette{" "}
+                  {selected.length > 0 && (
                     <button
-                      className="text-button"
-                      onClick={() => {
-                        const n = copy(defaults);
-                        n.mode = options.mode;
-                        n.colors = options.mode === "standard" ? 8 : 4;
-                        update(n);
-                      }}
-                      title="Reset processing settings"
+                      aria-pressed={resultTab === "filaments"}
+                      onClick={() => setResultTab("filaments")}
                     >
-                      <RotateCcw size={12} /> Reset
+                      Filaments
                     </button>
-                  </div>
-                  <Range
-                    label={
-                      options.mode === "standard"
-                        ? options.totalColors || prioritizesColors(options)
-                          ? "Maximum colors"
-                          : "Colors per population"
-                        : "Maximum filaments"
-                    }
-                    value={displayedColorBudget(options)}
-                    min={1}
-                    max={Math.max(32, displayedColorBudget(options))}
-                    step={displayedColorBudget(options) > 256 ? 2 : 1}
-                    onChange={(v) =>
-                      update(applyDisplayedColorBudget(options, v))
-                    }
-                  />
-                  {advanced && (
-                    <Numeric
-                      label="Exact budget"
-                      value={displayedColorBudget(options)}
-                      min={1}
-                      max={Math.max(256, displayedColorBudget(options))}
-                      step={displayedColorBudget(options) > 256 ? 2 : 1}
-                      onChange={(v) =>
-                        update(applyDisplayedColorBudget(options, v))
-                      }
-                    />
                   )}
-                  <p className="field-help">
-                    {options.mode === "standard"
-                      ? prioritizesColors(options)
-                        ? `Up to ${displayedColorBudget(options)} colors shared across color families, including essential light and dark tones.`
-                        : options.totalColors
-                          ? `At most ${options.colors} colors total, including neutrals.`
-                          : `Separate budgets: up to ${options.colors * 2} colors. Change this in Advanced.`
-                      : "The output can contain more colors than physical filaments."}
-                  </p>
-                  <label className="select-field">
-                    Color priority
-                    <select
-                      aria-label="Color priority"
-                      value={options.colorPriority || "balanced"}
-                      onChange={(e) =>
-                        update(
-                          applyColorPriority(
-                            options,
-                            e.target.value as Options["colorPriority"],
-                          ),
-                        )
-                      }
-                    >
-                      <option value="balanced">Overall balance</option>
-                      <option value="distinctive">Distinctive colors</option>
-                      <option value="vivid">Vivid colors</option>
-                    </select>
-                  </label>
-                  <p className="field-help">
-                    {options.colorPriority === "vivid"
-                      ? "Favor vivid accents more strongly, with fewer similar shades. Protects essential neutrals without adding saturation."
-                      : options.colorPriority === "distinctive"
-                        ? "Give distinctive hues and smaller accents more room while keeping the tones that define shapes."
-                        : "Balance colors by how much of the image they cover. Choose Distinctive colors to give accents more room."}
-                  </p>
-                  {advanced && options.mode === "guided" && (
-                    <>
-                      <Range
-                        label="Filament guidance"
-                        value={options.guidanceStrength}
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        format={pct}
-                        onChange={(v) => change("guidanceStrength", v)}
-                      />
-                      <div className="range-captions">
-                        <span>Keep image hues</span>
-                        <span>Favor filaments</span>
-                      </div>
-                    </>
-                  )}
-                  {advanced && options.mode !== "standard" && (
-                    <div className="true-black-option">
-                      <label className="check-field">
-                        <input
-                          type="checkbox"
-                          checked={options.trueBlack}
-                          onChange={(e) =>
-                            change("trueBlack", e.target.checked)
-                          }
-                        />
-                        Use true black
-                        <span className="true-black-chip" aria-hidden="true" />
-                      </label>
-                      <p className="field-help">
-                        Use #000000 for black filaments. Keeps your library
-                        unchanged.
-                      </p>
-                    </div>
-                  )}
-                  {advanced && (
-                    <>
-                      <label className="check-field">
-                        <input
-                          type="checkbox"
-                          checked={options.preserveDetails}
-                          onChange={(e) =>
-                            change("preserveDetails", e.target.checked)
-                          }
-                        />
-                        Preserve details
-                      </label>
-                      <p className="field-help">
-                        Keep small marks and similar-colored shapes distinct.
-                        Smoothing works with either setting.
-                      </p>
-                    </>
-                  )}
-                  <div className="smoothing-control">
-                    <div className="group-heading">
-                      Smoothing <small>{smoothingPreset(options)}</small>
-                    </div>
-                    <div className="smoothing-presets">
-                      {(Object.keys(smoothingPresets) as SmoothingPreset[]).map(
-                        (name) => (
-                          <button
-                            key={name}
-                            aria-pressed={smoothingPreset(options) === name}
-                            onClick={() =>
-                              update(applySmoothing(options, name))
-                            }
-                          >
-                            {name}
-                          </button>
-                        ),
-                      )}
-                    </div>
-                    <p className="field-help">
-                      Balanced protects outlines. Strong smooths more texture.
-                      Off keeps original pixel detail.
-                    </p>
-                  </div>
-                  {advanced && (
-                    <Range
-                      label="Detail smoothing"
-                      help={
-                        options.legacyColorPipeline
-                          ? "Legacy pre-blur affects palette discovery only. Choose a smoothing preset or change the radius to smooth the output too."
-                          : "Smooth similar neighboring colors before analysis and mapping, while protecting contrasting edges. Zero disables smoothing."
-                      }
-                      value={options.preblurSigma}
-                      min={0}
-                      max={Math.max(5, options.preblurSigma)}
-                      step={0.1}
-                      format={(v) => `${v.toFixed(1)} px`}
-                      onChange={(v) =>
-                        update({
-                          ...options,
-                          preblurSigma: v,
-                          legacyColorPipeline: false,
-                        })
-                      }
-                    />
-                  )}
-                  {advanced && options.mode !== "standard" && (
-                    <Numeric
-                      label="Output color limit"
-                      value={options.hueforge.maxPerceivedColors}
-                      min={1}
-                      max={256}
-                      onChange={(v) => changeHF("maxPerceivedColors", v)}
-                    />
-                  )}
-                </div>
-                {options.mode !== "standard" && (
-                  <div
-                    className={
-                      "library-callout " + (!libraryPath ? "needs-library" : "")
-                    }
+                  <button
+                    aria-pressed={resultTab === "insights"}
+                    onClick={() => setResultTab("insights")}
                   >
-                    <SwatchBook size={17} />
-                    <div>
-                      <strong>
-                        {libraryPath
-                          ? `${library?.filaments.length ?? "—"} filaments available`
-                          : "Choose your filament library"}
-                      </strong>
-                      <span>
-                        {libraryPath
-                          ? "Owned colors guide your result."
-                          : "Load personal_library.json to begin."}
-                      </span>
-                      <button
-                        className="text-button"
-                        onClick={() => setTab("filaments")}
-                      >
-                        {libraryPath ? "Manage collection" : "Load library"}{" "}
-                        <ArrowUpRight size={12} />
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {options.mode !== "standard" && (
-                  <Section title="Front Lit & layers" initial>
-                    {options.mode === "stack" && (
-                      <>
-                        <label className="check-field">
-                          <input
-                            type="checkbox"
-                            checked={(options.hueforge.maxRuns || 0) > 0}
-                            onChange={(e) =>
-                              changeHF(
-                                "maxRuns",
-                                e.target.checked
-                                  ? Math.min(64, options.colors + 2)
-                                  : 0,
-                              )
-                            }
-                          />
-                          Allow filament returns
-                        </label>
-                        <p className="field-help">
-                          Reuse a filament after another color, such as black →
-                          yellow → black. The filament budget counts unique
-                          spools.
-                        </p>
-                        {(options.hueforge.maxRuns || 0) > 0 && (
-                          <Numeric
-                            label="Maximum filament runs"
-                            value={options.hueforge.maxRuns}
-                            min={1}
-                            max={64}
-                            onChange={(v) => changeHF("maxRuns", v)}
-                          />
-                        )}
-                      </>
-                    )}
-                    <label className="select-field">
-                      Front Lit model
-                      <select
-                        value={options.hueforge.opticalModel}
-                        onChange={(e) =>
-                          update({
-                            ...options,
-                            hueforge: {
-                              ...applyAutoDepth(
-                                options,
-                                e.target.value === "legacy-exponential"
-                                  ? false
-                                  : (options.hueforge.autoDepth ?? false),
-                              ).hueforge,
-                              opticalModel: e.target
-                                .value as HueForgeOptions["opticalModel"],
-                            },
-                          })
-                        }
-                      >
-                        <option value="hueforge-0.9.4.3-frontlit-v1">
-                          HueForge Front Lit
-                        </option>
-                        <option value="legacy-exponential">
-                          Legacy approximation
-                        </option>
-                      </select>
-                    </label>
-                    {options.hueforge.opticalModel ===
-                      "hueforge-0.9.4.3-frontlit-v1" && (
-                      <label className="select-field">
-                        Lighting
-                        <select
-                          value={
-                            options.hueforge.lightPreset || "neutral-white"
-                          }
-                          onChange={(e) =>
-                            changeHF(
-                              "lightPreset",
-                              e.target.value as HueForgeOptions["lightPreset"],
-                            )
-                          }
-                        >
-                          <option value="hueforge-default">
-                            HueForge default · setting 1
-                          </option>
-                          <option value="neutral-white">
-                            Neutral white · setting 2
-                          </option>
-                          <option value="warm-white">
-                            Warm white · setting 0
-                          </option>
-                        </select>
-                      </label>
-                    )}
-                    <p className="field-help">
-                      Match the lighting, first layer, regular layers, and
-                      filament TD values in HueForge. Printed results still
-                      depend on the filament measurements.
-                    </p>
-
-                    <Numeric
-                      label="First layer height"
-                      value={
-                        options.hueforge.firstLayerHeight ||
-                        options.hueforge.layerHeight
-                      }
-                      min={0.01}
-                      max={1}
-                      step={0.01}
-                      suffix="mm"
-                      onChange={(v) => changeHF("firstLayerHeight", v)}
-                    />
-                    <Numeric
-                      label="Layer height"
-                      value={options.hueforge.layerHeight}
-                      min={0.01}
-                      max={1}
-                      step={0.01}
-                      suffix="mm"
-                      onChange={(v) => changeHF("layerHeight", v)}
-                    />
-                    <Numeric
-                      label="Base depth"
-                      value={options.hueforge.baseDepth}
-                      min={0.01}
-                      max={20}
-                      step={0.08}
-                      suffix="mm"
-                      onChange={(v) => changeHF("baseDepth", v)}
-                    />
-                    {options.mode === "stack" && (
-                      <>
-                        <label className="check-field">
-                          <input
-                            type="checkbox"
-                            checked={options.hueforge.autoDepth ?? false}
-                            onChange={(e) =>
-                              update(applyAutoDepth(options, e.target.checked))
-                            }
-                          />
-                          Choose depth automatically
-                        </label>
-                        <p className="field-help">
-                          Compare printable depths and prefer the thinnest plan
-                          within 1% of the best color score found. The ceiling
-                          includes the base.
-                        </p>
-                      </>
-                    )}
-                    <Numeric
-                      label={
-                        options.mode === "stack" && options.hueforge.autoDepth
-                          ? "Hard maximum depth"
-                          : "Maximum total depth"
-                      }
-                      value={options.hueforge.maxDepth}
-                      min={0.02}
-                      max={40}
-                      step={options.hueforge.autoDepth ? 0.01 : 0.08}
-                      suffix="mm"
-                      onChange={(v) => changeHF("maxDepth", v)}
-                    />
-                    {options.mode === "stack" && (
-                      <Numeric
-                        label="Search beam width"
-                        value={options.hueforge.beamWidth}
-                        min={1}
-                        max={512}
-                        onChange={(v) => changeHF("beamWidth", v)}
-                      />
-                    )}
-                    <p className="field-help">
-                      Total depth is the first layer plus whole regular layers.
-                      {options.hueforge.autoDepth
-                        ? " A ceiling between layers rounds down. Try 4.0 mm to allow a deeper search."
-                        : " The maximum includes the base."}
-                    </p>
-                  </Section>
-                )}
-                <div hidden={!advanced} id="advanced-controls">
-                  {options.mode === "stack" && (
-                    <Section title="HueForge project export" initial>
-                      <label className="select-field">
-                        Mesh mode
-                        <select
-                          value={options.hueforge.meshMode || "color-match"}
-                          onChange={(e) =>
-                            changeHF(
-                              "meshMode",
-                              e.target.value as HueForgeOptions["meshMode"],
-                            )
-                          }
-                        >
-                          <option value="color-match">Color Match</option>
-                          <option value="combo">Combo</option>
-                          <option value="color-aware">Color Aware</option>
-                          <option value="color-pop">Color Pop</option>
-                        </select>
-                      </label>
-                      {!options.hueforge.meshMode ||
-                      options.hueforge.meshMode === "color-match" ? (
-                        <>
-                          <label className="select-field">
-                            Mesh core
-                            <select
-                              value={
-                                options.hueforge.meshCore || "planned-colors"
-                              }
-                              onChange={(e) =>
-                                changeHF(
-                                  "meshCore",
-                                  e.target.value as HueForgeOptions["meshCore"],
-                                )
-                              }
-                            >
-                              <option value="planned-colors">
-                                Match planned layers
-                              </option>
-                              <option value="filament-blends">
-                                Use filament blends
-                              </option>
-                            </select>
-                          </label>
-                          <p className="field-help">
-                            The Color Core uses the optimized print stack. Match
-                            planned layers builds a separate Mesh Core from the
-                            output colors; filament blends copies the print
-                            stack into both cores.
-                          </p>
-                        </>
-                      ) : (
-                        <p className="field-help">
-                          HueForge will rebuild heights in this mode. Its mesh
-                          and colors can differ from this preview. Use Color
-                          Match to retain the planned color-to-layer
-                          assignments.
-                        </p>
-                      )}
-                      <Numeric
-                        label="Export width"
-                        value={options.hueforge.exportWidthMm || 200}
-                        min={1}
-                        max={2000}
-                        step={1}
-                        suffix="mm"
-                        onChange={(v) => changeHF("exportWidthMm", v)}
-                      />
-                      <Numeric
-                        label="Mesh detail"
-                        value={options.hueforge.meshDetailMm || 0.2}
-                        min={0.01}
-                        max={10}
-                        step={0.01}
-                        suffix="mm"
-                        onChange={(v) => changeHF("meshDetailMm", v)}
-                      />
-                      <p className="field-help">
-                        HFP embeds the simplified image and keeps its aspect
-                        ratio. Mesh detail controls HueForge's sampling
-                        resolution. Partially transparent pixels become solid
-                        mesh.
-                      </p>
-                    </Section>
-                  )}
-                  <Section title="Color & detail controls" initial>
-                    {options.mode === "standard" &&
-                      !prioritizesColors(options) && (
-                        <>
-                          <label className="check-field">
-                            <input
-                              type="checkbox"
-                              checked={!options.totalColors}
-                              onChange={(e) =>
-                                change("totalColors", !e.target.checked)
-                              }
-                            />
-                            Separate color and neutral budgets
-                          </label>
-                          <p className="field-help">
-                            Allows up to twice the selected count. Existing
-                            projects keep this setting.
-                          </p>
-                        </>
-                      )}
-                    <Numeric
-                      label="Smoothing color tolerance"
-                      value={options.smoothingColorSigma || 5}
-                      min={1}
-                      max={25}
-                      step={0.5}
-                      onChange={(v) =>
-                        update({
-                          ...options,
-                          smoothingColorSigma: v,
-                          legacyColorPipeline: false,
-                        })
-                      }
-                    />
-                    <p className="field-help">
-                      Higher values flatten stronger texture and may soften
-                      low-contrast details. Works with either Preserve details
-                      setting.
-                    </p>
-                    <Numeric
-                      label="Neutral chroma threshold"
-                      value={options.neutralChroma}
-                      min={0}
-                      max={200}
-                      step={0.5}
-                      onChange={(v) => change("neutralChroma", v)}
-                    />
-                    <Numeric
-                      label="Minimum cluster"
-                      value={Number(
-                        (options.minClusterFraction * 100).toFixed(4),
-                      )}
-                      min={0}
-                      max={99}
-                      step={0.1}
-                      suffix="%"
-                      onChange={(v) => change("minClusterFraction", v / 100)}
-                    />
-                    <Numeric
-                      label="Histogram precision"
-                      value={options.histogramBits}
-                      min={3}
-                      max={7}
-                      suffix="bits"
-                      onChange={(v) => change("histogramBits", v)}
-                    />
-                    <Numeric
-                      label="Clustering iterations"
-                      value={options.iterations}
-                      min={1}
-                      max={1000}
-                      onChange={(v) => change("iterations", v)}
-                    />
-                    <Numeric
-                      label={
-                        options.legacyColorPipeline
-                          ? "Legacy pre-blur radius"
-                          : "Detail smoothing radius"
-                      }
-                      value={options.preblurSigma}
-                      min={0}
-                      max={100}
-                      step={0.1}
-                      suffix="px"
-                      onChange={(v) =>
-                        update({
-                          ...options,
-                          preblurSigma: v,
-                          legacyColorPipeline: false,
-                        })
-                      }
-                    />
-                    <label className="select-field">
-                      Analysis resolution
-                      <select
-                        aria-label="Analysis resolution"
-                        value={
-                          [250000, 1000000, 6291456, 0].includes(
-                            options.analysisMaxPixels,
-                          )
-                            ? options.analysisMaxPixels
-                            : "custom"
-                        }
-                        onChange={(e) => {
-                          if (e.target.value !== "custom")
-                            change("analysisMaxPixels", Number(e.target.value));
-                        }}
-                      >
-                        <option value={250000}>250K pixels · fast</option>
-                        <option value={1000000}>1 megapixel · balanced</option>
-                        <option value={6291456}>6 megapixels · detailed</option>
-                        <option value={0}>Every source pixel</option>
-                        <option value="custom">Custom pixel limit</option>
-                      </select>
-                    </label>
-                    <Numeric
-                      label="Analysis pixel limit"
-                      value={options.analysisMaxPixels}
-                      min={0}
-                      max={100000000}
-                      step={1000}
-                      onChange={(v) => change("analysisMaxPixels", v)}
-                    />
-                    <p className="field-help">
-                      0 analyzes every pixel. Export dimensions always match the
-                      original.
-                    </p>
-                  </Section>
-                  {options.mode !== "standard" && (
-                    <Section title="Optical calibration">
-                      <Numeric
-                        label="Analysis colors per population"
-                        value={options.hueforge.analysisColors}
-                        min={1}
-                        max={256}
-                        onChange={(v) => changeHF("analysisColors", v)}
-                      />
-                      {options.hueforge.opticalModel !==
-                        "hueforge-0.9.4.3-frontlit-v1" && (
-                        <>
-                          <Numeric
-                            label="TD scale"
-                            value={options.hueforge.tdScale}
-                            min={0.001}
-                            max={100}
-                            step={0.01}
-                            onChange={(v) => changeHF("tdScale", v)}
-                          />
-                          <Numeric
-                            label="Transmission at one TD"
-                            value={options.hueforge.tdTransmission}
-                            min={0.001}
-                            max={0.999}
-                            step={0.01}
-                            onChange={(v) => changeHF("tdTransmission", v)}
-                          />
-                          <Numeric
-                            label="Base transmission limit"
-                            value={options.hueforge.baseTransmissionLimit}
-                            min={0.001}
-                            max={1}
-                            step={0.01}
-                            onChange={(v) =>
-                              changeHF("baseTransmissionLimit", v)
-                            }
-                          />
-                        </>
-                      )}
-                    </Section>
-                  )}
-                </div>
-                <Section title="Recent images">
-                  {recent.length ? (
-                    recent.map((path) => (
-                      <button
-                        className="recent-file"
-                        key={path}
-                        title={path}
-                        onClick={() => loadPath(path)}
-                      >
-                        <FileImage size={13} />
-                        {path.split(/[\\/]/).pop()}
-                      </button>
-                    ))
-                  ) : (
-                    <p className="field-help">
-                      Your recently opened images will appear here.
-                    </p>
-                  )}
-                  <button className="text-button" onClick={demo}>
-                    <ImageIcon size={13} /> Load sample artwork
+                    Image info
                   </button>
-                </Section>
-              </>
-            ) : (
-              <>
-                <div className="panel-heading">
-                  <span>Your color collection.</span>
-                  <p>Make the most of what you own.</p>
                 </div>
-                <button
-                  className="button secondary full"
-                  onClick={chooseLibrary}
-                >
-                  <FolderOpen size={15} />{" "}
-                  {libraryPath ? "Change library" : "Load filament library"}
-                </button>
-                {libraryPath && (
-                  <div className="library-path" title={libraryPath}>
-                    {libraryPath === "embedded:project-filaments"
-                      ? "Project filaments (embedded)"
-                      : libraryPath.split(/[\\/]/).pop()}
-                    <button
-                      className="text-button"
-                      onClick={() => refreshLibrary()}
-                      aria-label="Reload filament library"
-                    >
-                      <RotateCcw size={12} />
-                    </button>
-                  </div>
-                )}
-                <p className="field-help">
-                  Reads your HueForge library. Your original library is never
-                  modified.
-                </p>
-                <div className="library-filters">
-                  <label className="check-field">
-                    <input
-                      type="checkbox"
-                      checked={filter.avoidSilkMetallic}
-                      disabled={!libraryPath}
-                      onChange={(e) =>
-                        refreshLibrary({
-                          ...filter,
-                          avoidSilkMetallic: e.target.checked,
-                        })
-                      }
-                    />{" "}
-                    Avoid silk &amp; metallic finishes
-                  </label>
-                  <p className="field-help">
-                    Excludes silk, metallic, pearl, Elixir, and Starlight from
-                    Filament Guide and Global Stack. Checks material, name, and
-                    tags.
-                  </p>
-                  <label className="check-field">
-                    <input
-                      type="checkbox"
-                      checked={filter.includeUnowned}
-                      disabled={!libraryPath}
-                      onChange={(e) =>
-                        refreshLibrary({
-                          ...filter,
-                          includeUnowned: e.target.checked,
-                        })
-                      }
-                    />{" "}
-                    Include unowned filaments
-                  </label>
-                  <label className="check-field">
-                    <input
-                      type="checkbox"
-                      checked={filter.allowSecondary}
-                      disabled={!libraryPath}
-                      onChange={(e) =>
-                        refreshLibrary({
-                          ...filter,
-                          allowSecondary: e.target.checked,
-                        })
-                      }
-                    />{" "}
-                    Use primary color of dual-color filaments
-                  </label>
-                  <label className="select-field">
-                    Material filter
-                    <input
-                      aria-label="Material filter"
-                      placeholder="All materials, or PLA, PLA+…"
-                      defaultValue={filter.materialTypes.join(", ")}
-                      key={filter.materialTypes.join(",")}
-                      onBlur={(e) => {
-                        const types = e.target.value
-                          .split(",")
-                          .map((v) => v.trim())
-                          .filter(Boolean);
-                        if (
-                          JSON.stringify(types) !==
-                          JSON.stringify(filter.materialTypes)
-                        )
-                          refreshLibrary({ ...filter, materialTypes: types });
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") e.currentTarget.blur();
-                      }}
+                <div className="result-actions">
+                  {dirty && preview && (
+                    <span className="stale-label">Previous result</span>
+                  )}
+                  {preview?.result.stack && (
+                    <StackInspector
+                      key={preview.result.rgbaSHA256 + ":" + preview.id}
+                      result={preview.result}
+                      stale={dirty}
                     />
-                  </label>
-                  <p className="field-help">
-                    Use compatible materials together. Separate material names
-                    with commas.
-                  </p>
+                  )}
+                  <IconButton
+                    title="Hide palette panel"
+                    onClick={() => setShowPalette(false)}
+                  >
+                    <ChevronDown size={15} />
+                  </IconButton>
                 </div>
-                {library ? (
+              </div>
+              <div className="results-scroll">
+                {preview ? (
                   <>
-                    <div className="collection-summary">
-                      <strong>{library.filaments.length}</strong>
-                      <span>
-                        eligible filaments{" "}
-                        <small>of {library.total} library entries</small>
-                      </span>
+                    <div
+                      hidden={resultTab !== "palette"}
+                      className="palette-content"
+                    >
+                      <div className="palette-strip">
+                        {preview.result.palette
+                          .filter((c) => c.pixelFraction > 0)
+                          .map((c) => (
+                            <span
+                              key={c.hex}
+                              title={`${c.hex} · ${pct(c.pixelFraction)}`}
+                              style={{
+                                background: c.hex,
+                                flex: Math.max(0.01, c.pixelFraction),
+                              }}
+                            />
+                          ))}
+                      </div>
+                      <div className="palette-grid">
+                        {preview.result.palette
+                          .filter((c) => c.pixelFraction > 0)
+                          .map((c) => (
+                            <button
+                              className="palette-swatch"
+                              key={c.hex}
+                              title={`Copy ${c.hex} · ${pct(c.pixelFraction)} of visible pixels`}
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(c.hex);
+                                  notify(`Copied ${c.hex}`);
+                                } catch {
+                                  notify(c.hex);
+                                }
+                              }}
+                            >
+                              <span style={{ background: c.hex }} />
+                              <div>
+                                <strong>{c.hex}</strong>
+                                <small>
+                                  {c.pixelFraction < 0.005
+                                    ? "<1%"
+                                    : pct(c.pixelFraction)}
+                                </small>
+                              </div>
+                            </button>
+                          ))}
+                      </div>
                     </div>
-                    {library.skippedFinish > 0 && (
-                      <p className="field-help">
-                        {library.skippedFinish} excluded for silk or metallic
-                        finish.
-                      </p>
-                    )}
-                    <div className="search-field">
-                      <Search size={14} />
-                      <input
-                        aria-label="Search filaments"
-                        placeholder="Search your collection"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                      />
-                    </div>
-                    <div className="filament-list">
-                      {visibleFilaments.map((f) => (
-                        <div
-                          className="filament-card"
-                          key={f.sourceIndex}
-                          title={filamentDescription(f)}
-                        >
-                          <span
-                            className="filament-color"
-                            style={{ background: f.hex }}
-                          />
-                          <div>
-                            <strong>{f.name}</strong>
-                            <span>
-                              {f.brand} · {f.material || "Unspecified"}
-                            </span>
-                          </div>
-                          <small title={`Transmission distance: ${f.td} mm`}>
-                            {f.td}
-                            <br />
-                            TD mm
-                          </small>
+                    <div
+                      hidden={resultTab !== "insights"}
+                      className="insights-content"
+                    >
+                      <div className="result-section">
+                        <div className="field-label">IMAGE INSIGHTS</div>
+                        <div className="stat-row">
+                          <span>Dimensions</span>
+                          <strong>
+                            {preview.result.sourceSize.join(" × ")}
+                          </strong>
                         </div>
-                      ))}
+                        <div className="stat-row">
+                          <span>Analysis</span>
+                          <strong>
+                            {(
+                              (preview.result.analysisSize[0] *
+                                preview.result.analysisSize[1]) /
+                              1000000
+                            ).toFixed(2)}{" "}
+                            MP
+                          </strong>
+                        </div>
+                        <div className="stat-row">
+                          <span title="Alpha-weighted mean CIE76 distance from the original">
+                            Mean color distance <Info size={11} />
+                          </span>
+                          <strong>
+                            {preview.result.quality.meanDeltaE76.toFixed(2)} ΔE
+                          </strong>
+                        </div>
+                        <div className="stat-row">
+                          <span>Processing time</span>
+                          <strong>{preview.seconds.toFixed(2)} s</strong>
+                        </div>
+                        <div className="stat-row">
+                          <span>Output</span>
+                          <strong>Lossless PNG</strong>
+                        </div>
+                      </div>
                     </div>
-                    {!visibleFilaments.length && (
-                      <p className="field-help">No matching filaments.</p>
-                    )}
+                    <div
+                      hidden={resultTab !== "filaments"}
+                      className="filament-results"
+                    >
+                      {selected.length > 0 && (
+                        <div className="result-section">
+                          <div className="field-label">
+                            {preview.result.stack
+                              ? "FILAMENT ORDER · BOTTOM TO TOP"
+                              : "SELECTED FILAMENTS"}
+                          </div>
+                          {selected.map((f, i) => (
+                            <div
+                              className="selected-filament"
+                              key={f.sourceIndex}
+                              title={filamentDescription(f)}
+                            >
+                              <span
+                                className="filament-color"
+                                style={{ background: f.hex }}
+                              />
+                              <div>
+                                <strong>{f.name}</strong>
+                                <span>
+                                  {f.brand} ·{" "}
+                                  {f.material || "Unspecified material"}
+                                </span>
+                                <span>
+                                  <abbr title="Transmission distance">TD</abbr>{" "}
+                                  {f.td} mm
+                                  {preview.result.stack &&
+                                    ` · ${preview.result.stack.runs[i].layers} ${preview.result.stack.runs[i].layers === 1 ? "layer" : "layers"}`}
+                                </span>
+                              </div>
+                              {preview.result.stack && <small>{i + 1}</small>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {preview.result.stack && (
+                        <>
+                          <div className="stack-summary">
+                            <Layers size={17} />
+                            <div>
+                              <strong>
+                                {preview.result.stack.plannedDepth.toFixed(2)}{" "}
+                                mm total depth
+                              </strong>
+                              <span>
+                                {preview.result.stack.uniqueFilaments} filaments
+                                · {preview.result.stack.runs.length} runs ·{" "}
+                                {preview.result.stack.layerColors.length} layers
+                              </span>
+                            </div>
+                          </div>
+                          {preview.result.stack.depthSelection && (
+                            <p className="field-help">
+                              Auto depth ·{" "}
+                              {
+                                preview.result.stack.depthSelection
+                                  .comparedDepths
+                              }{" "}
+                              depths compared ·{" "}
+                              {preview.result.stack.depthSelection.hardMaximum.toFixed(
+                                2,
+                              )}{" "}
+                              mm ceiling.
+                            </p>
+                          )}
+                        </>
+                      )}
+                      {preview.options.mode !== "standard" && (
+                        <div className="optics-note">
+                          <Info size={14} />
+                          <p>
+                            {preview.options.mode === "guided"
+                              ? "Filament colors and pairwise hues guide this image. Open the PNG in HueForge to create the final layer plan."
+                              : preview.options.hueforge.opticalModel ===
+                                  "hueforge-0.9.4.3-frontlit-v1"
+                                ? "Front Lit layer colors follow the validated HueForge model. Match your lighting, filament measurements, and swap heights before printing."
+                                : "This stack uses the legacy optical approximation. Choose HueForge Front Lit for the validated layer-color model."}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </>
                 ) : (
-                  <div className="empty-library">
-                    <SwatchBook size={35} />
-                    <strong>Bring your palette along.</strong>
+                  <div className="palette-empty">
+                    <SwatchBook size={22} />
                     <p>
-                      Load your HueForge personal library to see available
-                      colors and guide the image toward your collection.
+                      Generate a preview to inspect its colors and filaments.
                     </p>
                   </div>
                 )}
-              </>
-            )}
-          </div>
-          <div className="controls-footer">
-            <div className="advanced-heading">
-              <label className="switch-label">
-                <input
-                  type="checkbox"
-                  checked={advanced}
-                  disabled={preferencesSaving || !preferencesReady}
-                  onChange={(e) =>
-                    savePreferences({
-                      ...preferences,
-                      advanced: e.target.checked,
-                    }).catch(handleError)
-                  }
-                />
-                <span className="switch" />
-                Advanced
-              </label>
-            </div>
-
-            <div>
-              <label className="switch-label">
-                <input
-                  type="checkbox"
-                  checked={auto}
-                  onChange={(e) => {
-                    setAuto(e.target.checked);
-                  }}
-                />
-                <span className="switch" /> Auto preview
-              </label>
-              <div className="history-controls">
-                <IconButton
-                  title="Undo settings (Ctrl+Z)"
-                  disabled={historyIndex <= 0}
-                  onClick={undo}
-                >
-                  <Undo2 size={15} />
-                </IconButton>
-                <IconButton
-                  title="Redo settings (Ctrl+Shift+Z)"
-                  disabled={historyIndex >= history.length - 1}
-                  onClick={redo}
-                >
-                  <Redo2 size={15} />
-                </IconButton>
               </div>
-            </div>
-            {busy ? (
-              <button className="button secondary full" onClick={cancel}>
-                <X size={14} /> Cancel processing
-              </button>
-            ) : (
+            </section>
+          )}
+        </main>
+        <aside className="controls-panel" aria-label="Processing settings">
+          <div className="inspector-heading">
+            {workflowControl}
+            <div className="preset-toolbar">
               <button
-                className="button preview-button full"
-                disabled={!source || loading}
-                onClick={() => setRerun((v) => v + 1)}
+                className="text-button"
+                onClick={() => setShowPresets(true)}
               >
-                <Sparkles size={15} />{" "}
-                {dirty ? "Generate preview" : "Refresh preview"}
+                <Save size={13} />
+                {matchingPreset?.name ?? "Presets & profiles"}
+                <ChevronDown size={13} />
               </button>
-            )}
-          </div>
-        </aside>
-        <Viewer source={source} preview={preview} busy={busy} dirty={dirty} />
-        {showPalette && (
-          <aside className="results-panel">
-            <div className="results-heading">
-              <span>
-                <SwatchBook size={15} /> Output palette
-              </span>
               <IconButton
-                title="Hide palette panel"
-                onClick={() => setShowPalette(false)}
+                title="Reset processing settings"
+                onClick={() => {
+                  const n = copy(defaults);
+                  n.mode = options.mode;
+                  n.colors = 8;
+                  update(n);
+                }}
               >
-                <PanelRightClose size={15} />
+                <RotateCcw size={14} />
               </IconButton>
             </div>
-            <div className="results-scroll">
-              <div className="palette-total">
-                <strong>{preview?.result.uniqueColors ?? "—"}</strong>
-                <div>
-                  output colors
+          </div>
+          {(options.mode !== "standard" || tab === "filaments") && (
+            <nav className="panel-tabs" aria-label="Settings category">
+              <button
+                className={tab === "adjust" ? "active" : ""}
+                aria-pressed={tab === "adjust"}
+                onClick={() => setTab("adjust")}
+              >
+                Tune
+              </button>
+              <button
+                className={tab === "filaments" ? "active" : ""}
+                aria-pressed={tab === "filaments"}
+                onClick={() => setTab("filaments")}
+              >
+                Filaments {library && <small>{library.filaments.length}</small>}
+              </button>
+              {options.mode !== "standard" && (
+                <button
+                  className={tab === "layers" ? "active" : ""}
+                  aria-pressed={tab === "layers"}
+                  onClick={() => setTab("layers")}
+                >
+                  {options.mode === "stack" ? "Layers" : "Optics"}
+                </button>
+              )}
+            </nav>
+          )}
+          <div className="controls-scroll">
+            <div hidden={tab !== "adjust"}>
+              {tuningContent}
+              {options.mode !== "standard" && (
+                <button
+                  className="library-link"
+                  onClick={() => setTab("filaments")}
+                >
+                  <SwatchBook size={16} />
                   <span>
-                    {dirty
-                      ? "Update preview to refresh"
-                      : "Ready for your next creation"}
+                    {libraryPath
+                      ? `${library?.filaments.length ?? 0} eligible filaments`
+                      : "Choose your filament library"}
                   </span>
-                </div>
-              </div>
-              {preview ? (
-                <>
-                  <div className="palette-strip">
-                    {preview.result.palette
-                      .filter((c) => c.pixelFraction > 0)
-                      .map((c) => (
-                        <span
-                          key={c.hex}
-                          title={`${c.hex} · ${pct(c.pixelFraction)}`}
-                          style={{
-                            background: c.hex,
-                            flex: Math.max(0.01, c.pixelFraction),
-                          }}
-                        />
-                      ))}
-                  </div>
-                  <div className="palette-grid">
-                    {preview.result.palette
-                      .filter((c) => c.pixelFraction > 0)
-                      .map((c) => (
-                        <button
-                          className="palette-swatch"
-                          key={c.hex}
-                          title={`Copy ${c.hex} · ${pct(c.pixelFraction)} of visible pixels`}
-                          onClick={async () => {
-                            try {
-                              await navigator.clipboard.writeText(c.hex);
-                              notify(`Copied ${c.hex}`);
-                            } catch {
-                              notify(c.hex);
-                            }
-                          }}
-                        >
-                          <span style={{ background: c.hex }} />
-                          <div>
-                            <strong>{c.hex}</strong>
-                            <small>
-                              {c.pixelFraction < 0.005
-                                ? "<1%"
-                                : pct(c.pixelFraction)}
-                            </small>
-                          </div>
-                        </button>
-                      ))}
-                  </div>
-                  {advanced && (
-                    <div className="result-section">
-                      <div className="field-label">IMAGE INSIGHTS</div>
-                      <div className="stat-row">
-                        <span>Dimensions</span>
-                        <strong>{preview.result.sourceSize.join(" × ")}</strong>
-                      </div>
-                      <div className="stat-row">
-                        <span>Analysis</span>
-                        <strong>
-                          {(
-                            (preview.result.analysisSize[0] *
-                              preview.result.analysisSize[1]) /
-                            1000000
-                          ).toFixed(2)}{" "}
-                          MP
-                        </strong>
-                      </div>
-                      <div className="stat-row">
-                        <span title="Alpha-weighted mean CIE76 distance from the original">
-                          Mean color distance <Info size={11} />
-                        </span>
-                        <strong>
-                          {preview.result.quality.meanDeltaE76.toFixed(2)} ΔE
-                        </strong>
-                      </div>
-                      <div className="stat-row">
-                        <span>Processing time</span>
-                        <strong>{preview.seconds.toFixed(2)} s</strong>
-                      </div>
-                      <div className="stat-row">
-                        <span>Output</span>
-                        <strong>Lossless PNG</strong>
-                      </div>
-                    </div>
-                  )}
-                  {selected.length > 0 && (
-                    <div className="result-section">
-                      <div className="field-label">
-                        {preview.result.stack
-                          ? "FILAMENT ORDER · BOTTOM TO TOP"
-                          : "SELECTED FILAMENTS"}
-                      </div>
-                      {selected.map((f, i) => (
-                        <div
-                          className="selected-filament"
-                          key={f.sourceIndex}
-                          title={filamentDescription(f)}
-                        >
-                          <span
-                            className="filament-color"
-                            style={{ background: f.hex }}
-                          />
-                          <div>
-                            <strong>{f.name}</strong>
-                            <span>
-                              {f.brand} · {f.material || "Unspecified material"}
-                            </span>
-                            <span>
-                              <abbr title="Transmission distance">TD</abbr>{" "}
-                              {f.td} mm
-                              {preview.result.stack &&
-                                ` · ${preview.result.stack.runs[i].layers} ${preview.result.stack.runs[i].layers === 1 ? "layer" : "layers"}`}
-                            </span>
-                          </div>
-                          {preview.result.stack && <small>{i + 1}</small>}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {preview.result.stack && (
-                    <>
-                      <div className="stack-summary">
-                        <Layers size={17} />
-                        <div>
-                          <strong>
-                            {preview.result.stack.plannedDepth.toFixed(2)} mm
-                            total depth
-                          </strong>
-                          <span>
-                            {preview.result.stack.uniqueFilaments} filaments ·{" "}
-                            {preview.result.stack.runs.length} runs ·{" "}
-                            {preview.result.stack.layerColors.length} layers
-                          </span>
-                        </div>
-                      </div>
-                      {preview.result.stack.depthSelection && (
-                        <p className="field-help">
-                          Auto depth ·{" "}
-                          {preview.result.stack.depthSelection.comparedDepths}{" "}
-                          depths compared ·{" "}
-                          {preview.result.stack.depthSelection.hardMaximum.toFixed(
-                            2,
-                          )}{" "}
-                          mm ceiling.
-                        </p>
-                      )}
-                      <StackInspector
-                        key={preview.result.rgbaSHA256 + ":" + preview.id}
-                        result={preview.result}
-                        stale={dirty}
-                      />
-                    </>
-                  )}
-                  {preview.options.mode !== "standard" && (
-                    <div className="optics-note">
-                      <Info size={14} />
-                      <p>
-                        {preview.options.mode === "guided"
-                          ? "Filament colors and pairwise hues guide this image. Open the PNG in HueForge to create the final layer plan."
-                          : preview.options.hueforge.opticalModel ===
-                              "hueforge-0.9.4.3-frontlit-v1"
-                            ? "Front Lit layer colors follow the validated HueForge model. Match your lighting, filament measurements, and swap heights before printing."
-                            : "This stack uses the legacy optical approximation. Choose HueForge Front Lit for the validated layer-color model."}
-                      </p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="palette-empty">
-                  <Aperture size={30} />
-                  <p>Your image’s palette will appear here.</p>
+                  <ChevronRight size={15} />
+                </button>
+              )}
+              {advancedControl}
+              {advanced && (
+                <div id="advanced-controls">
+                  <Section title="Color & detail controls">
+                    {advancedTuningContent}
+                  </Section>
                 </div>
               )}
             </div>
-            <div className="results-footer">
-              <span className="local-dot" /> Processed locally on your computer
-            </div>
-          </aside>
-        )}
-        {!showPalette && (
-          <button
-            className="show-palette icon-button"
-            title="Show palette panel"
-            aria-label="Show palette panel"
-            onClick={() => setShowPalette(true)}
-          >
-            <PanelRightOpen size={18} />
-          </button>
-        )}
+            <div hidden={tab !== "filaments"}>{libraryContent}</div>
+            {options.mode !== "standard" && (
+              <div hidden={tab !== "layers"}>
+                {layersContent}
+                {advancedControl}
+                {advanced && (
+                  <Section title="Optical calibration">
+                    {calibrationContent}
+                  </Section>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="controls-footer">
+            {autoControl}
+            {previewAction}
+          </div>
+        </aside>
       </div>
       <footer className="status-bar">
         <div>
@@ -2547,7 +2499,14 @@ function App() {
           )}
         </div>
         <div>
+          {historyControls}
           <Updates
+            workspaceControls={
+              <>
+                {advancedControl}
+                {autoControl}
+              </>
+            }
             preferences={preferences}
             savePreferences={savePreferences}
             ready={preferencesReady}
@@ -2562,6 +2521,187 @@ function App() {
           </span>
         </div>
       </footer>
+      {showFile && (
+        <StudioDialog
+          title="File"
+          onClose={() => setShowFile(false)}
+          className="file-dialog"
+        >
+          <div className="file-actions">
+            <button
+              className="menu-action"
+              onClick={() => {
+                setShowFile(false);
+                void open();
+              }}
+              disabled={loading}
+            >
+              <span>
+                <Plus size={16} />
+                Open image
+              </span>
+              <kbd>Ctrl+O</kbd>
+            </button>
+            <button
+              className="menu-action"
+              onClick={() => {
+                setShowFile(false);
+                void openProject();
+              }}
+              disabled={loading}
+            >
+              <span>
+                <FolderOpen size={16} />
+                Open project
+              </span>
+              <kbd>Ctrl+Shift+O</kbd>
+            </button>
+            <button
+              className="menu-action"
+              onClick={() => {
+                setShowFile(false);
+                void saveProject();
+              }}
+              disabled={!source || loading || exporting}
+            >
+              <span>
+                <Save size={16} />
+                Save project
+              </span>
+              <kbd>Ctrl+S</kbd>
+            </button>
+            <button
+              className="menu-action"
+              onClick={() => {
+                setShowFile(false);
+                setTab("filaments");
+              }}
+            >
+              <span>
+                <SwatchBook size={16} />
+                Filament library
+              </span>
+              <ChevronRight size={14} />
+            </button>
+          </div>
+          <Section title="Recent images" initial>
+            <div onClick={() => setShowFile(false)}>{recentContent}</div>
+          </Section>
+        </StudioDialog>
+      )}
+      {showPresets && (
+        <StudioDialog
+          title="Presets & profiles"
+          onClose={() => setShowPresets(false)}
+          className="presets-dialog"
+        >
+          {presetsContent}
+        </StudioDialog>
+      )}
+      {showExport && (
+        <StudioDialog
+          title="Export"
+          onClose={() => setShowExport(false)}
+          className="export-dialog"
+        >
+          <div className="export-summary">
+            <FileImage size={21} />
+            <div>
+              <strong>{source?.name ?? "No image"}</strong>
+              <span>
+                {preview
+                  ? `${preview.result.sourceSize.join(" × ")} px · ${preview.result.uniqueColors} colors`
+                  : "Generate a preview first"}
+              </span>
+            </div>
+          </div>
+          <label className="select-field">
+            Format
+            <select
+              aria-label="Export format"
+              value={exportKind}
+              onChange={(e) => setExportKind(e.target.value)}
+            >
+              <option value="png">Full-resolution PNG</option>
+              <option value="palette">Palette report (.json)</option>
+              <option value="project">ColorNinja project (.colorninja)</option>
+              {options.mode === "stack" && (
+                <>
+                  <option value="layers">16-bit layer map</option>
+                  <option value="hfp">HueForge project (.hfp)</option>
+                </>
+              )}
+            </select>
+          </label>
+          {exportKind === "hfp" && options.mode === "stack" && (
+            <div className="hfp-settings">{hfpContent}</div>
+          )}
+          <label className="export-profile-option">
+            <input
+              type="checkbox"
+              checked={preferences.exportProfile}
+              disabled={preferencesSaving || exporting}
+              onChange={(e) =>
+                savePreferences({
+                  ...preferences,
+                  exportProfile: e.target.checked,
+                }).catch(handleError)
+              }
+            />
+            <span>
+              Also save project and settings profile
+              <small>
+                Reopen the .colorninja project. Reuse the JSON settings with
+                Load profile.
+              </small>
+            </span>
+          </label>
+          {(dirty || busy) && (
+            <div className="export-preview-warning" role="status">
+              <span>
+                {busy
+                  ? progress.stage
+                  : "Settings changed. Refresh before exporting."}
+              </span>
+              <button
+                className="button secondary"
+                disabled={busy || loading || !source}
+                onClick={() => setRerun((v) => v + 1)}
+              >
+                {busy ? (
+                  <LoaderCircle size={14} className="spin" />
+                ) : (
+                  <Sparkles size={14} />
+                )}
+                Refresh preview
+              </button>
+            </div>
+          )}
+          <div className="modal-actions">
+            <button
+              className="button secondary"
+              onClick={() => setShowExport(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="button primary"
+              disabled={
+                exportBlocked || (exportNeedsStack && !preview?.result.stack)
+              }
+              onClick={() => exportFile(exportKind)}
+            >
+              <ArrowDownToLine size={15} />
+              Export{" "}
+              {exportKind === "png"
+                ? "PNG"
+                : exportKind === "hfp"
+                  ? "HFP"
+                  : "file"}
+            </button>
+          </div>
+        </StudioDialog>
+      )}
       {toast && (
         <div
           role={toast.error ? "alert" : "status"}
@@ -2577,15 +2717,10 @@ function App() {
           </IconButton>
         </div>
       )}
+
       {dialog && (
-        <div
-          className="modal-backdrop"
-          onPointerDown={(e) => {
-            if (e.target === e.currentTarget) setDialog(null);
-          }}
-        >
+        <StudioDialog title={dialog.title} onClose={() => setDialog(null)}>
           <form
-            className="modal"
             onSubmit={async (e) => {
               e.preventDefault();
               const d = dialog;
@@ -2593,17 +2728,12 @@ function App() {
                 await d.submit(d.value);
                 setDialog(null);
               } catch (err) {
+                setDialogError(errorMessage(err));
                 handleError(err);
               }
             }}
           >
-            <div>
-              <h2>{dialog.title}</h2>
-              <IconButton title="Close dialog" onClick={() => setDialog(null)}>
-                <X size={18} />
-              </IconButton>
-            </div>
-            <label>
+            <label className="select-field">
               {dialog.label}
               <input
                 autoFocus
@@ -2614,6 +2744,11 @@ function App() {
                 }
               />
             </label>
+            {dialogError && (
+              <p className="dialog-error" role="alert">
+                {dialogError}
+              </p>
+            )}
             <div className="modal-actions">
               <button
                 type="button"
@@ -2627,7 +2762,7 @@ function App() {
               </button>
             </div>
           </form>
-        </div>
+        </StudioDialog>
       )}
     </div>
   );

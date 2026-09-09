@@ -1,4 +1,4 @@
-ColorNinja Studio 1.0.0-beta.3 - Windows x64
+ColorNinja Studio 1.0.0-beta.4 - Windows x64
 
 BETA: This is a testing release. Review output before printing.
 
@@ -8,7 +8,7 @@ not required to run these executables. This local build is unsigned.
 
 GET STARTED
 Open an image or try the built-in artwork. Adjust the color budget and detail
-smoothing, compare the result, then click Export PNG. Scroll to zoom and drag
+smoothing, compare the result, then choose Export > Full-resolution PNG. Scroll to zoom and drag
 to pan. Choose Side by side for separate Original and Result panes with linked
 zoom/pan, or Compare for the sliding divider. Fit and 1:1 help inspect detail.
 Preview and PNG export use
@@ -57,23 +57,23 @@ Global stack mode provides an independent approximate layer plan. Review it
 before printing. Its optional 16-bit layer map stores literal layer numbers
 (0 = transparent); it is not a normalized height image, STL, or G-code.
 
-Global Stack > Front Lit & layers > Choose depth automatically compares
+Global Stack > Layers > Choose depth automatically compares
 printable depths below your Hard maximum depth (for example 4.0 mm, including
 the base). It prefers the thinnest plan within 1% of the best color score found.
 The search is bounded, and deeper ceilings take longer. CLI: add
 --hueforge-auto-depth --hueforge-max-depth 4.0 to your stack command.
 
-Below the output stack summary, choose Visualize stack. The horizontal Stack
+In the output dock heading, choose Visualize stack. The horizontal Stack
 map shows filament runs, predicted layer colors, and mesh targets. Select a
 layer to inspect its height, material, TD, and image coverage. Striped mesh
 heights are excluded from matching; physical layers still print underneath.
 
 PROJECTS AND PREFERENCES
 Global Stack can reuse a filament after another color: enable Allow filament
-returns under Front Lit & layers. The budget counts unique spools, while Maximum
-filament runs limits swaps. Advanced > HueForge project export configures Mesh
+returns under Layers. The budget counts unique spools, while Maximum
+filament runs limits swaps. Export > HueForge project (.hfp) configures Mesh
 Mode, Mesh Core, width, and detail. Start with Color Match / Match planned layers,
-refresh, then choose HueForge project (.hfp) in the export menu. Both cores and
+refresh in the dialog, then choose Export HFP. Both cores and
 the reduced image are included. See docs/hueforge-project.md for validation.
 
 Ctrl+S saves a portable .colorninja project; Ctrl+Shift+O opens one. New projects
@@ -86,7 +86,7 @@ Open project) and Totoro_Test1.hfp.colorninja-profile.json (use Load profile).
 The project contains the image, filaments, settings, and exact result. Exporting
 a project adds only its settings profile, without a duplicate project.
 
-Presets & profiles appears below Workflow. Create, rename, apply, and delete
+Presets & profiles opens from below Workflow. Create, rename, apply, and delete
 named settings. Keep current workflow starts enabled; clear it to restore the
 preset workflow too. Save profile and Load profile share settings between images.
 Profiles do not contain images or library contents. Ctrl+O opens an image, Ctrl+E

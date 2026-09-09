@@ -8,12 +8,12 @@ and a separate Color Match Mesh Core.
 ## Workflow
 
 1. Choose **Global stack**, select eligible filaments, and set the filament budget.
-2. Under **Front Lit & layers**, enable **Allow filament returns** to explore
+2. Under **Layers**, enable **Allow filament returns** to explore
    schedules such as A → B → A. **Maximum filament runs** limits swaps. The
    filament budget counts unique spools; six runs can use four spools.
-3. Enable **Advanced** and open **HueForge project export**. Start with
+3. Open **Export** and select **HueForge project (.hfp)**. Start with
    **Color Match** and **Match planned layers**. Set width and mesh detail.
-4. Refresh the preview, then choose **HueForge project (.hfp)** from the export menu.
+4. Use **Refresh preview** in the dialog if settings have changed, then **Export HFP**.
 5. Open it in HueForge and review its preview, dimensions, and swap instructions
    before exporting a mesh and slicing.
 
