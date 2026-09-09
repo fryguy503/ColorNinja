@@ -41,6 +41,7 @@ type HueForgeOptions struct {
 	BaseDepth             float64 `json:"baseDepth"`
 	MaxDepth              float64 `json:"maxDepth"`
 	AutoDepth             bool    `json:"autoDepth"`
+	ReduceShowThrough     bool    `json:"reduceShowThrough"`
 	AnalysisColors        int     `json:"analysisColors"`
 	BeamWidth             int     `json:"beamWidth"`
 	MaxRuns               int     `json:"maxRuns"`
@@ -88,6 +89,7 @@ func (o *HueForgeOptions) UnmarshalJSON(data []byte) error {
 	v.LightPreset = ""
 	v.MaxRuns = 0
 	v.AutoDepth = false
+	v.ReduceShowThrough = false
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}

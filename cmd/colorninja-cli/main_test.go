@@ -91,6 +91,26 @@ func TestCLIStackLayerExport(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+func TestCLIShowThroughOption(t *testing.T) {
+	dir := t.TempDir()
+	base := filepath.Join("..", "..", "internal", "engine", "testdata")
+	output, report, hfp := filepath.Join(dir, "stack.png"), filepath.Join(dir, "stack.json"), filepath.Join(dir, "stack.hfp")
+	if err := argsRun(t, filepath.Join(base, "gradient.png"), "-o", output, "--hueforge-library", filepath.Join(base, "library.json"), "--hueforge-stack", "--hueforge-reduce-show-through", "--hueforge-max-depth", "0.8", "--colors", "2", "--palette-json", report, "--hueforge-project", hfp, "--quiet"); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(report)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var saved engine.Report
+	if err := json.Unmarshal(raw, &saved); err != nil || !saved.Options.HueForge.ReduceShowThrough || saved.Result.Stack.Surface == nil || saved.Result.Stack.Surface.BoundaryPairs == 0 {
+		t.Fatal("CLI did not enable boundary planning", err)
+	}
+	if _, err := os.Stat(hfp); err != nil {
+		t.Fatal(err)
+	}
+}
 func TestCLIRejectsInvalidModeAndInputOverwrite(t *testing.T) {
 	src := filepath.Join("..", "..", "internal", "engine", "testdata", "gradient.png")
 	if e := argsRun(t, src, "-o", src, "--force"); e == nil {

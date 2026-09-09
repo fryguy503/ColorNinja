@@ -433,7 +433,17 @@ func Process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, pro
 	if o.Mode == "guided" {
 		palette, result.Guidance, err = guide(ctx, palette, *lib, o, progress)
 	} else if o.Mode == "stack" {
-		palette, result.Stack, err = planStack(ctx, palette, *lib, o, progress)
+		var boundaries []stackBoundary
+		if o.HueForge.ReduceShowThrough {
+			if err = report(ctx, progress, "Analyzing neighboring colors", .34); err != nil {
+				return nil, err
+			}
+			boundaries, err = stackBoundaries(ctx, mappingSource, palette, o)
+			if err != nil {
+				return nil, err
+			}
+		}
+		palette, result.Stack, err = planStack(ctx, palette, *lib, o, progress, boundaries...)
 	}
 	if err != nil {
 		return nil, err

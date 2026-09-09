@@ -71,6 +71,7 @@ func run() error {
 	f.Float64Var(&o.HueForge.BaseDepth, "hueforge-base-depth", o.HueForge.BaseDepth, "base depth in mm")
 	f.Float64Var(&o.HueForge.MaxDepth, "hueforge-max-depth", o.HueForge.MaxDepth, "maximum total depth in mm")
 	f.BoolVar(&o.HueForge.AutoDepth, "hueforge-auto-depth", false, "choose the thinnest Front Lit stack within 1% of the best color score found, below --hueforge-max-depth")
+	f.BoolVar(&o.HueForge.ReduceShowThrough, "hueforge-reduce-show-through", false, "favor smaller height jumps and fewer unrelated intermediate colors at image boundaries (stack mode)")
 	f.IntVar(&o.HueForge.AnalysisColors, "hueforge-analysis-colors", o.HueForge.AnalysisColors, "analysis colors per population")
 	f.IntVar(&o.HueForge.MaxPerceivedColors, "hueforge-max-perceived-colors", o.HueForge.MaxPerceivedColors, "maximum output colors")
 	f.IntVar(&o.HueForge.BeamWidth, "hueforge-beam-width", o.HueForge.BeamWidth, "stack search beam width")

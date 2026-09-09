@@ -24,6 +24,35 @@ the result. Search and refinement evaluate returns using cumulative Front Lit
 blending. Returns start off to preserve existing plans. Enabling them widens the
 search and can take longer; the bounded search does not prove a global optimum.
 
+## Reduce layer show-through
+
+Under **Layers**, enable **Reduce layer show-through** for detailed images whose
+Color Core preview shows unwanted bands around outlines and small shapes. Refresh
+the preview and export again with **Color Match / Match planned layers**.
+
+Color matching alone scores the top of each region. The mesh between two regions
+can cross unrelated colors in the stack. This option samples neighboring source
+color groups and adds a penalty for large height differences and intermediate
+layer colors outside the color transition between those groups. Complete-stack
+search and refinement use this combined objective to choose filament order and
+layer allocation. Filament returns, when enabled separately, remain available.
+
+The option starts off and is retained in projects, settings profiles, and presets.
+It may trade color accuracy for cleaner boundaries and adds planning time. It
+does not blur the image or force all colors into a dark-to-light order. With
+automatic depth, the 1% allowance applies to the combined color and boundary score.
+
+This is a heuristic based on at most 262,144 nearest image samples, not a mesh or
+print simulation. Very fine details can be missed by sampling, and with Preserve
+details off, individual pixel matches may differ from the sampled color groups.
+ColorNinja's preview still shows colors at the chosen heights, not the slopes
+between them. Check the actual HueForge preview; mesh detail, physical width, and
+filament measurements still affect the result. Other mesh modes rebuild heights.
+The report's `stack.surface` records the sampled mean boundary height step, Oklab
+color detour, and heuristic penalty; these are not measured show-through percentages.
+
+CLI: add `--hueforge-reduce-show-through` to the stack export command below.
+
 ## The two cores
 
 The **Color Core** contains the actual optimized print schedule, including repeated

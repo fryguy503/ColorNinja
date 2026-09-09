@@ -1,4 +1,7 @@
-ColorNinja Studio 1.0.0-beta.4 - Windows x64
+ColorNinja Studio 1.0.0-beta.5 - Windows x64
+
+New in this build: Global stack > Layers > Reduce layer show-through.
+Enable it, refresh the preview, and export a new HueForge project to compare.
 
 BETA: This is a testing release. Review output before printing.
 
@@ -60,6 +63,8 @@ before printing. Its optional 16-bit layer map stores literal layer numbers
 Global Stack > Layers > Choose depth automatically compares
 printable depths below your Hard maximum depth (for example 4.0 mm, including
 the base). It prefers the thinnest plan within 1% of the best color score found.
+With Reduce layer show-through enabled, this allowance uses the combined color
+and boundary score. The option may trade color accuracy for cleaner boundaries.
 The search is bounded, and deeper ceilings take longer. CLI: add
 --hueforge-auto-depth --hueforge-max-depth 4.0 to your stack command.
 

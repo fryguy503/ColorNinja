@@ -54,7 +54,7 @@ func (c depthCandidates) record(s stackState) {
 	c[layer] = s
 }
 
-func (c depthCandidates) consider(ctx context.Context, s stackState, target []Vec, weights []float64, o Options) error {
+func (c depthCandidates) consider(ctx context.Context, s stackState, target []Vec, weights []float64, o Options, boundaries ...stackBoundary) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (c depthCandidates) consider(ctx context.Context, s stackState, target []Ve
 		return nil
 	}
 	var err error
-	s.score, err = stateScore(ctx, s, target, weights, o)
+	s.score, err = stateScore(ctx, s, target, weights, o, boundaries...)
 	if err == nil {
 		c.record(s)
 	}

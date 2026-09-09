@@ -9,14 +9,14 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current release: `v1.0.0-beta.4` — Windows x64.** The redesigned workspace groups
-settings into Tune, Filaments, and Layers or Optics, with a larger preview and a
-compact output dock. Maximum Filaments defaults to 8 and its main slider reaches
-32; larger saved budgets remain supported. Existing processing, project, preset,
-and export options are retained. See the [beta.4 notes](docs/releases/v1.0.0-beta.4.md).
-Review your output before printing.
+**Current release: `v1.0.0-beta.5` — Windows x64.** Global Stack now offers
+**Reduce layer show-through** under **Layers**. It favors smaller height jumps
+between neighboring image colors and fewer unrelated intermediate colors along
+their slopes. The option starts off and may trade color accuracy for cleaner
+boundaries. Refresh the preview and compare a new HFP in HueForge. See the
+[beta.5 notes](docs/releases/v1.0.0-beta.5.md). Review output before printing.
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.4)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.5)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
@@ -26,8 +26,8 @@ Review your output before printing.
 If you already have a Windows ZIP, start at step 2. Local builds are packaged in
 `build/releases`.
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.4)
-   and download **`ColorNinja-1.0.0-beta.4-windows-x64.zip`** from **Assets**.
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.5)
+   and download **`ColorNinja-1.0.0-beta.5-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and choose **Export → Full-resolution PNG**.
@@ -47,7 +47,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.4-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.5-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
@@ -58,6 +58,8 @@ Get-FileHash .\ColorNinja-1.0.0-beta.4-windows-x64.zip -Algorithm SHA256
 - Use owned filament colors and transmission distance (TD) from a HueForge library.
 - Plan a Front Lit global stack, optionally reuse filaments in later runs,
   choose depth below a hard maximum, and inspect an interactive stack map.
+- Optionally reduce layer show-through by considering neighboring image colors
+  when choosing stack order and layer allocation.
 - Export a stack layer-index map or a HueForge `.hfp` project with both cores and
   configurable mesh settings, including Color Match.
 - Compare original and result with a sliding divider or linked side-by-side views.

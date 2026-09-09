@@ -52,7 +52,7 @@ func rebuildStack(ids, runs []int, lib Library, h HueForgeOptions) stackState {
 // Refine completed stacks so an early greedy choice cannot permanently consume
 // the layers needed for a different shade. Every accepted move improves the
 // same capped, culled palette objective used by the final export.
-func refineStack(ctx context.Context, initial stackState, lib Library, bases []int, target []Vec, weights []float64, o Options, progress Reporter) (stackState, error) {
+func refineStack(ctx context.Context, initial stackState, lib Library, bases []int, target []Vec, weights []float64, o Options, progress Reporter, boundaries ...stackBoundary) (stackState, error) {
 	best := initial
 	for pass := 0; pass < 16; pass++ {
 		if err := report(ctx, progress, "Refining filament order and layers", .63+.015*float64(pass)/16); err != nil {
@@ -83,7 +83,7 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 				return nil
 			}
 			var err error
-			s.score, err = stateScore(ctx, s, target, weights, o)
+			s.score, err = stateScore(ctx, s, target, weights, o, boundaries...)
 			if err == nil && s.score < next.score-1e-9 {
 				next = s
 			}

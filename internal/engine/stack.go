@@ -37,6 +37,7 @@ type StackPlan struct {
 	RMS             float64         `json:"weightedRmsDeltaE76"`
 	LibrarySHA256   string          `json:"librarySHA256"`
 	DepthSelection  *DepthSelection `json:"depthSelection,omitempty"`
+	Surface         *StackSurface   `json:"surface,omitempty"`
 }
 type stackState struct {
 	indices, runs     []int
@@ -74,12 +75,20 @@ func uniqueStack(s stackState) ([]RGB, []int, []int) {
 	}
 	return colors, layers, positions
 }
-func stateScore(ctx context.Context, s stackState, target []Vec, weights []float64, o Options) (float64, error) {
-	colors, _, _ := uniqueStack(s)
-	_, _, v, e := selectReachable(ctx, o.colorVectors(colors), target, weights, o.HueForge.MaxPerceivedColors, o.selectionFraction())
+func stateScore(ctx context.Context, s stackState, target []Vec, weights []float64, o Options, boundaries ...stackBoundary) (float64, error) {
+	colors, layers, _ := uniqueStack(s)
+	ids, _, v, e := selectReachable(ctx, o.colorVectors(colors), target, weights, o.HueForge.MaxPerceivedColors, o.selectionFraction())
+	if e == nil && len(boundaries) > 0 {
+		selected, heights := make([]RGB, len(ids)), make([]int, len(ids))
+		for i, id := range ids {
+			selected[i], heights[i] = colors[id], layers[id]
+		}
+		surface := stackSurface(s, selected, heights, target, o, boundaries)
+		v = math.Sqrt(v*v + surface.Penalty)
+	}
 	return v, e
 }
-func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Options, progress Reporter) ([]PaletteEntry, *StackPlan, error) {
+func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Options, progress Reporter, boundaries ...stackBoundary) ([]PaletteEntry, *StackPlan, error) {
 	target, weights := targets(palette, o)
 	h := o.HueForge
 	bases := []int{}
@@ -126,7 +135,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		if size == 1 {
 			for i := range beam {
 				if h.AutoDepth {
-					if err := depths.consider(ctx, beam[i], target, weights, o); err != nil {
+					if err := depths.consider(ctx, beam[i], target, weights, o, boundaries...); err != nil {
 						return nil, nil, err
 					}
 				}
@@ -143,7 +152,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 							for j, t := range target {
 								beam[i].distances[j] = math.Min(beam[i].distances[j], distance(t, lab))
 							}
-							if err := depths.consider(ctx, beam[i], target, weights, o); err != nil {
+							if err := depths.consider(ctx, beam[i], target, weights, o, boundaries...); err != nil {
 								return nil, nil, err
 							}
 						}
@@ -151,7 +160,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 					beam[i].runs[0] = h.MaxLayers()
 					beam[i].used = h.TransitionLayers()
 				}
-				v, e := stateScore(ctx, beam[i], target, weights, o)
+				v, e := stateScore(ctx, beam[i], target, weights, o, boundaries...)
 				if e != nil {
 					return nil, nil, e
 				}
@@ -195,13 +204,13 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 						}
 						state := stackState{indices: append(append([]int{}, s.indices...), i), runs: append(append([]int{}, s.runs...), run), used: s.used + run, current: current, rgbs: append(append([]RGB{}, s.rgbs...), rgbs...), layers: append(append([]int{}, s.layers...), layers...), positions: append(append([]int{}, s.positions...), positions...), distances: append([]float64{}, distances...), score: dot(weights, distances)}
 						if final && h.AutoDepth && run != maxRun {
-							if err := depths.consider(ctx, state, target, weights, o); err != nil {
+							if err := depths.consider(ctx, state, target, weights, o, boundaries...); err != nil {
 								return nil, nil, err
 							}
 							continue
 						}
 						if final {
-							v, e := stateScore(ctx, state, target, weights, o)
+							v, e := stateScore(ctx, state, target, weights, o, boundaries...)
 							if e != nil {
 								return nil, nil, e
 							}
@@ -238,9 +247,9 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		return stateLess(a, b)
 	})
 	best := terminals[0]
-	if o.PreserveDetails {
+	if o.PreserveDetails || len(boundaries) > 0 {
 		var err error
-		best, err = refineStack(ctx, best, lib, bases, target, weights, o, progress)
+		best, err = refineStack(ctx, best, lib, bases, target, weights, o, progress, boundaries...)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -249,9 +258,9 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	if h.AutoDepth {
 		depths.record(best)
 		best, _ = depths.choose()
-		if o.PreserveDetails {
+		if o.PreserveDetails || len(boundaries) > 0 {
 			var err error
-			best, err = refineStack(ctx, best, lib, bases, target, weights, o, progress)
+			best, err = refineStack(ctx, best, lib, bases, target, weights, o, progress, boundaries...)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -262,6 +271,9 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		metric := "priority-weighted Oklab RMS"
 		if o.LegacyColorPipeline {
 			metric = "priority-weighted Lab RMS"
+		}
+		if len(boundaries) > 0 {
+			metric += " with boundary penalty"
 		}
 		depthSelection = &DepthSelection{h.MaxDepth, h.Height(h.MaxLayers()), len(depths), bestScore, best.score, autoDepthTolerance * 100, metric}
 	}
@@ -305,6 +317,15 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	}
 	plan := &StackPlan{Model: "independent-frontlit-scaled-td-linear-srgb-v1", SearchMethod: "deterministic-multisize-beam-with-capped-terminal-rerank", Options: h, Requested: o.Colors, Eligible: len(lib.Filaments), EligibleBases: len(bases), PlannedDepth: h.Height(planned), RMS: rms, LibrarySHA256: lib.SHA256}
 	plan.DepthSelection = depthSelection
+	if h.ReduceShowThrough {
+		selected, heights := make([]RGB, len(out)), make([]int, len(out))
+		for i, p := range out {
+			selected[i], heights[i] = p.RGB, p.StackLayer
+		}
+		surface := stackSurface(best, selected, heights, target, o, boundaries)
+		plan.Surface = &surface
+		plan.SearchMethod += "-image-boundary-penalty"
+	}
 	if h.AutoDepth {
 		plan.SearchMethod += "-automatic-depth-frontier"
 	}

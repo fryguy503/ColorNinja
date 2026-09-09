@@ -370,6 +370,7 @@ func TestHFPExportUsesCurrentStackAndPersistsOptions(t *testing.T) {
 	r.LibraryPath, _ = filepath.Abs(filepath.Join("..", "engine", "testdata", "library.json"))
 	r.Options.HueForge.MaxDepth = .8
 	r.Options.HueForge.MaxRuns = 3
+	r.Options.HueForge.ReduceShowThrough = true
 	r.Options.HueForge.MeshMode = "color-match"
 	r.Options.HueForge.MeshCore = "planned-colors"
 	r.Options.HueForge.ExportWidthMM = 150

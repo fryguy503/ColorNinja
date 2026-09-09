@@ -6,6 +6,7 @@ export type HueForgeOptions = {
   baseDepth: number;
   maxDepth: number;
   autoDepth: boolean;
+  reduceShowThrough: boolean;
   analysisColors: number;
   beamWidth: number;
   maxRuns: number;
@@ -165,6 +166,12 @@ export type Result = {
     plannedDepth: number;
     weightedRmsDeltaE76: number;
     layerColors: { rgb: number[]; layer: number }[];
+    surface?: {
+      boundaryPairs: number;
+      meanHeightJumpMm: number;
+      rmsColorDetour: number;
+      penalty: number;
+    };
     depthSelection?: {
       hardMaximum: number;
       printableMaximum: number;
@@ -230,6 +237,7 @@ export const defaults: Options = {
     baseDepth: 0.48,
     maxDepth: 2.24,
     autoDepth: false,
+    reduceShowThrough: false,
     analysisColors: 32,
     beamWidth: 24,
     maxRuns: 0,

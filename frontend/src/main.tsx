@@ -1565,6 +1565,20 @@ function App() {
           <label className="check-field">
             <input
               type="checkbox"
+              checked={options.hueforge.reduceShowThrough ?? false}
+              onChange={(e) => changeHF("reduceShowThrough", e.target.checked)}
+            />
+            Reduce layer show-through
+          </label>
+          <p className="field-help">
+            Favor smaller height jumps between neighboring image colors and
+            fewer unrelated colors along their slopes. May trade some color
+            accuracy for cleaner boundaries. Refresh and compare in HueForge;
+            this is an estimate, not a mesh preview.
+          </p>
+          <label className="check-field">
+            <input
+              type="checkbox"
               checked={(options.hueforge.maxRuns || 0) > 0}
               onChange={(e) =>
                 changeHF(
@@ -1702,7 +1716,11 @@ function App() {
         </p>
         <p className="field-help">
           Compare printable depths and prefer the thinnest plan within 1% of the
-          best color score found. The ceiling includes the base.
+          best{" "}
+          {options.hueforge.reduceShowThrough
+            ? "combined color and boundary"
+            : "color"}{" "}
+          score found. The ceiling includes the base.
         </p>
         <p className="field-help">
           Total depth is the first layer plus whole regular layers.
@@ -2346,6 +2364,14 @@ function App() {
                                 2,
                               )}{" "}
                               mm ceiling.
+                            </p>
+                          )}
+                          {preview.result.stack.surface && (
+                            <p className="field-help">
+                              Show-through reduction ·{" "}
+                              {preview.result.stack.surface.boundaryPairs > 0
+                                ? `${preview.result.stack.surface.meanHeightJumpMm.toFixed(2)} mm average step across sampled color boundaries. Review the mesh in HueForge.`
+                                : "No neighboring color groups found in the sample."}
                             </p>
                           )}
                         </>
