@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([string]$GuiName = 'ColorNinja-Studio.exe')
+param([string]$GuiName = 'ColorNinja-Studio.exe', [string]$ReleaseDirectory = 'build\releases')
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 if ([IO.Path]::GetFileName($GuiName) -ne $GuiName) { throw 'GuiName must be a filename.' }
@@ -15,7 +15,9 @@ try {
     if ((Get-FileHash -LiteralPath $gui -Algorithm SHA256).Hash.ToLowerInvariant() -ne $info.guiSHA256) { throw 'Desktop executable does not match build info.' }
     if ((Get-FileHash -LiteralPath 'build\bin\colorninja-cli.exe' -Algorithm SHA256).Hash.ToLowerInvariant() -ne $info.cliSHA256) { throw 'CLI executable does not match build info.' }
     $releaseName = 'ColorNinja-' + $version + '-windows-x64'
-    $release = Join-Path $projectRoot (Join-Path 'build\releases' $releaseName)
+    $releaseRoot = [IO.Path]::GetFullPath((Join-Path $projectRoot $ReleaseDirectory))
+    if (-not $releaseRoot.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Release directory must stay inside the project.' }
+    $release = Join-Path $releaseRoot $releaseName
     $zip = $release + '.zip'
     $archiveChecksum = $zip + '.sha256'
     if ((Test-Path -LiteralPath $release) -or (Test-Path -LiteralPath $zip) -or (Test-Path -LiteralPath $archiveChecksum)) { throw 'This version is already packaged. Use a new version or explicitly archive the previous package first.' }

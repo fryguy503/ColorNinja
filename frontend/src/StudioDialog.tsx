@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
@@ -16,7 +16,7 @@ export function StudioDialog({
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const heading = useId();
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = ref.current!;
     dialog.showModal();
     return () => dialog.close();

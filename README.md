@@ -9,14 +9,13 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current release: `v1.0.0-beta.5` — Windows x64.** Global Stack now offers
-**Reduce layer show-through** under **Layers**. It favors smaller height jumps
-between neighboring image colors and fewer unrelated intermediate colors along
-their slopes. The option starts off and may trade color accuracy for cleaner
-boundaries. Refresh the preview and compare a new HFP in HueForge. See the
-[beta.5 notes](docs/releases/v1.0.0-beta.5.md). Review output before printing.
+**Current beta: `v1.0.0-beta.6` — Windows x64.** This release
+build adds stronger detail preservation, physical-scale stack diagnostics,
+search alternatives, required spools, protected colors, saved comparisons,
+reusable processing stages, and tuned Mesh Core TDs by default. See the
+[Beta 6 notes](docs/releases/v1.0.0-beta.6.md) and [acceptance checklist](docs/beta6-plan.md).
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.5)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.6)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
@@ -26,8 +25,8 @@ boundaries. Refresh the preview and compare a new HFP in HueForge. See the
 If you already have a Windows ZIP, start at step 2. Local builds are packaged in
 `build/releases`.
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.5)
-   and download **`ColorNinja-1.0.0-beta.5-windows-x64.zip`** from **Assets**.
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.6)
+   and download **`ColorNinja-1.0.0-beta.6-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and choose **Export → Full-resolution PNG**.
@@ -47,7 +46,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.5-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.6-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does

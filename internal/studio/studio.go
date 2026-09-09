@@ -35,6 +35,7 @@ type Preset struct {
 	Options engine.Options `json:"options"`
 }
 type Settings struct {
+	Comparisons   []Comparison         `json:"comparisons,omitempty"`
 	Preferences   Preferences          `json:"preferences"`
 	SchemaVersion int                  `json:"schemaVersion"`
 	Options       engine.Options       `json:"options"`
@@ -65,13 +66,14 @@ type Request struct {
 	Filter      engine.LibraryFilter `json:"filter"`
 }
 type Preview struct {
-	ID       uint64         `json:"id"`
-	Revision uint64         `json:"revision"`
-	URL      string         `json:"url"`
-	Result   *engine.Result `json:"result"`
-	Options  engine.Options `json:"options"`
-	Seconds  float64        `json:"seconds"`
-	Warning  string         `json:"warning,omitempty"`
+	ReusedStages []string       `json:"reusedStages,omitempty"`
+	ID           uint64         `json:"id"`
+	Revision     uint64         `json:"revision"`
+	URL          string         `json:"url"`
+	Result       *engine.Result `json:"result"`
+	Options      engine.Options `json:"options"`
+	Seconds      float64        `json:"seconds"`
+	Warning      string         `json:"warning,omitempty"`
 }
 type Progress struct {
 	ID uint64 `json:"id"`
@@ -86,6 +88,7 @@ type Document struct {
 	Filter        engine.LibraryFilter `json:"filter"`
 }
 type Studio struct {
+	processor       engine.Processor
 	ctx             context.Context
 	mu              sync.RWMutex
 	worker          sync.Mutex
@@ -336,7 +339,7 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 		library = &l
 	}
 	last := time.Time{}
-	r, e := engine.Process(ctx, src, req.Options, library, func(p engine.Progress) {
+	r, e := s.processor.Process(ctx, src, req.Options, library, func(p engine.Progress) {
 		if time.Since(last) > 50*time.Millisecond || p.Fraction == 1 {
 			last = time.Now()
 			s.emit("progress", Progress{req.ID, p})
@@ -362,7 +365,7 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 	if e = s.saveSettings(); e != nil {
 		warning = "Preview ready, but preferences could not be saved: " + e.Error()
 	}
-	return &Preview{req.ID, req.Revision, fmt.Sprintf("/media/result/%d.png", job), r, req.Options, time.Since(start).Seconds(), warning}, nil
+	return &Preview{ID: req.ID, Revision: req.Revision, URL: fmt.Sprintf("/media/result/%d.png", job), Result: r, Options: req.Options, Seconds: time.Since(start).Seconds(), Warning: warning, ReusedStages: append([]string(nil), s.processor.Reused...)}, nil
 }
 func (s *Studio) saveSettings() error {
 	s.settingsMu.Lock()

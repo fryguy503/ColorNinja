@@ -1,13 +1,16 @@
-ColorNinja Studio 1.0.0-beta.5 - Windows x64
+ColorNinja Studio 1.0.0-beta.6 - Windows x64
 
-New in this build: Global stack > Layers > Reduce layer show-through.
-Enable it, refresh the preview, and export a new HueForge project to compare.
+New in Beta 6: tuned Mesh Core TDs are the default for HueForge project exports,
+including older saved projects. Export a new HFP and reopen it in HueForge to
+replace the previous flat 0.01 TD core. Physical filament TDs stay unchanged.
+Also included: stronger detail preservation, stack diagnostics and comparisons,
+required spools, protected colors, and faster reuse of unchanged processing.
 
 BETA: This is a testing release. Review output before printing.
 
 Extract this folder, then double-click ColorNinja.exe.
 The GUI needs Microsoft Edge WebView2 Runtime. Python, Node.js, and Go are
-not required to run these executables. This local build is unsigned.
+not required to run these executables. This build is unsigned.
 
 GET STARTED
 Open an image or try the built-in artwork. Adjust the color budget and detail

@@ -130,7 +130,17 @@ func (a *App) SetLibrary(path string, filter engine.LibraryFilter) (*engine.Libr
 	return a.studio.SetLibrary(path, filter)
 }
 func (a *App) Process(req studio.Request) (*studio.Preview, error) { return a.studio.Process(req) }
-func (a *App) Cancel()                                             { a.studio.Cancel() }
+func (a *App) ComparePlans(req studio.Request) ([]studio.Comparison, error) {
+	return a.studio.ComparePlans(req)
+}
+func (a *App) CaptureComparison(req studio.Request) ([]studio.Comparison, error) {
+	return a.studio.CaptureComparison(req)
+}
+func (a *App) ClearComparisons() error { return a.studio.ClearComparisons() }
+func (a *App) CompareWithout(r studio.Request, key string) ([]studio.Comparison, error) {
+	return a.studio.CompareWithout(r, key)
+}
+func (a *App) Cancel() { a.studio.Cancel() }
 func (a *App) SavePreset(name string, o engine.Options) ([]studio.Preset, error) {
 	return a.studio.SavePreset(name, o)
 }

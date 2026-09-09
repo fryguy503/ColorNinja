@@ -40,6 +40,9 @@ func depthStateLess(a, b stackState) bool {
 }
 
 func (c depthCandidates) record(s stackState) {
+	if !finite(s.score) {
+		return
+	}
 	layer := stackLayers(s)
 	if prior, ok := c[layer]; ok && !depthStateLess(s, prior) {
 		return
@@ -69,12 +72,16 @@ func (c depthCandidates) consider(ctx context.Context, s stackState, target []Ve
 	return err
 }
 
-func (c depthCandidates) choose() (stackState, float64) {
+func (c depthCandidates) choose(tolerances ...float64) (stackState, float64) {
+	tolerance := autoDepthTolerance
+	if len(tolerances) > 0 && tolerances[0] > 0 {
+		tolerance = tolerances[0] / 100
+	}
 	bestScore := math.Inf(1)
 	for _, s := range c {
 		bestScore = math.Min(bestScore, s.score)
 	}
-	limit := bestScore*(1+autoDepthTolerance) + 1e-9
+	limit := bestScore*(1+tolerance) + 1e-9
 	var best stackState
 	for layer, s := range c {
 		if s.score > limit {

@@ -26,6 +26,22 @@ func targets(p []PaletteEntry, o Options) ([]Vec, []float64) {
 			sum += w
 		}
 	}
+	// Protected targets affect importance, not the original area/error metrics.
+	for _, c := range protectedRGB(o) {
+		best, pos := math.Inf(1), -1
+		for i, p := range p {
+			if d := distance(o.colorVector(c), o.colorVector(p.RGB)); d < best {
+				best, pos = d, i
+			}
+		}
+		if pos >= 0 {
+			weights[pos] = math.Max(weights[pos], sum*.1)
+		}
+	}
+	sum = 0
+	for _, w := range weights {
+		sum += w
+	}
 	for i := range weights {
 		if sum == 0 {
 			weights[i] = 1 / float64(len(p))

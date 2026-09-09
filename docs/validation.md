@@ -7,6 +7,52 @@ production compilation, and source formatting checks to pass.
 
 ## Automated coverage
 
+Beta 6 adds full-resolution/downsampled detail regressions, unconditional CIELAB
+report checks, alternate matching heights, required-spool survival through
+mapping, cache/fresh equivalence and cancellation, TD sensitivity, comparison
+persistence/exclusion/export identity, and three small stack cases checked
+against exhaustive enumeration. `BUILD-INFO.json` records the current test count;
+historical counts below describe their original releases.
+
+The blended Mesh Core covers three lighting presets, physical-core immutability,
+matching heights, higher virtual TDs, and gap blending. The installed HueForge
+0.9.4.3 harness was rerun for a constrained 96×64 fixture, a 480×64 gradient,
+3750×4688 artwork, and a Black → Magenta → Black → Green case using black at
+layer 16 rather than layer 5. All returned zero matching-layer and physical RGB-channel
+errors. Raw reports are under `artifacts/beta6` locally.
+
+The default-TD correction also covers omitted and Beta 5 `planned-colors`
+settings, nested presets, profiles, and portable project restoration. The rebuilt
+Windows interface reopened an old flat-core project, selected **Tuned image colors**,
+and exported it with TD 0.78–2.29 and no disables. The saved image and print heights
+were retained. CLI defaults and old options files passed the native harness too:
+the gradient used four entries instead of fifteen (TD 0.2–6.3), and the artwork
+used TD 0.78–5.59 with twenty disables removed. Evidence is under
+`artifacts/beta6/td-default-fix` locally.
+
+The Beta 6 build gate currently passes 131 Go tests and eight frontend state
+tests. A browser pass of the compiled interface covered saving comparisons,
+opening a portable constrained project, generating alternatives, and selecting
+a layer both from the slider and from the image. It also checked the surface
+layout, binary-alpha explanation, compact Mesh Core reporting, export blocking
+after settings changes, and keyboard focus restoration after modal dismissal.
+The focus restoration defect found during this check was fixed and rechecked.
+Native Windows dialogs and display scaling
+remain separately pending.
+
+An existing native STL contains 649,412 triangles on a 751×939 XY coordinate
+grid at 0.2 mm spacing, with a 150×187.6×2.08 mm bounding box. Its requested
+187.52 mm height was rounded up to the grid. The diagnostic display is not mesh
+parity: extent rounding, triangle decimation/orientation, and material lighting
+still need controlled new-mesh comparisons. The UI labels its surface approximate.
+
+On a synthetic 1200×900 reducer image, three iterations averaged 177.6 ms and
+40.0 MB allocated for fresh processing versus 2.4 microseconds and about 2 KB for
+an export-only cache lookup on a Ryzen 9 7950X. These are engine allocations per
+operation, not retained memory, desktop latency, or stack-search speedup claims.
+The cache retains current-document stage snapshots, one completed result, and
+a bounded optical-candidate set.
+
 The Beta 3 export companion fix passes 107 Go tests, eight frontend tests,
 formatting checks, Go vet, and the TypeScript/Windows production build. Its
 regressions cover portable companions for every export kind, exact reopening and
@@ -123,7 +169,7 @@ the checked fixtures, not universal error bounds.
 
 ## Desktop validation boundary
 
-The beta release gate includes 107 Go tests (with 246 Front Lit reference
+The beta release gate includes the current Go suite (with 246 Front Lit reference
 subcases and five Python reference cases), eight frontend tests, TypeScript and
 production builds, formatting, Go vet, and Windows Wails/CLI compilation.
 The final packaged executables are checked after extraction: file checksums,

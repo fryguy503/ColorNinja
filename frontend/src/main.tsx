@@ -33,6 +33,12 @@ import { Updates } from "./Updates";
 import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
 import {
+  ProtectedColors,
+  FilamentConstraints,
+  GuidedExplanation,
+  ComparisonsDialog,
+} from "./Beta6Tools";
+import {
   applyColorBudget,
   applyAutoDepth,
   applyColorPriority,
@@ -63,6 +69,7 @@ import {
   type Request,
   type HueForgeOptions,
   type Filament,
+  type Comparison,
 } from "./types";
 import "./style.css";
 import "./studio.css";
@@ -596,6 +603,10 @@ function App() {
     [showPalette, setShowPalette] = useState(true),
     [search, setSearch] = useState("");
   const [showFile, setShowFile] = useState(false);
+  const [showComparisons, setShowComparisons] = useState(false);
+  const [comparisons, setComparisons] = useState<Comparison[]>([]);
+  const [savedComparisons, setSavedComparisons] = useState<Comparison[]>([]);
+  const [comparing, setComparing] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
   const [exportKind, setExportKind] = useState("png");
   const [resultTab, setResultTab] = useState<
@@ -640,6 +651,8 @@ function App() {
     setLibrary(s.library);
     setPresets(s.settings.presets ?? []);
     setRecent(s.settings.recent ?? []);
+    setSavedComparisons(s.settings.comparisons ?? []);
+    setComparisons([]);
     setPreview(s.preview ?? null);
     renderedKey.current = s.preview
       ? s.source.revision +
@@ -710,6 +723,40 @@ function App() {
     filter: live.current.filter,
   });
   const stateKey = JSON.stringify([options, libraryPath, filter]);
+  const captureComparison = async () => {
+    try {
+      setSavedComparisons(
+        await invoke<Comparison[]>("CaptureComparison", request()),
+      );
+    } catch (e) {
+      handleError(e);
+    }
+  };
+  const comparePlans = async (excluded?: string) => {
+    if (!excluded && options.mode !== "stack") {
+      notify("Choose Global stack to find printable alternatives.");
+      return;
+    }
+    const id = ++seq.current;
+    setComparing(true);
+    setBusy(true);
+    setShowComparisons(true);
+    setComparisons([]);
+    try {
+      const results = excluded
+        ? await invoke<Comparison[]>("CompareWithout", request(), excluded)
+        : await invoke<Comparison[]>("ComparePlans", request());
+      if (seq.current === id) setComparisons(results);
+    } catch (e) {
+      handleError(e);
+    } finally {
+      setComparing(false);
+      if (seq.current === id) {
+        setBusy(false);
+        setProgress({ stage: "Ready", fraction: 1 });
+      }
+    }
+  };
   const manualVersion = useRef(0);
   const renderedKey = useRef("");
   useEffect(() => {
@@ -1360,6 +1407,7 @@ function App() {
 
   const advancedTuningContent = (
     <>
+      <ProtectedColors options={options} onChange={update} />
       {advanced && (
         <Numeric
           label="Exact budget"
@@ -1561,6 +1609,25 @@ function App() {
   const layersContent = (
     <>
       {options.mode === "stack" && (
+        <label className="select-field">
+          Search effort
+          <select
+            aria-label="Search effort"
+            value={options.hueforge.searchEffort || "preview"}
+            onChange={(e) =>
+              changeHF("searchEffort", e.target.value as "preview" | "refine")
+            }
+          >
+            <option value="preview">Normal preview</option>
+            <option value="refine">Deeper refinement</option>
+          </select>
+          <small>
+            Deeper refinement explores more orders and can insert, remove, or
+            split runs.
+          </small>
+        </label>
+      )}
+      {options.mode === "stack" && (
         <>
           <label className="check-field">
             <input
@@ -1576,6 +1643,28 @@ function App() {
             accuracy for cleaner boundaries. Refresh and compare in HueForge;
             this is an estimate, not a mesh preview.
           </p>
+          {options.hueforge.reduceShowThrough && (
+            <Numeric
+              label="Allowed color-score increase"
+              value={options.hueforge.surfaceColorTolerance ?? 0}
+              min={0}
+              max={50}
+              step={1}
+              suffix="%"
+              onChange={(v) => changeHF("surfaceColorTolerance", v)}
+            />
+          )}
+          {advanced && (
+            <Numeric
+              label="Automatic depth tolerance"
+              value={options.hueforge.depthTolerance || 1}
+              min={0.1}
+              max={50}
+              step={0.1}
+              suffix="%"
+              onChange={(v) => changeHF("depthTolerance", v)}
+            />
+          )}
           <label className="check-field">
             <input
               type="checkbox"
@@ -1734,6 +1823,32 @@ function App() {
 
   const calibrationContent = (
     <>
+      <label className="select-field">
+        Calibration notes
+        <input
+          aria-label="Calibration notes"
+          value={options.calibrationNote ?? ""}
+          maxLength={1000}
+          placeholder="Measured TD, date, lighting, or print notes"
+          onChange={(e) => change("calibrationNote", e.target.value)}
+        />
+      </label>
+      {options.mode === "stack" && (
+        <Numeric
+          label="TD sensitivity range"
+          value={options.hueforge.tdSensitivityPercent ?? 0}
+          min={0}
+          max={25}
+          step={1}
+          suffix="%"
+          onChange={(v) => changeHF("tdSensitivityPercent", v)}
+        />
+      )}
+      <p className="field-help">
+        Sensitivity varies one spool's TD at a time while keeping the stack
+        fixed. It is a software estimate, not a measured color calibration. Zero
+        turns it off.
+      </p>
       {options.mode === "stack" && (
         <Numeric
           label="Search beam width"
@@ -1803,7 +1918,12 @@ function App() {
           <label className="select-field">
             Mesh core
             <select
-              value={options.hueforge.meshCore || "planned-colors"}
+              value={
+                !options.hueforge.meshCore ||
+                options.hueforge.meshCore === "planned-colors"
+                  ? "compact-blends"
+                  : options.hueforge.meshCore
+              }
               onChange={(e) =>
                 changeHF(
                   "meshCore",
@@ -1811,15 +1931,31 @@ function App() {
                 )
               }
             >
-              <option value="planned-colors">Match planned layers</option>
+              <option value="compact-blends">
+                Tuned image colors (recommended)
+              </option>
               <option value="filament-blends">Use filament blends</option>
+              <option value="legacy-flat">Flat image colors (legacy)</option>
             </select>
           </label>
           <p className="field-help">
-            The Color Core uses the optimized print stack. Match planned layers
-            builds a separate Mesh Core from the output colors; filament blends
-            copies the print stack into both cores.
+            Tuned image colors fits Mesh Core TDs for blending while retaining
+            the planned heights. It removes unnecessary disables and uses fewer
+            IMAGE entries where possible. These TDs control virtual image
+            colors; your real filament TDs in the Color Core stay unchanged.
           </p>
+          {options.hueforge.meshCore === "legacy-flat" && (
+            <p className="field-help">
+              Legacy export uses opaque 0.01 TD image colors and disables unused
+              heights. Select Tuned image colors to enable blending.
+            </p>
+          )}
+          {options.hueforge.meshCore === "filament-blends" && (
+            <p className="field-help">
+              Filament blends copies the physical print schedule into both cores
+              and restricts matching to the selected heights.
+            </p>
+          )}
         </>
       ) : (
         <p className="field-help">
@@ -1877,6 +2013,13 @@ function App() {
       <p className="field-help">
         Reads your HueForge library. Your original library is never modified.
       </p>
+      {library && (
+        <FilamentConstraints
+          options={options}
+          library={library}
+          onChange={update}
+        />
+      )}
       <Section title="Library filters">
         <label className="check-field">
           <input
@@ -2094,7 +2237,13 @@ function App() {
   );
 
   const exportBlocked =
-    !preview || dirty || busy || loading || exporting || preferencesSaving;
+    !preview ||
+    dirty ||
+    busy ||
+    comparing ||
+    loading ||
+    exporting ||
+    preferencesSaving;
   const exportNeedsStack = exportKind === "hfp" || exportKind === "layers";
   const matchingPreset = presets.find(
     (p) => JSON.stringify(p.options) === JSON.stringify(options),
@@ -2122,6 +2271,13 @@ function App() {
           {dirty && source && <i title="Settings differ from the preview" />}
         </div>
         <div className="header-actions">
+          <button
+            className="button secondary"
+            disabled={!source || loading}
+            onClick={() => setShowComparisons(true)}
+          >
+            Compare results
+          </button>
           <IconButton
             title="Save project (Ctrl+S)"
             onClick={saveProject}
@@ -2234,7 +2390,20 @@ function App() {
                               className="palette-swatch"
                               key={c.hex}
                               title={`Copy ${c.hex} · ${pct(c.pixelFraction)} of visible pixels`}
-                              onClick={async () => {
+                              onClick={async (event) => {
+                                if (event.shiftKey) {
+                                  const colors = (options.protectedColors ?? "")
+                                    .split(",")
+                                    .filter(Boolean);
+                                  update({
+                                    ...options,
+                                    protectedColors: [
+                                      ...new Set([...colors, c.hex]),
+                                    ].join(","),
+                                  });
+                                  notify(`Protected ${c.hex}`);
+                                  return;
+                                }
                                 try {
                                   await navigator.clipboard.writeText(c.hex);
                                   notify(`Copied ${c.hex}`);
@@ -2291,10 +2460,44 @@ function App() {
                           <span>Processing time</span>
                           <strong>{preview.seconds.toFixed(2)} s</strong>
                         </div>
+                        {(preview.reusedStages?.length ?? 0) > 0 && (
+                          <p className="field-help">
+                            Reused {preview.reusedStages!.join(", ")}.
+                          </p>
+                        )}
                         <div className="stat-row">
                           <span>Output</span>
                           <strong>Lossless PNG</strong>
                         </div>
+                        {preview.result.calibration && (
+                          <div className="calibration-result">
+                            <p>
+                              {preview.result.calibration.trueBlackOverride
+                                ? "Artistic black override is active; library RGB is preserved in the report."
+                                : "Predictions use the library RGB values."}
+                            </p>
+                            {preview.result.calibration.note && (
+                              <p>Notes: {preview.result.calibration.note}</p>
+                            )}
+                            {preview.result.calibration.sensitivity?.map(
+                              (f) => (
+                                <div className="stat-row" key={f.key}>
+                                  <span>
+                                    {f.name} · TD ±
+                                    {
+                                      preview.result.calibration!
+                                        .variationPercent
+                                    }
+                                    %
+                                  </span>
+                                  <strong>
+                                    up to {f.maxDeltaE76.toFixed(2)} ΔE76
+                                  </strong>
+                                </div>
+                              ),
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div
@@ -2311,7 +2514,7 @@ function App() {
                           {selected.map((f, i) => (
                             <div
                               className="selected-filament"
-                              key={f.sourceIndex}
+                              key={`${f.sourceIndex}:${i}`}
                               title={filamentDescription(f)}
                             >
                               <span
@@ -2332,6 +2535,14 @@ function App() {
                                 </span>
                               </div>
                               {preview.result.stack && <small>{i + 1}</small>}
+                              <button
+                                className="text-button"
+                                disabled={busy || dirty}
+                                onClick={() => comparePlans(f.key ?? f.uuid)}
+                                title="Replan without this spool and compare measured results"
+                              >
+                                Compare without
+                              </button>
                             </div>
                           ))}
                         </div>
@@ -2370,8 +2581,8 @@ function App() {
                             <p className="field-help">
                               Show-through reduction ·{" "}
                               {preview.result.stack.surface.boundaryPairs > 0
-                                ? `${preview.result.stack.surface.meanHeightJumpMm.toFixed(2)} mm average step across sampled color boundaries. Review the mesh in HueForge.`
-                                : "No neighboring color groups found in the sample."}
+                                ? `${preview.result.stack.surface.meanHeightJumpMm.toFixed(2)} mm average step across image color boundaries. Review the mesh in HueForge.`
+                                : "No neighboring color groups found."}
                             </p>
                           )}
                         </>
@@ -2389,6 +2600,13 @@ function App() {
                           </p>
                         </div>
                       )}
+                      <GuidedExplanation
+                        result={preview.result}
+                        onStack={() => {
+                          update({ ...options, mode: "stack" });
+                          setTab("layers");
+                        }}
+                      />
                     </div>
                   </>
                 ) : (
@@ -2615,6 +2833,31 @@ function App() {
           </Section>
         </StudioDialog>
       )}
+      <ComparisonsDialog
+        open={showComparisons}
+        onClose={() => setShowComparisons(false)}
+        items={comparisons}
+        saved={savedComparisons}
+        busy={comparing || busy}
+        canGenerate={options.mode === "stack" && !!libraryPath}
+        canCapture={!!preview && !dirty}
+        onGenerate={() => comparePlans()}
+        onCapture={captureComparison}
+        onClear={() => {
+          invoke("ClearComparisons")
+            .then(() => setSavedComparisons([]))
+            .catch(handleError);
+        }}
+        onApply={(c) => {
+          update(copy(c.options));
+          setFilter(normalizeFilter(copy(c.filter)));
+          setShowComparisons(false);
+          if (c.librarySHA256 && c.librarySHA256 !== library?.sha256)
+            notify(
+              "These settings were saved with different filaments. Review the refreshed result.",
+            );
+        }}
+      />
       {showPresets && (
         <StudioDialog
           title="Presets & profiles"

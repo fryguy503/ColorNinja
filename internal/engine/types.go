@@ -31,6 +31,8 @@ type Options struct {
 	GuidanceStrength    float64         `json:"guidanceStrength"`
 	TrueBlack           bool            `json:"trueBlack"`
 	PreserveDetails     bool            `json:"preserveDetails"`
+	ProtectedColors     string          `json:"protectedColors,omitempty"`
+	CalibrationNote     string          `json:"calibrationNote,omitempty"`
 	HueForge            HueForgeOptions `json:"hueforge"`
 }
 type HueForgeOptions struct {
@@ -42,6 +44,13 @@ type HueForgeOptions struct {
 	MaxDepth              float64 `json:"maxDepth"`
 	AutoDepth             bool    `json:"autoDepth"`
 	ReduceShowThrough     bool    `json:"reduceShowThrough"`
+	SearchEffort          string  `json:"searchEffort,omitempty"`
+	RequiredFilaments     string  `json:"requiredFilaments,omitempty"`
+	BaseFilament          string  `json:"baseFilament,omitempty"`
+	HighlightFilament     string  `json:"highlightFilament,omitempty"`
+	SurfaceColorTolerance float64 `json:"surfaceColorTolerance"`
+	DepthTolerance        float64 `json:"depthTolerance"`
+	TDSensitivityPercent  float64 `json:"tdSensitivityPercent"`
 	AnalysisColors        int     `json:"analysisColors"`
 	BeamWidth             int     `json:"beamWidth"`
 	MaxRuns               int     `json:"maxRuns"`
@@ -59,7 +68,7 @@ func DefaultOptions() Options {
 	return Options{Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
 		MinClusterFraction: .005, HistogramBits: 6, Iterations: 24,
 		PreblurSigma: 1.5, Mode: "standard", GuidanceStrength: .8, TrueBlack: true, PreserveDetails: true,
-		HueForge: HueForgeOptions{OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
+		HueForge: HueForgeOptions{MeshCore: "compact-blends", SearchEffort: "preview", SurfaceColorTolerance: 5, DepthTolerance: 1, OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
 }
 
 // Older projects, presets, and preferences lack the new preservation options.
@@ -76,6 +85,7 @@ func (o *Options) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*o = Options(value)
+	o.HueForge.MeshCore = o.HueForge.meshCore()
 	return nil
 }
 
@@ -94,18 +104,35 @@ func (o *HueForgeOptions) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	*o = HueForgeOptions(v)
+	o.MeshCore = o.meshCore()
 	return nil
+}
+
+// Beta 5's default named the goal (planned heights), not a user preference for
+// opaque IMAGE entries. Upgrade that choice in saved settings/projects too.
+// The old 0.01 TD implementation remains an explicit compatibility option.
+func (o HueForgeOptions) meshCore() string {
+	if o.MeshCore == "" || o.MeshCore == "planned-colors" {
+		return "compact-blends"
+	}
+	return o.MeshCore
 }
 func (o Options) selectionFraction() float64 {
 	// Analysis has already culled noise. Do not erase surviving small details
 	// a second time while choosing constrained colors.
-	if o.PreserveDetails || o.prioritizeColors() {
+	if o.PreserveDetails || o.prioritizeColors() || o.ProtectedColors != "" {
 		return 0
 	}
 	return o.MinClusterFraction
 }
 func finite(v float64) bool { return !math.IsNaN(v) && !math.IsInf(v, 0) }
 func (o Options) Validate() error {
+	if len(o.CalibrationNote) > 1000 {
+		return fmt.Errorf("calibration note must be at most 1000 bytes")
+	}
+	if err := validateProtectedColors(o); err != nil {
+		return err
+	}
 	if o.ColorPriority != "" && o.ColorPriority != "balanced" && o.ColorPriority != "distinctive" && o.ColorPriority != "vivid" {
 		return fmt.Errorf("color priority must be balanced, distinctive, or vivid")
 	}
@@ -173,13 +200,25 @@ func (o HueForgeOptions) MaxLayers() int {
 }
 func (o HueForgeOptions) TransitionLayers() int { return o.MaxLayers() - o.BaseLayers() }
 func (o HueForgeOptions) Validate() error {
+	if !finite(o.TDSensitivityPercent) || o.TDSensitivityPercent < 0 || o.TDSensitivityPercent > 25 {
+		return fmt.Errorf("TD sensitivity must be between 0 and 25 percent")
+	}
+	if o.SearchEffort != "" && o.SearchEffort != "preview" && o.SearchEffort != "refine" {
+		return fmt.Errorf("search effort must be preview or refine")
+	}
+	if !finite(o.SurfaceColorTolerance) || o.SurfaceColorTolerance < 0 || o.SurfaceColorTolerance > 50 || !finite(o.DepthTolerance) || o.DepthTolerance < 0 || o.DepthTolerance > 50 {
+		return fmt.Errorf("color and depth tolerances must be between 0 and 50 percent")
+	}
+	if len(o.RequiredFilaments) > 8192 || len(o.BaseFilament) > 256 || len(o.HighlightFilament) > 256 {
+		return fmt.Errorf("filament constraints are too long")
+	}
 	if o.AutoDepth && !o.frontlit() {
 		return fmt.Errorf("automatic depth requires the HueForge Front Lit model")
 	}
 	if o.MeshMode != "" && o.MeshMode != "color-match" && o.MeshMode != "combo" && o.MeshMode != "color-aware" && o.MeshMode != "color-pop" {
 		return fmt.Errorf("unknown HueForge mesh mode %q", o.MeshMode)
 	}
-	if o.MeshCore != "" && o.MeshCore != "planned-colors" && o.MeshCore != "filament-blends" {
+	if o.meshCore() != "legacy-flat" && o.meshCore() != "filament-blends" && o.meshCore() != "compact-blends" {
 		return fmt.Errorf("unknown HueForge mesh core %q", o.MeshCore)
 	}
 	if !finite(o.ExportWidthMM) || o.ExportWidthMM < 0 || o.ExportWidthMM > 2000 || !finite(o.MeshDetailMM) || o.MeshDetailMM < 0 || o.MeshDetailMM > 10 {
@@ -241,17 +280,19 @@ type Quality struct {
 	Max  float64 `json:"maxDeltaE76"`
 }
 type Result struct {
-	Image        *image.NRGBA   `json:"-"`
-	Palette      []PaletteEntry `json:"palette"`
-	SourceSize   [2]int         `json:"sourceSize"`
-	AnalysisSize [2]int         `json:"analysisSize"`
-	UniqueColors int            `json:"uniqueColors"`
-	Quality      Quality        `json:"quality"`
-	SHA256       string         `json:"rgbaSHA256"`
-	Guidance     *GuidancePlan  `json:"guidance,omitempty"`
-	Stack        *StackPlan     `json:"stack,omitempty"`
-	StackView    *StackCoreView `json:"stackView,omitempty"`
-	LayerMap     []uint16       `json:"-"`
+	Calibration  *CalibrationInfo `json:"calibration,omitempty"`
+	SurfaceView  *SurfaceView     `json:"surfaceView,omitempty"`
+	Image        *image.NRGBA     `json:"-"`
+	Palette      []PaletteEntry   `json:"palette"`
+	SourceSize   [2]int           `json:"sourceSize"`
+	AnalysisSize [2]int           `json:"analysisSize"`
+	UniqueColors int              `json:"uniqueColors"`
+	Quality      Quality          `json:"quality"`
+	SHA256       string           `json:"rgbaSHA256"`
+	Guidance     *GuidancePlan    `json:"guidance,omitempty"`
+	Stack        *StackPlan       `json:"stack,omitempty"`
+	StackView    *StackCoreView   `json:"stackView,omitempty"`
+	LayerMap     []uint16         `json:"-"`
 }
 type Progress struct {
 	Stage    string  `json:"stage"`

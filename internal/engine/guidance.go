@@ -8,6 +8,7 @@ import (
 )
 
 type GuidedColor struct {
+	SourceRGB    RGB     `json:"sourceRGB"`
 	RGB          RGB     `json:"rgb"`
 	ReferenceRGB RGB     `json:"referenceRGB"`
 	Kind         string  `json:"referenceKind"`
@@ -16,6 +17,8 @@ type GuidedColor struct {
 	Fraction     float64 `json:"analysisFraction"`
 }
 type GuidancePlan struct {
+	OptimizationScore     float64         `json:"optimizationScore"`
+	OptimizationMetric    string          `json:"optimizationMetric"`
 	Model                 string          `json:"model"`
 	GlobalStackGuaranteed bool            `json:"globalStackGuaranteed"`
 	Options               HueForgeOptions `json:"options"`
@@ -36,6 +39,9 @@ type guidanceCandidate struct {
 }
 
 func guidanceCandidates(ctx context.Context, indices []int, lib Library, o HueForgeOptions) ([]guidanceCandidate, error) {
+	return cachedGuidanceCandidates(ctx, indices, lib, o)
+}
+func guidanceCandidatesUncached(ctx context.Context, indices []int, lib Library, o HueForgeOptions) ([]guidanceCandidate, error) {
 	indices = sorted(indices)
 	seen := map[RGB]bool{}
 	out := []guidanceCandidate{}
@@ -113,9 +119,21 @@ func candidateScore(ctx context.Context, candidates []guidanceCandidate, target 
 	return rms * rms, err
 }
 func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, progress Reporter) ([]PaletteEntry, *GuidancePlan, error) {
+	required, _, _, constraintErr := constraintIDs(lib, o)
+	if constraintErr != nil {
+		return nil, nil, constraintErr
+	}
 	target, weights := targets(palette, o)
 	cache := map[string]float64{}
 	score := func(ids []int) (float64, error) {
+		for _, id := range required {
+			if !contains(ids, id) {
+				ids = append(append([]int{}, ids...), id)
+			}
+		}
+		if len(ids) > o.Colors {
+			return math.Inf(1), nil
+		}
 		ids = sorted(ids)
 		key := fmt.Sprint(ids)
 		if v, ok := cache[key]; ok {
@@ -143,6 +161,11 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 			selected[0] = i
 		}
 	}
+	for _, id := range required {
+		if !contains(selected, id) {
+			selected = append(selected, id)
+		}
+	}
 	// A useful pair can have two individually poor solid colors. Evaluate
 	// pairs together before the greedy additions, using the actual guided
 	// output (strength, byte rounding, and palette cap included).
@@ -155,6 +178,11 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 				}
 				if v < value-1e-12 {
 					selected = []int{i, j}
+					for _, id := range required {
+						if !contains(selected, id) {
+							selected = append(selected, id)
+						}
+					}
 					value = v
 				}
 			}
@@ -189,6 +217,9 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 		best := value
 		replacement := selected
 		for pos := range selected {
+			if contains(required, selected[pos]) {
+				continue
+			}
 			for i := range lib.Filaments {
 				if contains(selected, i) {
 					continue
@@ -225,7 +256,7 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 	if err != nil {
 		return nil, nil, err
 	}
-	if o.prioritizeColors() {
+	if o.prioritizeColors() || o.ProtectedColors != "" {
 		selected := make([]Vec, len(ids))
 		for i, id := range ids {
 			selected[i] = guidedLabs[id]
@@ -246,11 +277,12 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 	reported := []int{}
 	positions := map[int]int{}
 	plan := &GuidancePlan{Model: "inventory-guided-pairwise-td-hues-v1", Options: o.HueForge, Strength: o.GuidanceStrength, Requested: o.Colors, Eligible: len(lib.Filaments), RMS: rms, LibrarySHA256: lib.SHA256}
+	plan.OptimizationScore, plan.OptimizationMetric = rms, optimizationMetric(o, false)
 	if o.HueForge.frontlit() {
 		plan.Model = FrontlitModel + "-pairwise-guide"
 	}
 	for _, id := range selected {
-		if used[id] {
+		if used[id] || contains(required, id) {
 			reported = append(reported, id)
 			positions[id] = len(reported)
 			plan.Selected = append(plan.Selected, lib.Filaments[id])
@@ -271,9 +303,9 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 		for _, id := range ref.indices {
 			fp = append(fp, positions[id])
 		}
-		plan.Colors = append(plan.Colors, GuidedColor{r.rgb, ref.rgb, ref.kind, fp, ref.layers, masses[p]})
+		plan.Colors = append(plan.Colors, GuidedColor{SourceRGB: palette[r.target].RGB, RGB: r.rgb, ReferenceRGB: ref.rgb, Kind: ref.kind, Positions: fp, TopLayers: ref.layers, Fraction: masses[p]})
 	}
-	if o.PreserveDetails || o.prioritizeColors() {
+	{
 		actual := make([]RGB, len(out))
 		for i, p := range out {
 			actual[i] = p.RGB

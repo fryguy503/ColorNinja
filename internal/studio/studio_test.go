@@ -372,7 +372,7 @@ func TestHFPExportUsesCurrentStackAndPersistsOptions(t *testing.T) {
 	r.Options.HueForge.MaxRuns = 3
 	r.Options.HueForge.ReduceShowThrough = true
 	r.Options.HueForge.MeshMode = "color-match"
-	r.Options.HueForge.MeshCore = "planned-colors"
+	r.Options.HueForge.MeshCore = "compact-blends"
 	r.Options.HueForge.ExportWidthMM = 150
 	r.Options.HueForge.MeshDetailMM = .16
 	p, err := s.Process(r)

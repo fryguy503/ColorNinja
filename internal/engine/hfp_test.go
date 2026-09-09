@@ -86,6 +86,7 @@ func hfpFixture(t *testing.T) *Result {
 
 func TestHFPExport(t *testing.T) {
 	r := hfpFixture(t)
+	r.Stack.Options.MeshCore = "legacy-flat"
 	ctx := context.Background()
 	doc, err := hueForgeProject(ctx, r, "source.png", ImageMetadata{})
 	if err != nil {

@@ -60,7 +60,7 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 		}
 		next := best
 		try := func(ids, runs []int) error {
-			if !validStackOrder(ids, o) {
+			if !validStackOrder(ids, o) || !completeConstraints(ids, lib, o) || !contains(bases, ids[0]) {
 				return nil
 			}
 			if err := ctx.Err(); err != nil {
@@ -110,10 +110,14 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 					return best, err
 				}
 			}
-			if pos == 0 || best.runs[pos] <= 1 {
+			minimum := 1
+			if pos == 0 {
+				minimum = o.HueForge.BaseLayers()
+			}
+			if best.runs[pos] <= minimum {
 				continue
 			}
-			for other := 1; other < len(best.indices); other++ {
+			for other := 0; other < len(best.indices); other++ {
 				if pos == other {
 					continue
 				}
@@ -123,6 +127,11 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 				if err := try(best.indices, runs); err != nil {
 					return best, err
 				}
+			}
+		}
+		if o.HueForge.SearchEffort == "refine" {
+			if err := structuralMoves(best, lib, o, try); err != nil {
+				return best, err
 			}
 		}
 		if next.score >= best.score-1e-9 {

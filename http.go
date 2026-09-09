@@ -109,6 +109,26 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 			if err = get(0, &req); err == nil {
 				result, err = s.Process(req)
 			}
+		case "ComparePlans", "CaptureComparison":
+			var req studio.Request
+			if err = get(0, &req); err == nil {
+				if strings.HasSuffix(r.URL.Path, "ComparePlans") {
+					result, err = s.ComparePlans(req)
+				} else {
+					result, err = s.CaptureComparison(req)
+				}
+			}
+		case "ClearComparisons":
+			err = s.ClearComparisons()
+		case "CompareWithout":
+			var req studio.Request
+			var key string
+			if err = get(0, &req); err == nil {
+				err = get(1, &key)
+			}
+			if err == nil {
+				result, err = s.CompareWithout(req, key)
+			}
 		case "Cancel":
 			s.Cancel()
 		case "SavePreset":

@@ -16,6 +16,87 @@ import (
 	"testing"
 )
 
+func TestBeta5MeshCoreUpgradesAcrossSavedWorkflows(t *testing.T) {
+	s := fixture(t)
+	r := req(s, 1)
+	r.Options.Mode, r.Options.Colors = "stack", 2
+	r.LibraryPath, _ = filepath.Abs(filepath.Join("..", "engine", "testdata", "library.json"))
+	r.Options.HueForge.MaxDepth = .8
+	r.Options.HueForge.MeshCore = "legacy-flat"
+	p, err := s.Process(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Serialize the Beta 5 option name and cached flat Mesh Core, as an existing
+	// user's project/preferences/profile would contain them.
+	r.Options.HueForge.MeshCore = "planned-colors"
+	p.Result.Stack.Options.MeshCore = "planned-colors"
+	p.Result.StackView.MeshCore = "planned-colors"
+	s.resultRequest.Options = r.Options
+	dir := t.TempDir()
+	project := filepath.Join(dir, "beta5.colorninja")
+	if err = s.SaveProject(project, r, false); err != nil {
+		t.Fatal(err)
+	}
+	saved := s.Snapshot().Settings
+	saved.Options = r.Options
+	saved.Presets = []Preset{{Name: "Beta 5", Options: r.Options}}
+	raw, err := json.Marshal(saved)
+	if err != nil {
+		t.Fatal(err)
+	}
+	settings := filepath.Join(dir, "settings.json")
+	if err = os.WriteFile(settings, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	fresh := New(context.Background(), settings)
+	defer fresh.Shutdown()
+	loaded := fresh.Snapshot().Settings
+	if loaded.Options.HueForge.MeshCore != "compact-blends" || len(loaded.Presets) != 1 || loaded.Presets[0].Options.HueForge.MeshCore != "compact-blends" {
+		t.Fatal("saved default or preset did not upgrade")
+	}
+	profile := filepath.Join(dir, "beta5.colorninja-profile.json")
+	if err = s.SaveProfile(profile, "Beta 5", r, false); err != nil {
+		t.Fatal(err)
+	}
+	loadedProfile, err := LoadProfile(profile)
+	if err != nil || loadedProfile.Options.HueForge.MeshCore != "compact-blends" {
+		t.Fatal("saved profile did not upgrade", err)
+	}
+	snap, err := fresh.OpenProject(project)
+	if err != nil || snap.Preview == nil {
+		t.Fatal("could not restore old project", err)
+	}
+	got := snap.Preview.Result
+	if !bytes.Equal(got.Image.Pix, p.Result.Image.Pix) || !reflect.DeepEqual(got.LayerMap, p.Result.LayerMap) || !reflect.DeepEqual(got.Stack.Runs, p.Result.Stack.Runs) {
+		t.Fatal("Mesh Core migration changed saved pixels, print heights, or physical spools")
+	}
+	if got.StackView == nil || got.StackView.MeshCore != "compact-blends" || got.StackView.Optimization == nil || got.StackView.Optimization.MaxTD <= .1 {
+		t.Fatal("cached flat Mesh Core display was not refreshed")
+	}
+	export := filepath.Join(dir, "upgraded.hfp")
+	if err = fresh.Export("hfp", export, snap.Preview.ID, snap.Preview.Revision, false); err != nil {
+		t.Fatal(err)
+	}
+	raw, err = os.ReadFile(export)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Disabled   []int `json:"disabled_match_layers"`
+		ColorNinja struct {
+			MeshCore     string                  `json:"meshCore"`
+			Optimization engine.MeshOptimization `json:"meshOptimization"`
+		} `json:"colorninja"`
+	}
+	if err = json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if doc.ColorNinja.MeshCore != "compact-blends" || doc.ColorNinja.Optimization != *got.StackView.Optimization || len(doc.Disabled) >= doc.ColorNinja.Optimization.OriginalDisabledLayers {
+		t.Fatal("reopened project exported old disables or disagreed with the inspector")
+	}
+}
+
 func TestPortableProjectRestoresExactPixelsAndStackWithoutOriginalFiles(t *testing.T) {
 	for _, mode := range []string{"standard", "guided", "stack"} {
 		t.Run(mode, func(t *testing.T) {

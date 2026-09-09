@@ -316,6 +316,11 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	} else if entries["result.png"] != nil || entries["layers.bin"] != nil {
 		return Snapshot{}, fmt.Errorf("incomplete saved result")
 	}
+	if result != nil && result.Stack != nil {
+		// Saved Mesh Core displays may describe Beta 5's opaque TD bands. Rebuild
+		// this derived export view after validating the exact saved pixels/heights.
+		result = engine.ReframeResult(result, m.Options)
+	}
 	// Finish validation before replacing the active document.
 	if err = s.installImage(ctx, &engine.LoadedImage{Image: src, Metadata: m.Metadata}, filepath.Base(m.Name), true, serial); err != nil {
 		return Snapshot{}, err

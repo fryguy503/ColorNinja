@@ -33,9 +33,10 @@ type point struct {
 	detail bool
 }
 type histBin struct {
-	sum    Vec
-	mass   float64
-	detail bool
+	sum        Vec
+	mass       float64
+	detail     bool
+	fullDetail bool
 }
 
 func Discover(ctx context.Context, src *image.NRGBA, o Options, progress Reporter) ([]PaletteEntry, [2]int, error) {
@@ -101,6 +102,13 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 	if trackSupport && ah >= 4 {
 		previousCodes, vertical = make([]uint32, aw), make([]uint8, aw)
 	}
+	// Two rows of directed edge chains retain diagonal and curved marks without
+	// treating disconnected pixels as one feature. Length is capped at four.
+	var priorChain, chain []uint8
+	var chainCodes []uint32
+	if trackSupport {
+		priorChain, chain, chainCodes = make([]uint8, aw), make([]uint8, aw), make([]uint32, aw)
+	}
 	for y := 0; y < ah; y++ {
 		if y%32 == 0 {
 			if err := ctx.Err(); err != nil {
@@ -108,6 +116,9 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 			}
 		}
 		horizontal, lastCode := 0, -1
+		if trackSupport {
+			clear(chain)
+		}
 		for x := 0; x < aw; x++ {
 			i := y*a.Stride + x*4
 			j := y*blurred.Stride + x*4
@@ -128,6 +139,16 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 			}
 			bin.mass += mass
 			if trackSupport {
+				length := uint8(1)
+				for px := max(0, x-1); px <= min(aw-1, x+1); px++ {
+					if chainCodes[px] == uint32(code+1) {
+						length = max(length, min(4, priorChain[px]+1))
+					}
+				}
+				if x > 0 && lastCode == code {
+					length = max(length, min(4, chain[x-1]+1))
+				}
+				chain[x] = length
 				if lastCode == code {
 					horizontal++
 				} else {
@@ -144,11 +165,26 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 					verticalSupport = vertical[x] >= 4
 				}
 				lastCode = code
-				bin.detail = bin.detail || horizontal >= 4 || verticalSupport
+				bin.detail = bin.detail || horizontal >= 4 || verticalSupport || length >= 4
 			}
 			bin.sum[0] += float64(r) * mass
 			bin.sum[1] += float64(g) * mass
 			bin.sum[2] += float64(b) * mass
+		}
+		if trackSupport {
+			for x := 0; x < aw; x++ {
+				i := y*blurred.Stride + x*4
+				chainCodes[x] = 0
+				if a.Pix[y*a.Stride+x*4+3] > 0 {
+					chainCodes[x] = uint32(int(blurred.Pix[i]>>shift)<<(2*o.HistogramBits)|int(blurred.Pix[i+1]>>shift)<<o.HistogramBits|int(blurred.Pix[i+2]>>shift)) + 1
+				}
+			}
+			priorChain, chain = chain, priorChain
+		}
+	}
+	if trackSupport && (aw != w || ah != h) {
+		if err := supplementDetails(ctx, src, bins, o, float64(aw*ah)/float64(w*h)); err != nil {
+			return nil, size, err
 		}
 	}
 	codes := make([]int, 0, len(bins))
@@ -175,7 +211,7 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 			lab[1] *= o.chromaPriority()
 			lab[2] *= o.chromaPriority()
 		}
-		groups[group] = append(groups[group], point{lab: lab, mass: b.mass, detail: b.detail})
+		groups[group] = append(groups[group], point{lab: lab, mass: b.mass, detail: b.detail && (b.mass >= 4 || b.fullDetail)})
 		total += b.mass
 	}
 	if total == 0 {
@@ -222,7 +258,7 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 			}
 		}
 	}
-	return result, size, nil
+	return protectPalette(result, o), size, nil
 }
 func assign(pts []point, centers []Vec) ([]int, []float64, []float64) {
 	labels := make([]int, len(pts))
@@ -353,7 +389,7 @@ func cluster(ctx context.Context, pts []point, o Options) ([]Vec, []float64, err
 		if o.PreserveDetails {
 			labels, _, _ := assign(pts, centers)
 			for i, p := range pts {
-				if p.detail && p.mass >= 4 {
+				if p.detail {
 					protected[labels[i]] = true
 				}
 			}
@@ -394,6 +430,9 @@ func cluster(ctx context.Context, pts []point, o Options) ([]Vec, []float64, err
 }
 
 func Process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, progress Reporter) (*Result, error) {
+	return (&Processor{}).Process(ctx, src, o, lib, progress)
+}
+func (p *Processor) process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, progress Reporter) (*Result, error) {
 	if err := o.Validate(); err != nil {
 		return nil, err
 	}
@@ -410,17 +449,7 @@ func Process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, pro
 	if o.Mode != "standard" {
 		analysisOptions.Colors = o.HueForge.AnalysisColors
 	}
-	mappingSource := src
-	// Smoothing applies to both palette discovery and final pixel assignment,
-	// independently of detail-aware clustering and color matching.
-	if !o.LegacyColorPipeline {
-		var err error
-		mappingSource, err = detailSmoothWithTolerance(ctx, src, o.PreblurSigma, o.SmoothingColorSigma, progress)
-		if err != nil {
-			return nil, err
-		}
-	}
-	palette, size, err := discoverPrepared(ctx, mappingSource, analysisOptions, progress)
+	mappingSource, palette, size, err := p.prepare(ctx, src, o, analysisOptions, progress)
 	if err != nil {
 		return nil, err
 	}
@@ -457,9 +486,40 @@ func Process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, pro
 		return nil, err
 	}
 	digest := sha256.Sum256(result.Image.Pix)
+	if result.Stack != nil && (o.HueForge.RequiredFilaments != "" || o.HueForge.BaseFilament != "" || o.HueForge.HighlightFilament != "") {
+		top := 0
+		for _, p := range result.Palette {
+			if p.PixelFraction > 0 {
+				top = max(top, p.StackLayer)
+			}
+		}
+		printed := []int{}
+		for _, run := range result.Stack.Runs {
+			if run.StartLayer > top {
+				break
+			}
+			for i, f := range lib.Filaments {
+				if FilamentKey(f) == FilamentKey(run.Filament) {
+					printed = append(printed, i)
+					break
+				}
+			}
+		}
+		if !completeConstraints(printed, *lib, o) {
+			return nil, fmt.Errorf("the required spools are not reached by the mapped image; adjust the palette, depth or constraints")
+		}
+	}
 	result.UniqueColors = usedPaletteColorCount(result.Palette)
 	result.SHA256 = fmt.Sprintf("%x", digest)
 	result.StackView = buildStackCoreView(result)
+	result.SurfaceView, err = BuildSurfaceView(ctx, result, o)
+	if err != nil {
+		return nil, err
+	}
+	result.Calibration, err = calibrationInfo(ctx, result, o)
+	if err != nil {
+		return nil, err
+	}
 	if err = report(ctx, progress, "Preview ready", 1); err != nil {
 		return nil, err
 	}

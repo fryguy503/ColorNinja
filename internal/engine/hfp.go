@@ -77,10 +77,7 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 	if mode == "" {
 		mode = "color-match"
 	}
-	core := h.MeshCore
-	if core == "" {
-		core = "planned-colors"
-	}
+	core := h.meshCore()
 	width := h.ExportWidthMM
 	if width == 0 {
 		width = 200
@@ -101,6 +98,7 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 	// HueForge otherwise premultiplies partial alpha before color matching.
 	img := image.NewNRGBA(image.Rect(0, 0, w, height))
 	used := map[int]RGB{}
+	matchingHeight := map[RGB]int{}
 	for y := 0; y < height; y++ {
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -114,6 +112,10 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 					return nil, fmt.Errorf("invalid printable layer %d", layer)
 				}
 				rgb := RGB{c.R, c.G, c.B}
+				if prior, ok := matchingHeight[rgb]; ok && prior != layer {
+					return nil, fmt.Errorf("Color Match requires one height per RGB; %s has layers %d and %d", rgb.Hex(), prior, layer)
+				}
+				matchingHeight[rgb] = layer
 				if prior, ok := used[layer]; ok && prior != rgb {
 					return nil, fmt.Errorf("multiple colors assigned to layer %d", layer)
 				}
@@ -154,7 +156,13 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		"colorninja": map[string]any{"schemaVersion": 1, "meshCore": core, "opticalModel": h.OpticalModel, "rgbaSHA256": r.SHA256, "librarySHA256": r.Stack.LibrarySHA256, "alphaPolicy": "nonzero alpha becomes solid mesh", "meshRecomputed": mode != "color-match"},
 	}
 	if mode == "color-match" {
-		if core == "filament-blends" {
+		var compact *virtualMesh
+		if core == "compact-blends" {
+			m := compactMesh(r, used)
+			compact = &m
+			doc["match_filament_set"], doc["match_slider_values"], doc["color_match_method"] = m.filaments, m.ends, m.method
+			doc["colorninja"].(map[string]any)["meshOptimization"] = m.info
+		} else if core == "filament-blends" {
 			doc["match_filament_set"], doc["match_slider_values"] = filaments, sliders
 		} else {
 			doc["color_match_method"] = 0 // RGB matching prioritizes exact color matches.
@@ -176,6 +184,9 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 			}
 		}
 		doc["disabled_match_layers"] = disabled
+		if compact != nil {
+			doc["disabled_match_layers"] = compact.disabled
+		}
 	}
 	// Filament Painting stores filament arrays in reverse order, while
 	// slider endpoints remain ascending.

@@ -1,5 +1,8 @@
 # ColorNinja Studio user guide
 
+Beta 6 adds [comparison, constraint, surface, and blended Mesh Core controls](releases/v1.0.0-beta.6.md).
+See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
+
 For the public Windows beta download and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
@@ -207,7 +210,7 @@ and stack schedule. For layer N above zero, height is first-layer height plus
 Global Stack also supports **Allow filament returns**, with a separate run limit
 while the filament budget counts unique spools. Open **Export** and select
 **HueForge project (.hfp)** to configure mesh mode/core, width, and detail.
-Start with **Color Match** and **Match planned layers**, then refresh from the
+Start with **Color Match** and **Tuned image colors (recommended)**, then refresh from the
 dialog if the preview is stale before exporting. The project
 embeds the reduced image, physical Color Core, and virtual Mesh Core. See
 [the HFP guide](hueforge-project.md) for the tested import workflow and limits.

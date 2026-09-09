@@ -7,10 +7,12 @@ import (
 )
 
 // Boundaries connect source palette groups, not an arbitrary ordering of RGBs.
-// Weights describe how often groups touch on a bounded sample of the image.
+// Weights describe how often groups touch. Full-resolution scanning uses only
+// two rows and a bounded color lookup, so thin lines cannot fall between samples.
 type stackBoundary struct {
-	a, b   int
-	weight float64
+	a, b          int
+	weight        float64
+	geometryScale float64
 }
 
 type StackSurface struct {
@@ -24,17 +26,14 @@ func stackBoundaries(ctx context.Context, src *image.NRGBA, palette []PaletteEnt
 	if !o.HueForge.ReduceShowThrough || o.Mode != "stack" {
 		return nil, nil
 	}
-	// Nearest samples retain actual colors instead of creating blended edges.
-	// The cap bounds both memory and work independently of export resolution.
+	// Scan every pixel, retaining fixed memory independently of image area.
 	w, h := src.Bounds().Dx(), src.Bounds().Dy()
 	if w == 0 || h == 0 || len(palette) < 2 {
 		return nil, ctx.Err()
 	}
-	scale := math.Min(1, math.Sqrt(262144/float64(w*h)))
-	sw, sh := max(1, int(float64(w)*scale)), max(1, int(float64(h)*scale))
-	sw = min(sw, 262144)
-	sh = min(sh, 262144/sw)
+	sw, sh := w, h
 	colors, _ := targets(palette, o)
+	lookup := make([]uint16, 1<<18)
 	previous, current := make([]int, sw), make([]int, sw)
 	previousAlpha, currentAlpha := make([]uint8, sw), make([]uint8, sw)
 	counts := make([]float64, len(palette)*len(palette))
@@ -65,12 +64,18 @@ func stackBoundaries(ctx context.Context, src *image.NRGBA, palette []PaletteEnt
 			if pixel.A == 0 {
 				continue
 			}
-			v, best := o.colorVector(RGB{pixel.R, pixel.G, pixel.B}), math.Inf(1)
-			for i, c := range colors {
-				if d := distance(v, c); d < best {
-					best, current[x] = d, i
+			code := int(pixel.R>>2)<<12 | int(pixel.G>>2)<<6 | int(pixel.B>>2)
+			if lookup[code] == 0 {
+				// Bin midpoints make the classification independent of scan order.
+				v, best, id := o.colorVector(RGB{pixel.R&252 | 2, pixel.G&252 | 2, pixel.B&252 | 2}), math.Inf(1), 0
+				for i, c := range colors {
+					if d := distance(v, c); d < best {
+						best, id = d, i
+					}
 				}
+				lookup[code] = uint16(id + 1)
 			}
+			current[x] = int(lookup[code]) - 1
 			if x > 0 {
 				add(current[x-1], current[x], currentAlpha[x-1], pixel.A)
 			}
@@ -82,10 +87,19 @@ func stackBoundaries(ctx context.Context, src *image.NRGBA, palette []PaletteEnt
 		previousAlpha, currentAlpha = currentAlpha, previousAlpha
 	}
 	boundaries := []stackBoundary{}
+	width, detail := o.HueForge.ExportWidthMM, o.HueForge.MeshDetailMM
+	if width == 0 {
+		width = 200
+	}
+	if detail == 0 {
+		detail = .2
+	}
+	spacing := math.Max(detail, width/float64(w))
+	geometryScale := math.Max(.0625, math.Min(16, math.Pow(.2/spacing, 2)))
 	for a := range palette {
 		for b := a + 1; b < len(palette); b++ {
 			if count := counts[a*len(palette)+b]; count > 0 {
-				boundaries = append(boundaries, stackBoundary{a, b, count / total})
+				boundaries = append(boundaries, stackBoundary{a: a, b: b, weight: count / total, geometryScale: geometryScale})
 			}
 		}
 	}
@@ -153,7 +167,11 @@ func stackSurface(s stackState, selected []RGB, layers []int, target []Vec, o Op
 		stats.RMSColorDetour += edge.weight * detour
 		// One mm of boundary relief costs four working-space color units.
 		// Detours have a smaller influence so exact color fidelity still matters.
-		stats.Penalty += edge.weight * (16*jump*jump + .1*detour)
+		scale := edge.geometryScale
+		if scale == 0 {
+			scale = 1
+		}
+		stats.Penalty += edge.weight * (16*jump*jump*scale + .1*detour)
 	}
 	stats.RMSColorDetour = math.Sqrt(stats.RMSColorDetour)
 	return stats

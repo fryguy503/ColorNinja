@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Layers, X } from "lucide-react";
 import type { Result } from "./types";
+import { SurfaceCanvas } from "./SurfaceCanvas";
 
 const hex = (rgb: number[]) =>
   "#" +
@@ -159,10 +160,22 @@ export function StackInspector({
               <strong>Mesh targets</strong>
               <span>
                 {view.hasMeshCore
-                  ? `${enabledCount} active heights · ${view.meshCore === "planned-colors" ? "planned image colors" : "filament blends"}`
+                  ? `${enabledCount} active heights · ${view.meshCore === "legacy-flat" ? "legacy flat image colors" : view.meshCore === "compact-blends" ? "tuned image colors" : "filament blends"}`
                   : "No separate mesh core"}
               </span>
             </div>
+            {view.optimization && (
+              <p className="field-help">
+                {view.optimization.strategy}:{" "}
+                {view.optimization.originalEntries} →{" "}
+                {view.optimization.entries} mesh entries;{" "}
+                {view.optimization.originalDisabledLayers} →{" "}
+                {view.optimization.disabledLayers} disabled layers. Virtual TD{" "}
+                {view.optimization.minTD.toFixed(2)}–
+                {view.optimization.maxTD.toFixed(2)}. Physical filament TDs are
+                unchanged.
+              </p>
+            )}
             {view.hasMeshCore ? (
               <div className="stack-color-track" style={grid}>
                 {view.layers.map((r) => (
@@ -245,6 +258,11 @@ export function StackInspector({
           from Color Match targets. Each numbered run is one continuous use of a
           spool.
         </p>
+        <SurfaceCanvas
+          result={result}
+          selectedLayer={row.layer}
+          onSelect={selectLayer}
+        />
       </dialog>
     </>
   );

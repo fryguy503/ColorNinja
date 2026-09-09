@@ -175,7 +175,7 @@ func TestSurfaceBoundariesRespectEmptySpaceAndCancellation(t *testing.T) {
 	img.SetNRGBA(6, 7, color.NRGBA{G: 255, A: 100})
 	img.SetNRGBA(7, 7, color.NRGBA{R: 255, B: 255, A: 255})
 	edges, err := stackBoundaries(context.Background(), img, palette, o)
-	if err != nil || !reflect.DeepEqual(edges, []stackBoundary{{1, 2, 1}}) {
+	if err != nil || len(edges) != 1 || edges[0].a != 1 || edges[0].b != 2 || edges[0].weight != 1 {
 		t.Fatalf("connected colors across transparent space: %+v %v", edges, err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())

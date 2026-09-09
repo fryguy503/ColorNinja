@@ -1,4 +1,151 @@
 /* The studio shell: one image workspace, one inspector, contextual output. */
+.beta6-controls {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.beta6-controls summary,
+.guided-explanation summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.beta6-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 10px 0;
+}
+.beta6-controls input:not([type="checkbox"]),
+.beta6-controls select {
+  width: 100%;
+  min-width: 0;
+}
+.required-spools {
+  max-height: 190px;
+  overflow-y: auto;
+}
+.required-spools label {
+  flex-direction: row;
+  align-items: center;
+}
+.surface-inspector {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  margin-top: 20px;
+}
+.surface-inspector canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 380px;
+  margin: 14px auto;
+  cursor: crosshair;
+  background: repeating-conic-gradient(#26312b 0% 25%, #344039 0% 50%) 0 / 16px
+    16px;
+  image-rendering: auto;
+}
+.surface-modes,
+.comparison-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.surface-modes button {
+  padding: 7px 12px;
+  border-radius: 6px;
+  background: var(--raised);
+}
+.surface-modes button[aria-pressed="true"] {
+  color: var(--accent);
+  outline: 1px solid var(--accent);
+}
+.surface-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.surface-metrics span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: var(--muted);
+}
+.surface-metrics b {
+  color: var(--text);
+}
+.comparisons-dialog {
+  width: min(1100px, 94vw) !important;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.comparison-grid article {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+}
+.comparison-grid article > strong,
+.comparison-grid article > small {
+  display: block;
+  margin-bottom: 6px;
+}
+.comparison-grid img {
+  width: 100%;
+  height: 185px;
+  object-fit: contain;
+  background: #161b18;
+}
+.comparison-grid dl {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 7px;
+  font-size: 12px;
+}
+.comparison-grid dd {
+  margin: 0;
+}
+.guided-explanation {
+  overflow-x: auto;
+  width: 100%;
+  margin-top: 14px;
+}
+.guided-explanation table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 12px;
+}
+.guided-explanation th,
+.guided-explanation td {
+  padding: 7px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.guided-explanation i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 5px;
+  border: 1px solid #ffffff44;
+}
+.calibration-result {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.selected-filament > .text-button {
+  margin-left: auto;
+  max-width: 76px;
+  font-size: 10px;
+}
+@media (max-width: 700px) {
+  .surface-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 :root {
   --bg: #171b1a;
   --panel: #202523;

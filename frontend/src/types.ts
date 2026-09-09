@@ -1,4 +1,11 @@
 export type HueForgeOptions = {
+  searchEffort?: "" | "preview" | "refine";
+  requiredFilaments?: string;
+  baseFilament?: string;
+  highlightFilament?: string;
+  surfaceColorTolerance?: number;
+  depthTolerance?: number;
+  tdSensitivityPercent?: number;
   opticalModel: "hueforge-0.9.4.3-frontlit-v1" | "legacy-exponential";
   firstLayerHeight: number;
   lightPreset: "hueforge-default" | "neutral-white" | "warm-white" | "";
@@ -11,7 +18,12 @@ export type HueForgeOptions = {
   beamWidth: number;
   maxRuns: number;
   meshMode: "" | "color-match" | "combo" | "color-aware" | "color-pop";
-  meshCore: "" | "planned-colors" | "filament-blends";
+  meshCore:
+    | ""
+    | "planned-colors"
+    | "filament-blends"
+    | "compact-blends"
+    | "legacy-flat";
   exportWidthMm: number;
   meshDetailMm: number;
   maxPerceivedColors: number;
@@ -20,6 +32,8 @@ export type HueForgeOptions = {
   baseTransmissionLimit: number;
 };
 export type Options = {
+  protectedColors?: string;
+  calibrationNote?: string;
   colors: number;
   totalColors: boolean;
   colorPriority: "" | "balanced" | "distinctive" | "vivid";
@@ -45,6 +59,7 @@ export type Filter = {
   excludedIds: number[];
 };
 export type Filament = {
+  key?: string;
   brand: string;
   name: string;
   rgb: number[];
@@ -118,6 +133,7 @@ export type Snapshot = {
   preview?: Preview;
   source: Source;
   settings: {
+    comparisons?: Comparison[];
     preferences: Preferences;
     options: Options;
     libraryPath: string;
@@ -148,6 +164,14 @@ export type StackRun = {
   endHeight: number;
 };
 export type Result = {
+  calibration?: {
+    note?: string;
+    trueBlackOverride: boolean;
+    variationPercent: number;
+    truncated?: boolean;
+    sensitivity?: { key: string; name: string; maxDeltaE76: number }[];
+  };
+  surfaceView?: SurfaceView;
   palette: PaletteEntry[];
   sourceSize: number[];
   analysisSize: number[];
@@ -155,6 +179,14 @@ export type Result = {
   quality: { meanDeltaE76: number; rmsDeltaE76: number; maxDeltaE76: number };
   rgbaSHA256: string;
   guidance?: {
+    colors: {
+      rgb: number[];
+      sourceRGB: number[];
+      referenceRGB: number[];
+      referenceKind: string;
+      filamentPositions: number[];
+      analysisFraction: number;
+    }[];
     selectedFilaments: Filament[];
     strength: number;
     candidateColorCount: number;
@@ -185,6 +217,15 @@ export type Result = {
   stackView?: {
     meshMode: string;
     meshCore: string;
+    optimization?: {
+      strategy: string;
+      entries: number;
+      originalEntries: number;
+      disabledLayers: number;
+      originalDisabledLayers: number;
+      minTD: number;
+      maxTD: number;
+    };
     hasMeshCore: boolean;
     layers: {
       layer: number;
@@ -198,6 +239,7 @@ export type Result = {
   };
 };
 export type Preview = {
+  reusedStages?: string[];
   id: number;
   revision: number;
   url: string;
@@ -238,11 +280,17 @@ export const defaults: Options = {
     maxDepth: 2.24,
     autoDepth: false,
     reduceShowThrough: false,
+    searchEffort: "preview",
+    requiredFilaments: "",
+    baseFilament: "",
+    highlightFilament: "",
+    surfaceColorTolerance: 5,
+    depthTolerance: 1,
     analysisColors: 32,
     beamWidth: 24,
     maxRuns: 0,
     meshMode: "color-match",
-    meshCore: "planned-colors",
+    meshCore: "compact-blends",
     exportWidthMm: 200,
     meshDetailMm: 0.2,
     maxPerceivedColors: 64,
@@ -250,6 +298,37 @@ export const defaults: Options = {
     tdScale: 0.1,
     baseTransmissionLimit: 0.1,
   },
+};
+export type SurfaceView = {
+  width: number;
+  height: number;
+  layers: number[];
+  widthMm: number;
+  heightMm: number;
+  spacingMm: number;
+  requestedSpacingMm: number;
+  pixelMm: number;
+  sampled: boolean;
+  meanJumpMm: number;
+  p95JumpMm: number;
+  maxJumpMm: number;
+  boundaryAreaFraction: number;
+  solidifiedFraction: number;
+};
+export type Comparison = {
+  name: string;
+  source: string;
+  options: Options;
+  filter: Filter;
+  librarySHA256?: string;
+  image: string;
+  quality: Result["quality"];
+  colors: number;
+  spools: number;
+  swaps: number;
+  depth: number;
+  boundaryStep: number;
+  rgbaSHA256: string;
 };
 export const emptyFilter: Filter = {
   includeUnowned: false,

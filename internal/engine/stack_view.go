@@ -13,10 +13,11 @@ type StackCoreLayer struct {
 }
 
 type StackCoreView struct {
-	MeshMode    string           `json:"meshMode"`
-	MeshCore    string           `json:"meshCore"`
-	HasMeshCore bool             `json:"hasMeshCore"`
-	Layers      []StackCoreLayer `json:"layers"`
+	Optimization *MeshOptimization `json:"optimization,omitempty"`
+	MeshMode     string            `json:"meshMode"`
+	MeshCore     string            `json:"meshCore"`
+	HasMeshCore  bool              `json:"hasMeshCore"`
+	Layers       []StackCoreLayer  `json:"layers"`
 }
 
 type meshColorBand struct {
@@ -50,12 +51,9 @@ func buildStackCoreView(r *Result) *StackCoreView {
 		return nil
 	}
 	h := r.Stack.Options
-	v := &StackCoreView{MeshMode: h.MeshMode, MeshCore: h.MeshCore}
+	v := &StackCoreView{MeshMode: h.MeshMode, MeshCore: h.meshCore()}
 	if v.MeshMode == "" {
 		v.MeshMode = "color-match"
-	}
-	if v.MeshCore == "" {
-		v.MeshCore = "planned-colors"
 	}
 	v.HasMeshCore = v.MeshMode == "color-match"
 	used, fractions := map[int]RGB{}, map[int]float64{}
@@ -66,12 +64,30 @@ func buildStackCoreView(r *Result) *StackCoreView {
 		}
 	}
 	bands := meshColorBands(used, r.Stack.Runs[len(r.Stack.Runs)-1].EndLayer)
+	var compact *virtualMesh
+	if v.HasMeshCore && v.MeshCore == "compact-blends" && len(used) > 0 {
+		m := compactMesh(r, used)
+		compact = &m
+		v.Optimization = &m.info
+	}
 	band := 0
 	for _, layer := range r.Stack.LayerColors {
 		row := StackCoreLayer{Layer: layer.Layer, Height: layer.Height, RunPosition: layer.TopPosition, PredictedRGB: layer.RGB, PixelFraction: fractions[layer.Layer]}
 		if v.HasMeshCore {
 			_, row.MeshEnabled = used[layer.Layer]
-			if v.MeshCore == "filament-blends" {
+			if compact != nil {
+				row.MeshEnabled = layer.Layer >= h.BaseLayers()
+				for _, disabled := range compact.disabled {
+					if disabled == layer.Layer {
+						row.MeshEnabled = false
+					}
+				}
+				var rgb RGB
+				for i, v := range compact.colors[layer.Layer] {
+					rgb[i] = byteRound(float64(v) * 255)
+				}
+				row.MeshRGB = &rgb
+			} else if v.MeshCore == "filament-blends" {
 				color := layer.RGB
 				row.MeshRGB = &color
 			} else if len(bands) > 0 {

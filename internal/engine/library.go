@@ -14,6 +14,7 @@ import (
 )
 
 type Filament struct {
+	Key         string   `json:"key,omitempty"`
 	Brand       string   `json:"brand"`
 	Name        string   `json:"name"`
 	RGB         RGB      `json:"rgb"`
@@ -214,6 +215,7 @@ func ParseLibrary(raw []byte, filter LibraryFilter) (Library, error) {
 			RGB: rgb, Hex: rgb.Hex(), TD: td, Material: material,
 			UUID: textValue(r["uuid"]), Owned: owned, Tags: tags,
 			SourceIndex: index, Secondary: secondary})
+		lib.Filaments[len(lib.Filaments)-1].Key = FilamentKey(lib.Filaments[len(lib.Filaments)-1])
 	}
 	if len(lib.Filaments) == 0 {
 		if lib.SkippedFinish > 0 {
