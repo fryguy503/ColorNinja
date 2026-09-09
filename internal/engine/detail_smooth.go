@@ -11,16 +11,26 @@ import (
 // detailSmooth is an alpha-weighted separable joint bilateral filter. Both
 // passes use the unchanged source as their color guide: smoothing a texture
 // must not progressively weaken an outline. Spatial radius follows the user's
-// smoothing control; the range kernel is fixed at 5 CIELAB Delta E76 units.
+// smoothing control. The original range kernel uses 5 CIELAB Delta E76 units.
 // Only two RGBA buffers and bounded worker-local scanline tiles are allocated, never a full
 // float Lab image or a pixel-by-palette distance matrix.
 func detailSmooth(ctx context.Context, src *image.NRGBA, sigma float64, progress Reporter) (*image.NRGBA, error) {
+	return detailSmoothWithTolerance(ctx, src, sigma, 5, progress)
+}
+
+// Higher color tolerance flattens stronger texture while the unchanged source
+// guide continues to protect contrasting outlines. Zero retains legacy behavior.
+func detailSmoothWithTolerance(ctx context.Context, src *image.NRGBA, sigma, colorSigma float64, progress Reporter) (*image.NRGBA, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
 	if sigma <= 0 {
 		return src, nil
 	}
+	if colorSigma == 0 {
+		colorSigma = 5
+	}
+	rangeScale := 50 / (colorSigma * colorSigma)
 	w, h := src.Bounds().Dx(), src.Bounds().Dy()
 	radius := int(math.Ceil(2 * sigma))
 	spatial := make([]float64, radius+1)
@@ -88,7 +98,7 @@ func detailSmooth(ctx context.Context, src *image.NRGBA, sigma float64, progress
 								if alpha[q-lo] == 0 {
 									continue
 								}
-								d := distance(guide[pos-lo], guide[q-lo]) * 2
+								d := distance(guide[pos-lo], guide[q-lo]) * rangeScale
 								if d >= 1600 {
 									continue
 								}

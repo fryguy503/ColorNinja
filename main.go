@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/fs"
@@ -13,6 +14,7 @@ import (
 
 	"colorninja/internal/engine"
 	"colorninja/internal/studio"
+	"colorninja/internal/updates"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -23,10 +25,26 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+// Use the same version source as packaging; no hand-maintained footer version.
+//
+//go:embed frontend/package.json
+var packageJSON []byte
+
+func appVersion() string {
+	var metadata struct {
+		Version string `json:"version"`
+	}
+	if err := json.Unmarshal(packageJSON, &metadata); err != nil {
+		panic(err)
+	}
+	return metadata.Version
+}
+
 type App struct {
-	ctx    context.Context
-	studio *studio.Studio
-	config string
+	ctx     context.Context
+	studio  *studio.Studio
+	config  string
+	updater *updates.Checker
 }
 
 func main() {
@@ -65,6 +83,7 @@ func main() {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	a.studio = studio.New(ctx, a.config)
+	a.updater = updates.New(appVersion())
 	a.studio.Emit = func(name string, v any) { runtime.EventsEmit(ctx, name, v) }
 	runtime.OnFileDrop(ctx, func(x, y int, paths []string) {
 		if len(paths) > 0 {
@@ -77,7 +96,23 @@ func (a *App) emitCommand(command string) {
 		runtime.EventsEmit(a.ctx, "command", command)
 	}
 }
-func (a *App) Initialize() (studio.Snapshot, error)           { return a.studio.Initialize() }
+func (a *App) Initialize() (studio.Snapshot, error) { return a.studio.Initialize() }
+func (a *App) Version() string                      { return appVersion() }
+func (a *App) SavePreferences(p studio.Preferences) (studio.Preferences, error) {
+	return a.studio.SavePreferences(p)
+}
+func (a *App) CheckUpdates(includePrereleases, force bool) (updates.Result, error) {
+	return a.updater.Check(a.ctx, includePrereleases, force)
+}
+func (a *App) OpenReleasePage(tag string) error {
+	// Only URLs constructed by the checker are opened by the desktop runtime.
+	target, err := updates.ReleasePage(tag)
+	if err != nil {
+		return err
+	}
+	runtime.BrowserOpenURL(a.ctx, target)
+	return nil
+}
 func (a *App) UseDemo() (studio.Snapshot, error)              { return a.studio.UseDemo() }
 func (a *App) LoadImage(path string) (studio.Snapshot, error) { return a.studio.LoadImage(path) }
 func (a *App) OpenImage() (*studio.Snapshot, error) {
@@ -126,16 +161,24 @@ func (a *App) OpenProject() (*studio.Snapshot, error) {
 	return &s, e
 }
 func (a *App) confirmOverwrite(path string) (bool, error) {
+	return confirmOverwrite(path, func(options runtime.MessageDialogOptions) (string, error) {
+		return runtime.MessageDialog(a.ctx, options)
+	})
+}
+
+func confirmOverwrite(path string, showDialog func(runtime.MessageDialogOptions) (string, error)) (bool, error) {
 	if _, e := os.Stat(path); os.IsNotExist(e) {
 		return false, nil
 	} else if e != nil {
 		return false, e
 	}
-	choice, e := runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{Type: runtime.QuestionDialog, Title: "Replace existing file?", Message: filepath.Base(path) + " already exists. Replace it?", Buttons: []string{"Replace", "Cancel"}, DefaultButton: "Cancel", CancelButton: "Cancel"})
+	// Wails uses native Yes/No buttons on Windows, ignoring custom button labels.
+	// Match those responses on every platform and keep No as the safe default.
+	choice, e := showDialog(runtime.MessageDialogOptions{Type: runtime.QuestionDialog, Title: "Replace existing file?", Message: filepath.Base(path) + " already exists. Replace it?", Buttons: []string{"Yes", "No"}, DefaultButton: "No", CancelButton: "No"})
 	if e != nil {
 		return false, e
 	}
-	if choice != "Replace" {
+	if choice != "Yes" {
 		return false, fmt.Errorf("export canceled")
 	}
 	return true, nil
@@ -148,6 +191,8 @@ func (a *App) Export(kind string, id, revision uint64) (string, error) {
 		ext, suffix, label = ".json", "-palette", "Palette report"
 	} else if kind == "layers" {
 		suffix, label = "-layers", "16-bit layer map"
+	} else if kind == "hfp" {
+		ext, suffix, label = ".hfp", "-colorninja", "HueForge project"
 	}
 	path, e := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{Title: "Export " + label, DefaultFilename: base + suffix + ext, Filters: []runtime.FileFilter{{DisplayName: label, Pattern: "*" + ext}}, CanCreateDirectories: true})
 	if e != nil || path == "" {

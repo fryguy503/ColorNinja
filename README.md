@@ -9,18 +9,19 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current release: `v1.0.0-alpha.1` — Windows x64.** This is an early testing
-release. Expect rough edges, and review your output before using it in a print.
+**Current release: `v1.0.0-beta.1` — Windows x64.** This beta adds smarter palette
+priorities, improved Front Lit planning, automatic depth selection, an interactive
+stack map, and HueForge project export. Review your output before printing.
 
-[Download the Windows alpha](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-alpha.1)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.1)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
 
 ## Download and run
 
-1. Open the [alpha release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-alpha.1)
-   and download **`ColorNinja-1.0.0-alpha.1-windows-x64.zip`** from **Assets**.
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.1)
+   and download **`ColorNinja-1.0.0-beta.1-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and **Export PNG**.
@@ -29,7 +30,7 @@ The desktop app requires Windows x64 and the
 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 The build is unsigned, so Windows may display a publisher or reputation warning.
 Python, Node.js, and Go are **not required to run the release**. The CLI does not
-require WebView2. macOS and Linux binaries are not included in this alpha.
+require WebView2. macOS and Linux binaries are not included in this beta.
 
 The portable ZIP includes the desktop app, `colorninja-cli.exe`, a quick-start
 guide, documentation, MIT and third-party license notices, build information,
@@ -40,14 +41,19 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-alpha.1-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.1-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
 
-- Reduce colors without dithering, with detail preservation and adjustable smoothing.
+- Reduce colors without dithering, with independent smoothing and detail preservation.
+- Prioritize distinctive or vivid colors while simplifying similar shades.
+- Optionally exclude silk, metallic, and related finishes from filament selection.
 - Use owned filament colors and transmission distance (TD) from a HueForge library.
-- Explore an approximate global filament stack and export its layer-index map.
+- Plan a Front Lit global stack, optionally reuse filaments in later runs,
+  choose depth below a hard maximum, and inspect an interactive stack map.
+- Export a stack layer-index map or a HueForge `.hfp` project with both cores and
+  configurable mesh settings, including Color Match.
 - Compare original and result with a sliding divider or linked side-by-side views.
 - Zoom, pan, inspect unique color counts, and review palettes, coverage, and quality metrics.
 - Save projects and presets, undo settings, and export PNGs and JSON palette reports.
@@ -58,9 +64,9 @@ Get-FileHash .\ColorNinja-1.0.0-alpha.1-windows-x64.zip -Algorithm SHA256
 
 | Mode | Best for | How the budget works |
 | --- | --- | --- |
-| **Perceptual reduction** | Simplifying an image without a filament library | Separate chromatic and achromatic budgets; 8 can produce up to 16 colors. |
+| **Simple reducer** | Simplifying an image without a filament library | New desktop settings use a total limit: 8 means at most 8 colors, including neutrals. Advanced can restore separate budgets. |
 | **Filament guided** | Preparing a PNG for final planning in HueForge | Maximum eligible filament anchors; nominal colors and approximate TD-aware blends guide the palette. |
-| **Global stack** | Exploring a single ordered filament/layer plan | Maximum filaments in one stack, using ColorNinja's independent optical approximation. |
+| **Global stack** | Exploring a single ordered filament/layer plan | Maximum filaments in one stack, using TD-aware Front Lit color predictions. |
 
 **Start with Filament guided for the usual HueForge workflow.** Open the exported
 PNG in HueForge to make the final print plan. The Filaments tab detects the usual
@@ -72,17 +78,30 @@ Detail preservation is enabled by default. Guided and stack modes also default
 to **Use true black**, which models eligible black filaments as `#000000` without
 changing the library. Both options can be disabled for comparison.
 
-## Alpha limitations
+For ordinary image reduction, start with **Simple reducer**, choose a maximum
+color count, then use **Off / Gentle / Balanced / Strong** smoothing. Balanced
+keeps the existing edge-aware filter; Strong flattens more texture and can soften
+low-contrast detail. **Advanced** reveals technical tuning and image metrics
+without resetting settings. Older projects retain their original split budgets.
 
-- Global stack is an approximate optical model, not HueForge's engine or a
-  guaranteed physical color match. ColorNinja is an independent project and is
-  not affiliated with or endorsed by HueForge.
+Click the version in the bottom bar for **Version & updates**. Startup checks
+can be disabled; **Include beta / alpha builds** opts into prereleases. The
+checker opens GitHub release notes and downloads for manual installation.
+Image processing remains local and works offline.
+
+## Beta limitations
+
+- Front Lit predictions and HFP compatibility have been checked with HueForge
+  0.9.4.3. Physical print colors and a globally optimal stack are not guaranteed.
+  Matte, silk, and metallic surface shine is not simulated.
+  ColorNinja is independent and is not affiliated with or endorsed by HueForge.
 - The optional 16-bit layer map contains literal one-based layer counts, with
   zero for transparency. It is not a normalized height map, STL, or G-code.
 - Processing uses 8-bit RGBA. HDR and 16-bit photo precision are not preserved.
   Inputs are limited to 100 megapixels and 512 MB encoded size.
 - Projects reference source files and library paths; they do not embed those files.
-- This release is portable and unsigned. There is no installer or automatic updater.
+- Builds remain portable and unsigned. The app checks for updates;
+  installation is manual. There is no installer or automatic replacement of the app.
 - Automated coverage is described in [validation](docs/validation.md). Complete
   native-dialog, display-scaling, and clean-account acceptance testing remains open.
 
@@ -110,6 +129,8 @@ Run these commands from the extracted release folder:
 
 Existing outputs require `--force`. Input, library, and output paths must be
 distinct. See the [user guide](docs/user-guide.md) for settings and export details.
+See [HueForge project export](docs/hueforge-project.md) for core settings, filament
+returns, import validation, and mesh sampling limits.
 
 ## Build from source
 
@@ -130,7 +151,7 @@ and regression tests, TypeScript, Go tests, and `go vet`, then compiles both
 executables. Outputs are written to `build/bin`; packaging writes a versioned
 portable archive and its checksum under `build/releases`.
 
-If an older desktop executable is open, use `-GuiName ColorNinja-Alpha.exe` with
+If an older desktop executable is open, use `-GuiName ColorNinja-Beta.exe` with
 both build and package scripts. The scripts do not stop running applications.
 
 For frontend development:
@@ -145,7 +166,7 @@ For frontend development:
 - [User guide](docs/user-guide.md): controls, shortcuts, libraries, projects, and CLI options.
 - [Architecture](docs/architecture.md): image engine, optical model, and desktop integration.
 - [Validation](docs/validation.md): automated coverage and manual testing boundaries.
-- [Alpha release notes](docs/releases/v1.0.0-alpha.1.md).
+- [Beta release notes](docs/releases/v1.0.0-beta.1.md).
 - [Python reference](docs/python-reference.md): the original implementation retained for regression comparison.
 
 Please [open an issue](https://github.com/fryguy503/ColorNinja/issues) with your

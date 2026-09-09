@@ -24,13 +24,18 @@ func fromOKLab(c Vec) RGB {
 		-.0041960863*l - .7034186147*m + 1.7076147010*s})
 }
 func (o Options) colorVector(c RGB) Vec {
-	if o.PreserveDetails {
-		return toOKLab(c)
+	if !o.LegacyColorPipeline {
+		v := toOKLab(c)
+		v[1] *= o.chromaPriority()
+		v[2] *= o.chromaPriority()
+		return v
 	}
 	return ToLab(c)
 }
 func (o Options) colorRGB(v Vec) RGB {
-	if o.PreserveDetails {
+	if !o.LegacyColorPipeline {
+		v[1] /= o.chromaPriority()
+		v[2] /= o.chromaPriority()
 		return fromOKLab(v)
 	}
 	return FromLab(v)

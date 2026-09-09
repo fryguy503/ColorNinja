@@ -16,25 +16,38 @@ func (c RGB) Hex() string { return fmt.Sprintf("#%02X%02X%02X", c[0], c[1], c[2]
 type Vec [3]float64
 
 type Options struct {
-	Colors             int             `json:"colors"`
-	AnalysisMaxPixels  int             `json:"analysisMaxPixels"`
-	NeutralChroma      float64         `json:"neutralChroma"`
-	MinClusterFraction float64         `json:"minClusterFraction"`
-	HistogramBits      int             `json:"histogramBits"`
-	Iterations         int             `json:"iterations"`
-	PreblurSigma       float64         `json:"preblurSigma"`
-	Mode               string          `json:"mode"`
-	GuidanceStrength   float64         `json:"guidanceStrength"`
-	TrueBlack          bool            `json:"trueBlack"`
-	PreserveDetails    bool            `json:"preserveDetails"`
-	HueForge           HueForgeOptions `json:"hueforge"`
+	Colors              int             `json:"colors"`
+	TotalColors         bool            `json:"totalColors"`
+	ColorPriority       string          `json:"colorPriority"`
+	AnalysisMaxPixels   int             `json:"analysisMaxPixels"`
+	NeutralChroma       float64         `json:"neutralChroma"`
+	MinClusterFraction  float64         `json:"minClusterFraction"`
+	HistogramBits       int             `json:"histogramBits"`
+	Iterations          int             `json:"iterations"`
+	PreblurSigma        float64         `json:"preblurSigma"`
+	SmoothingColorSigma float64         `json:"smoothingColorSigma"`
+	LegacyColorPipeline bool            `json:"legacyColorPipeline"`
+	Mode                string          `json:"mode"`
+	GuidanceStrength    float64         `json:"guidanceStrength"`
+	TrueBlack           bool            `json:"trueBlack"`
+	PreserveDetails     bool            `json:"preserveDetails"`
+	HueForge            HueForgeOptions `json:"hueforge"`
 }
 type HueForgeOptions struct {
+	OpticalModel          string  `json:"opticalModel"`
+	FirstLayerHeight      float64 `json:"firstLayerHeight"`
+	LightPreset           string  `json:"lightPreset"`
 	LayerHeight           float64 `json:"layerHeight"`
 	BaseDepth             float64 `json:"baseDepth"`
 	MaxDepth              float64 `json:"maxDepth"`
+	AutoDepth             bool    `json:"autoDepth"`
 	AnalysisColors        int     `json:"analysisColors"`
 	BeamWidth             int     `json:"beamWidth"`
+	MaxRuns               int     `json:"maxRuns"`
+	MeshMode              string  `json:"meshMode"`
+	MeshCore              string  `json:"meshCore"`
+	ExportWidthMM         float64 `json:"exportWidthMm"`
+	MeshDetailMM          float64 `json:"meshDetailMm"`
 	MaxPerceivedColors    int     `json:"maxPerceivedColors"`
 	TDTransmission        float64 `json:"tdTransmission"`
 	TDScale               float64 `json:"tdScale"`
@@ -45,7 +58,7 @@ func DefaultOptions() Options {
 	return Options{Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
 		MinClusterFraction: .005, HistogramBits: 6, Iterations: 24,
 		PreblurSigma: 1.5, Mode: "standard", GuidanceStrength: .8, TrueBlack: true, PreserveDetails: true,
-		HueForge: HueForgeOptions{.08, .48, 2.24, 32, 24, 64, .05, .1, .1}}
+		HueForge: HueForgeOptions{OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
 }
 
 // Older projects, presets, and preferences lack the new preservation options.
@@ -64,8 +77,39 @@ func (o *Options) UnmarshalJSON(data []byte) error {
 	*o = Options(value)
 	return nil
 }
+
+// Missing model/first-layer fields identify a saved legacy calculation. Keep
+// its optical model and layer geometry when decoding into initialized defaults.
+func (o *HueForgeOptions) UnmarshalJSON(data []byte) error {
+	type plain HueForgeOptions
+	v := plain(*o)
+	v.OpticalModel = LegacyModel
+	v.FirstLayerHeight = 0
+	v.LightPreset = ""
+	v.MaxRuns = 0
+	v.AutoDepth = false
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	*o = HueForgeOptions(v)
+	return nil
+}
+func (o Options) selectionFraction() float64 {
+	// Analysis has already culled noise. Do not erase surviving small details
+	// a second time while choosing constrained colors.
+	if o.PreserveDetails || o.prioritizeColors() {
+		return 0
+	}
+	return o.MinClusterFraction
+}
 func finite(v float64) bool { return !math.IsNaN(v) && !math.IsInf(v, 0) }
 func (o Options) Validate() error {
+	if o.ColorPriority != "" && o.ColorPriority != "balanced" && o.ColorPriority != "distinctive" && o.ColorPriority != "vivid" {
+		return fmt.Errorf("color priority must be balanced, distinctive, or vivid")
+	}
+	if o.prioritizeColors() && o.LegacyColorPipeline {
+		return fmt.Errorf("color priority requires the current color pipeline; disable legacy color matching")
+	}
 	if o.Colors < 1 || o.Colors > 256 {
 		return fmt.Errorf("color budget must be between 1 and 256")
 	}
@@ -87,6 +131,9 @@ func (o Options) Validate() error {
 	if !finite(o.PreblurSigma) || o.PreblurSigma < 0 || o.PreblurSigma > 100 {
 		return fmt.Errorf("pre-blur must be between 0 and 100")
 	}
+	if !finite(o.SmoothingColorSigma) || o.SmoothingColorSigma < 0 || o.SmoothingColorSigma > 25 {
+		return fmt.Errorf("smoothing color tolerance must be between 0 and 25; 0 uses the original tolerance of 5")
+	}
 	if o.Mode != "standard" && o.Mode != "guided" && o.Mode != "stack" {
 		return fmt.Errorf("unknown processing mode %q", o.Mode)
 	}
@@ -98,18 +145,64 @@ func (o Options) Validate() error {
 	}
 	return nil
 }
-func (o HueForgeOptions) BaseLayers() int       { return int(math.Round(o.BaseDepth / o.LayerHeight)) }
-func (o HueForgeOptions) MaxLayers() int        { return int(math.Round(o.MaxDepth / o.LayerHeight)) }
+func (o HueForgeOptions) frontlit() bool { return o.OpticalModel == FrontlitModel }
+func (o HueForgeOptions) FirstHeight() float64 {
+	if o.FirstLayerHeight > 0 {
+		return o.FirstLayerHeight
+	}
+	return o.LayerHeight
+}
+func (o HueForgeOptions) Height(layer int) float64 {
+	if layer <= 0 {
+		return 0
+	}
+	return o.FirstHeight() + float64(layer-1)*o.LayerHeight
+}
+func (o HueForgeOptions) layerCount(depth float64) float64 {
+	return 1 + (depth-o.FirstHeight())/o.LayerHeight
+}
+func (o HueForgeOptions) BaseLayers() int { return int(math.Round(o.layerCount(o.BaseDepth))) }
+func (o HueForgeOptions) MaxLayers() int {
+	if o.AutoDepth {
+		// Never round a requested physical ceiling up to a thicker layer.
+		return int(math.Floor(o.layerCount(o.MaxDepth) + 1e-9))
+	}
+	return int(math.Round(o.layerCount(o.MaxDepth)))
+}
 func (o HueForgeOptions) TransitionLayers() int { return o.MaxLayers() - o.BaseLayers() }
 func (o HueForgeOptions) Validate() error {
+	if o.AutoDepth && !o.frontlit() {
+		return fmt.Errorf("automatic depth requires the HueForge Front Lit model")
+	}
+	if o.MeshMode != "" && o.MeshMode != "color-match" && o.MeshMode != "combo" && o.MeshMode != "color-aware" && o.MeshMode != "color-pop" {
+		return fmt.Errorf("unknown HueForge mesh mode %q", o.MeshMode)
+	}
+	if o.MeshCore != "" && o.MeshCore != "planned-colors" && o.MeshCore != "filament-blends" {
+		return fmt.Errorf("unknown HueForge mesh core %q", o.MeshCore)
+	}
+	if !finite(o.ExportWidthMM) || o.ExportWidthMM < 0 || o.ExportWidthMM > 2000 || !finite(o.MeshDetailMM) || o.MeshDetailMM < 0 || o.MeshDetailMM > 10 {
+		return fmt.Errorf("HFP width must be 0–2000 mm and mesh detail 0–10 mm; 0 uses defaults")
+	}
+	if o.MaxRuns < 0 || o.MaxRuns > 64 {
+		return fmt.Errorf("maximum filament runs must be 0–64; 0 keeps one run per filament")
+	}
+	if o.LightPreset != "" && o.LightPreset != "hueforge-default" && o.LightPreset != "neutral-white" && o.LightPreset != "warm-white" {
+		return fmt.Errorf("unknown frontlit light preset %q", o.LightPreset)
+	}
+	if o.OpticalModel != "" && o.OpticalModel != LegacyModel && !o.frontlit() {
+		return fmt.Errorf("unknown optical model %q", o.OpticalModel)
+	}
+	if !finite(o.FirstLayerHeight) || o.FirstLayerHeight < 0 {
+		return fmt.Errorf("first layer height must be finite and non-negative")
+	}
 	for _, v := range []float64{o.LayerHeight, o.BaseDepth, o.MaxDepth, o.TDScale} {
 		if !finite(v) || v <= 0 {
 			return fmt.Errorf("layer height, depths, and TD scale must be finite and positive")
 		}
 	}
-	b, m := o.BaseDepth/o.LayerHeight, o.MaxDepth/o.LayerHeight
-	if !finite(b) || !finite(m) || m > 4096 || b < 1 || math.Abs(b-math.Round(b)) > 1e-8 || math.Abs(m-math.Round(m)) > 1e-8 || math.Round(m) <= math.Round(b) {
-		return fmt.Errorf("depths must be exact layer-height multiples with at least one base layer and one top layer, at most 4096 layers")
+	b, m := o.layerCount(o.BaseDepth), o.layerCount(o.MaxDepth)
+	if !finite(b) || !finite(m) || m > 4096 || b < 1 || math.Abs(b-math.Round(b)) > 1e-8 || (!o.AutoDepth && math.Abs(m-math.Round(m)) > 1e-8) || o.MaxLayers() <= o.BaseLayers() {
+		return fmt.Errorf("depths must equal first layer height plus whole regular layers, with at least one base layer and one top layer, at most 4096 layers")
 	}
 	if o.AnalysisColors < 1 || o.AnalysisColors > 256 || o.MaxPerceivedColors < 1 || o.MaxPerceivedColors > 256 || o.BeamWidth < 1 || o.BeamWidth > 512 {
 		return fmt.Errorf("analysis/output colors must be 1–256 and beam width 1–512")
@@ -155,6 +248,7 @@ type Result struct {
 	SHA256       string         `json:"rgbaSHA256"`
 	Guidance     *GuidancePlan  `json:"guidance,omitempty"`
 	Stack        *StackPlan     `json:"stack,omitempty"`
+	StackView    *StackCoreView `json:"stackView,omitempty"`
 	LayerMap     []uint16       `json:"-"`
 }
 type Progress struct {

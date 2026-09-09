@@ -5,19 +5,42 @@ import (
 	"math"
 )
 
+// Runs are contiguous uses, while the color budget counts distinct spools.
+// Adjacent equal IDs must remain one cumulative optical run.
+func validStackOrder(ids []int, o Options) bool {
+	seen := make(map[int]bool, len(ids))
+	for pos, id := range ids {
+		if pos > 0 && ids[pos-1] == id {
+			return false
+		}
+		if seen[id] && o.HueForge.MaxRuns == 0 {
+			return false
+		}
+		seen[id] = true
+	}
+	return len(seen) <= o.Colors && (o.HueForge.MaxRuns == 0 || len(ids) <= o.HueForge.MaxRuns)
+}
+
 // rebuildStack evaluates a complete, physically reachable stack after changing
 // its order, filaments, or layer allocation. The base thickness stays fixed.
 func rebuildStack(ids, runs []int, lib Library, h HueForgeOptions) stackState {
 	s := stackState{indices: append([]int(nil), ids...), runs: append([]int(nil), runs...)}
-	s.current = LinearRGB(lib.Filaments[ids[0]].RGB)
-	s.rgbs = append(s.rgbs, lib.Filaments[ids[0]].RGB)
+	s.current = baseOptics(lib.Filaments[ids[0]], h)
+	s.rgbs = append(s.rgbs, s.current.RGB(h))
 	s.layers = append(s.layers, h.BaseLayers())
 	s.positions = append(s.positions, 1)
+	for layer := h.BaseLayers(); h.frontlit() && layer < runs[0]; layer++ {
+		rgb := s.current.step(lib.Filaments[ids[0]], h, false)
+		s.used++
+		s.rgbs = append(s.rgbs, rgb)
+		s.layers = append(s.layers, layer+1)
+		s.positions = append(s.positions, 1)
+	}
 	for pos := 1; pos < len(ids); pos++ {
 		for layer := 0; layer < runs[pos]; layer++ {
-			s.current = blend(s.current, lib.Filaments[ids[pos]], h)
+			rgb := s.current.step(lib.Filaments[ids[pos]], h, layer == 0)
 			s.used++
-			s.rgbs = append(s.rgbs, FromLinear(s.current))
+			s.rgbs = append(s.rgbs, rgb)
 			s.layers = append(s.layers, h.BaseLayers()+s.used)
 			s.positions = append(s.positions, pos+1)
 		}
@@ -37,6 +60,9 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 		}
 		next := best
 		try := func(ids, runs []int) error {
+			if !validStackOrder(ids, o) {
+				return nil
+			}
 			if err := ctx.Err(); err != nil {
 				return err
 			}
@@ -65,7 +91,7 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 		}
 		for pos := range best.indices {
 			for id := range lib.Filaments {
-				if contains(best.indices, id) || (pos == 0 && !contains(bases, id)) {
+				if best.indices[pos] == id || (pos == 0 && !contains(bases, id)) {
 					continue
 				}
 				ids := append([]int(nil), best.indices...)

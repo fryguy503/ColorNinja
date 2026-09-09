@@ -146,7 +146,7 @@ func TestConstrainedMappingKeepsSourceGroupsTogether(t *testing.T) {
 	src := image.NewNRGBA(image.Rect(0, 0, 32, 12))
 	for y := 0; y < 12; y++ {
 		for x := 0; x < 32; x++ {
-			v := uint8(106 + x/4)
+			v := uint8(110 + x/4)
 			src.SetNRGBA(x, y, color.NRGBA{v, v, v, 255})
 		}
 	}
@@ -186,6 +186,7 @@ func TestConstrainedMappingKeepsSourceGroupsTogether(t *testing.T) {
 func TestCompleteStackRefinementRestoresMissingShades(t *testing.T) {
 	for _, ink := range []RGB{{180, 30, 45}, {25, 145, 60}, {25, 60, 180}} {
 		o := DefaultOptions()
+		o.HueForge.OpticalModel, o.HueForge.FirstLayerHeight = LegacyModel, 0
 		o.Colors = 3
 		o.Mode = "stack"
 		o.HueForge.MaxDepth = 1.12
@@ -218,38 +219,43 @@ func TestCompleteStackRefinementRestoresMissingShades(t *testing.T) {
 	}
 }
 
-func TestPreservedStackPaletteAndLayerMapAgree(t *testing.T) {
-	o := testOptions()
-	o.Mode = "stack"
-	o.PreblurSigma = 1.5
-	o.HueForge.MaxPerceivedColors = 3
-	lib := testLibrary()
-	src := gradient(81, 63)
-	r := process(t, src, o, &lib)
-	if len(r.Palette) > 3 || len(r.Stack.Runs) > o.Colors {
-		t.Fatal("exceeded requested budget")
-	}
-	layers := map[int]RGB{}
-	for _, p := range r.Stack.LayerColors {
-		layers[p.Layer] = p.RGB
-	}
-	for y := 0; y < 63; y++ {
-		for x := 0; x < 81; x++ {
-			i := y*81 + x
-			pixel := r.Image.NRGBAAt(x, y)
-			if pixel.A != src.NRGBAAt(x, y).A {
-				t.Fatal("changed alpha")
+func TestSmoothedStackPaletteAndLayerMapAgree(t *testing.T) {
+	for _, preserve := range []bool{false, true} {
+		t.Run(fmt.Sprintf("preserve=%v", preserve), func(t *testing.T) {
+			o := testOptions()
+			o.Mode = "stack"
+			o.PreblurSigma, o.SmoothingColorSigma = 2.5, 10
+			o.PreserveDetails = preserve
+			o.HueForge.MaxPerceivedColors = 3
+			lib := testLibrary()
+			src := gradient(81, 63)
+			r := process(t, src, o, &lib)
+			if len(r.Palette) > 3 || len(r.Stack.Runs) > o.Colors {
+				t.Fatal("exceeded requested budget")
 			}
-			if pixel.A == 0 {
-				if r.LayerMap[i] != 0 {
-					t.Fatal("transparent pixel has a layer")
+			layers := map[int]RGB{}
+			for _, p := range r.Stack.LayerColors {
+				layers[p.Layer] = p.RGB
+			}
+			for y := 0; y < 63; y++ {
+				for x := 0; x < 81; x++ {
+					i := y*81 + x
+					pixel := r.Image.NRGBAAt(x, y)
+					if pixel.A != src.NRGBAAt(x, y).A {
+						t.Fatal("changed alpha")
+					}
+					if pixel.A == 0 {
+						if r.LayerMap[i] != 0 {
+							t.Fatal("transparent pixel has a layer")
+						}
+						continue
+					}
+					if c, ok := layers[int(r.LayerMap[i])]; !ok || c != (RGB{pixel.R, pixel.G, pixel.B}) {
+						t.Fatal("pixel is not reachable at reported layer", i)
+					}
 				}
-				continue
 			}
-			if c, ok := layers[int(r.LayerMap[i])]; !ok || c != (RGB{pixel.R, pixel.G, pixel.B}) {
-				t.Fatal("pixel is not reachable at reported layer", i)
-			}
-		}
+		})
 	}
 }
 

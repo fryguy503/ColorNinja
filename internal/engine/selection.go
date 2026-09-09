@@ -15,6 +15,17 @@ func targets(p []PaletteEntry, o Options) ([]Vec, []float64) {
 		weights[i] = math.Max(0, e.Fraction)
 		sum += weights[i]
 	}
+	if o.prioritizeColors() {
+		pts := make([]point, len(p))
+		for i := range p {
+			pts[i] = point{lab: labs[i], mass: weights[i], detail: true}
+		}
+		weights = priorityWeights(pts, o)
+		sum = 0
+		for _, w := range weights {
+			sum += w
+		}
+	}
 	for i := range weights {
 		if sum == 0 {
 			weights[i] = 1 / float64(len(p))
@@ -23,6 +34,22 @@ func targets(p []PaletteEntry, o Options) ([]Vec, []float64) {
 		}
 	}
 	return labs, weights
+}
+
+// Selection may use importance weights, but exported fractions describe the
+// real source area assigned to each selected palette entry.
+func sourceFractions(selected []Vec, source []PaletteEntry, o Options) []float64 {
+	masses := make([]float64, len(selected))
+	for _, p := range source {
+		v, best, index := o.colorVector(p.RGB), math.Inf(1), 0
+		for i, c := range selected {
+			if d := distance(v, c); d < best {
+				best, index = d, i
+			}
+		}
+		masses[index] += p.Fraction
+	}
+	return masses
 }
 func contains(a []int, n int) bool {
 	for _, v := range a {

@@ -15,40 +15,71 @@ preview PNGs use a media handler instead of sending pixels through JSON bindings
 ## Image pipeline
 
 Sources normalize to sRGB and 8-bit non-premultiplied RGBA with orientation
-applied. With `preserveDetails` enabled (the default), an alpha-weighted separable
-joint bilateral filter smooths the full-resolution working copy. Both passes use
-unchanged source CIELAB values as the guide (range sigma 5 Delta E76, spatial
+applied. An alpha-weighted separable joint bilateral filter smooths the
+full-resolution working copy, independently of `preserveDetails`. Both passes use
+unchanged source CIELAB values as the guide (range sigma from
+`smoothingColorSigma`, with zero retaining the original 5 Delta E76; spatial
 sigma from `preblurSigma`, truncated at two spatial sigmas). Original alpha is
 preserved; transparent neighbors contribute no RGB. Eight workers at most use
 8192-pixel tiles with halos, bounding float scratch space even for long, thin
 images. Zero smoothing returns the original source directly.
 
 Analysis then uses a configurable pixel ceiling and Lanczos3 resizing.
-Float64 Oklab clustering separates chromatic and achromatic populations using
-the existing CIELAB neutral threshold and repeatedly removes undersized clusters.
+Float64 Oklab clustering uses one combined population in standard mode when
+`totalColors` is true. Otherwise it separates chromatic and achromatic populations
+using the CIELAB neutral threshold. Both paths remove undersized clusters;
+preservation mode retains coherent, high-contrast small marks using spatial
+support collected in the histogram. Original area weights remain unchanged.
+New desktop settings enable the total budget; missing fields in old projects,
+presets, preferences, and the legacy CLI retain separate population budgets.
 Histogram weights include alpha; hidden RGB cannot contaminate the palette.
-With preservation disabled, the original CIELAB and analysis-only Gaussian
-pipeline remains available, including the Python-compatible fixed-point resize.
+The original CIELAB and analysis-only Gaussian color pipeline is available
+through the explicit `legacyColorPipeline` compatibility setting, default false.
+Together with `preserveDetails: false`, it retains Python-compatible reduction,
+including the fixed-point resize. Detail preservation no longer switches the
+color space or bypasses output smoothing.
+
+`colorPriority` defaults to the previous area-weighted selection. The optional
+`distinctive` and `vivid` paths in `palette_priority.go` share the existing color
+ceiling across families, use bounded hue-family and chroma importance weights,
+and consolidate close shades. Predominantly neutral clusters are recentered on
+neutral source pixels to resist color casts. The working color axes are scaled
+for matching and unscaled on RGB conversion; this changes distance preferences,
+not saturation. Filament selection uses importance weights separately from real
+source fractions and original-pixel fidelity metrics. See
+[palette priority](palette-priority.md) for the method and limits.
 
 Every original-resolution pixel is mapped without dithering. Up to eight row
-workers use deterministic metric reduction. Preservation mode matches smoothed
-pixels in Oklab; guided/stack modes map through analyzed source color groups so
+workers use deterministic metric reduction. Current processing matches smoothed
+pixels in Oklab with either preservation setting; when preserving details,
+guided/stack modes map through analyzed source color groups so
 an ill-fitting constrained palette cannot create new contours inside a group.
 Alpha is preserved; RGB under zero alpha may change. Palette percentages and
 Delta E76 metrics are alpha-weighted. Metrics always compare original pixels to
 actual output in CIELAB, including when selection and mapping use Oklab.
 
-Guidance selects filament anchors and pulls analyzed colors toward their nominal
-and approximate TD-aware pairwise colors. It does not promise one global print
+Guidance selects filament anchors and pulls analyzed colors toward modeled
+single-run and pairwise colors. The new frontlit path seeds from all pairs and
+scores the actual strength-adjusted output. It does not promise one global print
 stack. Stack mode searches contiguous filament runs with a bounded beam,
 selects a capped reachable palette, reranks completed candidates, and trims
 unused top layers. With preservation on, up to 16 deterministic improvement
 passes try complete-stack filament substitutions, order swaps, and one-layer
 transfers. The fixed base depth, eligibility rules, unique-filament constraint,
-total layer budget, output cap, and minimum fractions remain enforced. Only
+total layer budget and output cap remain enforced. Preserved analysis details
+are not culled a second time by output area fraction. Only
 improvements to the capped output objective are accepted. Each output color
 corresponds to a layer in that stack; smoothing introduces no off-palette colors.
 This is a bounded local search, not a guarantee of the globally optimal stack.
+
+`frontlit.go` models cumulative CMY runs for Front Lit color prediction,
+including its darkening correction, lightness lookup, lighting substrate, and
+float precision. Bases are simulated, and all bases receive pair expansion
+before pruning. A one-filament stack can grow above the minimum base depth.
+Geometry uses a separate first-layer height everywhere, including exported
+heights. Missing optical-model fields decode to the legacy model and equal
+first/regular heights; new defaults choose Front Lit. See
+[validation and limitations](validation.md).
 
 The default-on true-black option copies the working filament list and normalizes
 black anchors before selection and optical calculations. It recognizes a “Black”
@@ -93,13 +124,24 @@ using loopback-only binding, exact-host, POST, origin, custom-header, and reques
 size checks. Ordinary desktop use opens no listening TCP port and requires no
 network connection for processing.
 
+`internal/updates` reads the fixed public GitHub Releases endpoint independently
+of the image engine. A 15-second context deadline, capped response bodies,
+bounded pagination, semantic version comparison, draft/prerelease filtering,
+and per-channel caching keep checks bounded. Pagination URLs from the server
+are never followed; only the fixed repository endpoint is requested. Release
+links are constructed from validated tags within this repository. No executable
+is downloaded or installed. The Wails host embeds `frontend/package.json` to
+show and compare the same version that the packaging script uses. UI and update
+preferences live in settings, independently of project/processing options.
+
 ## Compatibility boundaries
 
 The Go CLI accepts legacy processing flags. `--chunk-pixels` is a compatibility
 no-op because mapping uses bounded parallel rows. Reports use camelCase fields
 and the Go schema rather than reproducing the Python report layout.
 
-Five regression cases with true-black and detail preservation disabled match Python exactly.
+Five regression cases with the legacy optical model, equal layer heights,
+true-black and detail preservation disabled match Python exactly.
 This does not guarantee identical
 results for every image decoder, ICC profile, or floating-point edge case.
 Lossy codec upsampling and Windows/LittleCMS color transforms can differ.

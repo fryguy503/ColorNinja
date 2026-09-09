@@ -46,7 +46,13 @@ func guidanceCandidates(ctx context.Context, indices []int, lib Library, o HueFo
 		}
 	}
 	for _, id := range indices {
-		add(lib.Filaments[id].RGB, "filament", []int{id}, 0)
+		v := baseOptics(lib.Filaments[id], o)
+		add(v.RGB(o), "filament", []int{id}, 0)
+		if o.frontlit() {
+			for layer := 1; layer <= o.TransitionLayers(); layer++ {
+				add(v.step(lib.Filaments[id], o, false), "single-filament-run", []int{id}, layer)
+			}
+		}
 	}
 	for _, bottom := range indices {
 		for _, top := range indices {
@@ -56,16 +62,24 @@ func guidanceCandidates(ctx context.Context, indices []int, lib Library, o HueFo
 			if bottom == top {
 				continue
 			}
-			v := LinearRGB(lib.Filaments[bottom].RGB)
+			v := baseOptics(lib.Filaments[bottom], o)
 			for layer := 1; layer <= o.TransitionLayers(); layer++ {
-				v = blend(v, lib.Filaments[top], o)
-				add(FromLinear(v), "pairwise-perceived-hue", []int{bottom, top}, layer)
+				add(v.step(lib.Filaments[top], o, layer == 1), "pairwise-perceived-hue", []int{bottom, top}, layer)
 			}
 		}
 	}
 	return out, nil
 }
 func candidateScore(ctx context.Context, candidates []guidanceCandidate, target []Vec, weights []float64, o Options) (float64, error) {
+	if o.HueForge.frontlit() {
+		records := guidedRecords(candidates, target, weights, o)
+		vectors := make([]Vec, len(records))
+		for i, r := range records {
+			vectors[i] = o.colorVector(r.rgb)
+		}
+		_, _, rms, err := selectReachable(ctx, vectors, target, weights, o.HueForge.MaxPerceivedColors, o.selectionFraction())
+		return rms * rms, err
+	}
 	labs := make([]Vec, len(candidates))
 	for i, c := range candidates {
 		labs[i] = o.colorVector(c.rgb)
@@ -129,6 +143,23 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 			selected[0] = i
 		}
 	}
+	// A useful pair can have two individually poor solid colors. Evaluate
+	// pairs together before the greedy additions, using the actual guided
+	// output (strength, byte rounding, and palette cap included).
+	if o.HueForge.frontlit() && o.Colors >= 2 && o.GuidanceStrength > 0 {
+		for i := range lib.Filaments {
+			for j := i + 1; j < len(lib.Filaments); j++ {
+				v, e := score([]int{i, j})
+				if e != nil {
+					return nil, nil, e
+				}
+				if v < value-1e-12 {
+					selected = []int{i, j}
+					value = v
+				}
+			}
+		}
+	}
 	for len(selected) < min(o.Colors, len(lib.Filaments)) {
 		if e := report(ctx, progress, "Selecting owned filaments", .35+.18*float64(len(selected))/float64(o.Colors)); e != nil {
 			return nil, nil, e
@@ -185,51 +216,21 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 	if err != nil {
 		return nil, nil, err
 	}
-	labs := make([]Vec, len(c))
-	for i, v := range c {
-		labs[i] = o.colorVector(v.rgb)
-	}
-	type record struct {
-		rgb               RGB
-		target, reference int
-	}
-	records := []record{}
-	seen := map[RGB]int{}
-	for i, t := range target {
-		best, pos := math.Inf(1), 0
-		for j, v := range labs {
-			if d := distance(t, v); d < best {
-				best = d
-				pos = j
-			}
-		}
-		v := t
-		for k := range v {
-			v[k] = (1-o.GuidanceStrength)*t[k] + o.GuidanceStrength*labs[pos][k]
-		}
-		rgb := o.colorRGB(v)
-		// A target assigned to a pure-black filament stays exact black instead
-		// of retaining a gray/tinted residue from partial guidance. Zero guidance
-		// still preserves analyzed source colors, and pairwise hues remain modeled.
-		if o.TrueBlack && o.GuidanceStrength > 0 && c[pos].kind == "filament" && c[pos].rgb == (RGB{}) {
-			rgb = RGB{}
-		}
-		if old, ok := seen[rgb]; ok {
-			if weights[i] > weights[records[old].target]+1e-15 {
-				records[old] = record{rgb, i, pos}
-			}
-		} else {
-			seen[rgb] = len(records)
-			records = append(records, record{rgb, i, pos})
-		}
-	}
+	records := guidedRecords(c, target, weights, o)
 	guidedLabs := make([]Vec, len(records))
 	for i, r := range records {
 		guidedLabs[i] = o.colorVector(r.rgb)
 	}
-	ids, masses, rms, err := selectReachable(ctx, guidedLabs, target, weights, o.HueForge.MaxPerceivedColors, o.MinClusterFraction)
+	ids, masses, rms, err := selectReachable(ctx, guidedLabs, target, weights, o.HueForge.MaxPerceivedColors, o.selectionFraction())
 	if err != nil {
 		return nil, nil, err
+	}
+	if o.prioritizeColors() {
+		selected := make([]Vec, len(ids))
+		for i, id := range ids {
+			selected[i] = guidedLabs[id]
+		}
+		masses = sourceFractions(selected, palette, o)
 	}
 	order := make([]int, len(ids))
 	for i := range order {
@@ -245,6 +246,9 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 	reported := []int{}
 	positions := map[int]int{}
 	plan := &GuidancePlan{Model: "inventory-guided-pairwise-td-hues-v1", Options: o.HueForge, Strength: o.GuidanceStrength, Requested: o.Colors, Eligible: len(lib.Filaments), RMS: rms, LibrarySHA256: lib.SHA256}
+	if o.HueForge.frontlit() {
+		plan.Model = FrontlitModel + "-pairwise-guide"
+	}
 	for _, id := range selected {
 		if used[id] {
 			reported = append(reported, id)
@@ -269,7 +273,7 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 		}
 		plan.Colors = append(plan.Colors, GuidedColor{r.rgb, ref.rgb, ref.kind, fp, ref.layers, masses[p]})
 	}
-	if o.PreserveDetails {
+	if o.PreserveDetails || o.prioritizeColors() {
 		actual := make([]RGB, len(out))
 		for i, p := range out {
 			actual[i] = p.RGB
@@ -277,4 +281,47 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 		plan.RMS = paletteRMS76(actual, palette, o)
 	}
 	return out, plan, nil
+}
+
+type guidedRecord struct {
+	rgb               RGB
+	target, reference int
+}
+
+func guidedRecords(c []guidanceCandidate, target []Vec, weights []float64, o Options) []guidedRecord {
+	labs := make([]Vec, len(c))
+	for i, v := range c {
+		labs[i] = o.colorVector(v.rgb)
+	}
+	records := []guidedRecord{}
+	seen := map[RGB]int{}
+	for i, t := range target {
+		best, pos := math.Inf(1), 0
+		for j, v := range labs {
+			if d := distance(t, v); d < best {
+				best = d
+				pos = j
+			}
+		}
+		v := t
+		for k := range v {
+			v[k] = (1-o.GuidanceStrength)*t[k] + o.GuidanceStrength*labs[pos][k]
+		}
+		rgb := o.colorRGB(v)
+		// A target assigned to a pure-black filament stays exact black instead
+		// of retaining a gray/tinted residue from partial guidance. Zero guidance
+		// still preserves analyzed source colors, and pairwise hues remain modeled.
+		if o.TrueBlack && o.GuidanceStrength > 0 && c[pos].kind == "filament" && c[pos].rgb == (RGB{}) {
+			rgb = RGB{}
+		}
+		if old, ok := seen[rgb]; ok {
+			if weights[i] > weights[records[old].target]+1e-15 {
+				records[old] = guidedRecord{rgb, i, pos}
+			}
+		} else {
+			seen[rgb] = len(records)
+			records = append(records, guidedRecord{rgb, i, pos})
+		}
+	}
+	return records
 }

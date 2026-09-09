@@ -32,16 +32,18 @@ type Library struct {
 	Total            int        `json:"total"`
 	SkippedUnowned   int        `json:"skippedUnowned"`
 	SkippedFiltered  int        `json:"skippedFiltered"`
+	SkippedFinish    int        `json:"skippedFinish"`
 	SkippedInvalid   int        `json:"skippedInvalid"`
 	SkippedSecondary int        `json:"skippedSecondary"`
 	SkippedDuplicate int        `json:"skippedDuplicate"`
 	SHA256           string     `json:"sha256"`
 }
 type LibraryFilter struct {
-	IncludeUnowned bool     `json:"includeUnowned"`
-	MaterialTypes  []string `json:"materialTypes"`
-	AllowSecondary bool     `json:"allowSecondary"`
-	ExcludedIDs    []int    `json:"excludedIds"`
+	IncludeUnowned    bool     `json:"includeUnowned"`
+	MaterialTypes     []string `json:"materialTypes"`
+	AllowSecondary    bool     `json:"allowSecondary"`
+	AvoidSilkMetallic bool     `json:"avoidSilkMetallic"`
+	ExcludedIDs       []int    `json:"excludedIds"`
 }
 
 func ParseRGB(s string) (RGB, error) {
@@ -89,6 +91,38 @@ func LoadLibrary(path string, filter LibraryFilter) (Library, error) {
 	}
 	return ParseLibrary(raw, filter)
 }
+
+// HueForge recognizes these finish names in filament types, names, and tags.
+// Do not infer a finish from the brand or from color names such as Gold/Silver.
+func hasSilkMetallicFinish(material, name string, tags []string) bool {
+	for _, value := range append([]string{material, name}, tags...) {
+		value = strings.ToLower(value)
+		for _, finish := range []string{"silk", "metallic", "pearl", "elixir", "starlight"} {
+			if strings.Contains(value, finish) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func filamentTags(value any) []string {
+	tags := []string{}
+	switch t := value.(type) {
+	case string:
+		if t = strings.TrimSpace(t); t != "" {
+			tags = append(tags, t)
+		}
+	case []any:
+		for _, tag := range t {
+			if s := textValue(tag); s != "" {
+				tags = append(tags, s)
+			}
+		}
+	}
+	return tags
+}
+
 func ParseLibrary(raw []byte, filter LibraryFilter) (Library, error) {
 	lib := Library{Filaments: []Filament{}}
 	hash := sha256.Sum256(raw)
@@ -141,6 +175,14 @@ func ParseLibrary(raw []byte, filter LibraryFilter) (Library, error) {
 			lib.SkippedFiltered++
 			continue
 		}
+		brand, name := textValue(r["Brand"]), textValue(r["Name"])
+		tags := filamentTags(r["Tags"])
+		// Filter before deduplication: a silk entry must not hide an eligible
+		// plain filament with the same RGB, TD, and generic PLA type.
+		if filter.AvoidSilkMetallic && hasSilkMetallicFinish(material, name, tags) {
+			lib.SkippedFinish++
+			continue
+		}
 		secondary := false
 		if s, ok := r["Secondary_Color"].(string); ok {
 			secondary = strings.TrimSpace(s) != ""
@@ -162,25 +204,11 @@ func ParseLibrary(raw []byte, filter LibraryFilter) (Library, error) {
 			continue
 		}
 		seen[key] = true
-		brand, name := textValue(r["Brand"]), textValue(r["Name"])
 		if brand == "" {
 			brand = "Unknown brand"
 		}
 		if name == "" {
 			name = fmt.Sprintf("Filament %d", index+1)
-		}
-		tags := []string{}
-		switch t := r["Tags"].(type) {
-		case string:
-			if t = strings.TrimSpace(t); t != "" {
-				tags = append(tags, t)
-			}
-		case []any:
-			for _, tag := range t {
-				if s := textValue(tag); s != "" {
-					tags = append(tags, s)
-				}
-			}
 		}
 		lib.Filaments = append(lib.Filaments, Filament{Brand: brand, Name: name,
 			RGB: rgb, Hex: rgb.Hex(), TD: td, Material: material,
@@ -188,6 +216,9 @@ func ParseLibrary(raw []byte, filter LibraryFilter) (Library, error) {
 			SourceIndex: index, Secondary: secondary})
 	}
 	if len(lib.Filaments) == 0 {
+		if lib.SkippedFinish > 0 {
+			return lib, fmt.Errorf("no eligible filaments remain with Avoid silk & metallic finishes enabled; adjust your filters or use a library with standard or matte filaments")
+		}
 		return lib, fmt.Errorf("no eligible filaments remain after ownership, material, and color filters")
 	}
 	return lib, nil

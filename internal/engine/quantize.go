@@ -28,12 +28,14 @@ func AnalysisSize(w, h, limit int) (int, int) {
 }
 
 type point struct {
-	lab  Vec
-	mass float64
+	lab    Vec
+	mass   float64
+	detail bool
 }
 type histBin struct {
-	sum  Vec
-	mass float64
+	sum    Vec
+	mass   float64
+	detail bool
 }
 
 func Discover(ctx context.Context, src *image.NRGBA, o Options, progress Reporter) ([]PaletteEntry, [2]int, error) {
@@ -43,9 +45,9 @@ func Discover(ctx context.Context, src *image.NRGBA, o Options, progress Reporte
 	if src == nil {
 		return nil, [2]int{}, fmt.Errorf("no image loaded")
 	}
-	if o.PreserveDetails {
+	if !o.LegacyColorPipeline {
 		var err error
-		src, err = detailSmooth(ctx, src, o.PreblurSigma, progress)
+		src, err = detailSmoothWithTolerance(ctx, src, o.PreblurSigma, o.SmoothingColorSigma, progress)
 		if err != nil {
 			return nil, [2]int{}, err
 		}
@@ -78,7 +80,7 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 		return nil, size, err
 	}
 	blurred := a
-	if o.PreblurSigma > 0 && !o.PreserveDetails {
+	if o.LegacyColorPipeline && o.PreblurSigma > 0 {
 		sigma := math.Max(.5, math.Min(o.PreblurSigma, o.PreblurSigma*float64(aw)/float64(w)))
 		var err error
 		blurred, err = analysisBlur(ctx, a, sigma)
@@ -91,17 +93,30 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 	}
 	bins := make(map[int]*histBin)
 	shift := 8 - o.HistogramBits
+	trackSupport := o.PreserveDetails || o.prioritizeColors()
+	// Vertical support cannot reach four pixels on shorter images. Avoid
+	// allocating scanline state for that case and for legacy reduction.
+	var previousCodes []uint32
+	var vertical []uint8
+	if trackSupport && ah >= 4 {
+		previousCodes, vertical = make([]uint32, aw), make([]uint8, aw)
+	}
 	for y := 0; y < ah; y++ {
 		if y%32 == 0 {
 			if err := ctx.Err(); err != nil {
 				return nil, size, err
 			}
 		}
+		horizontal, lastCode := 0, -1
 		for x := 0; x < aw; x++ {
 			i := y*a.Stride + x*4
 			j := y*blurred.Stride + x*4
 			mass := float64(a.Pix[i+3]) / 255
 			if mass == 0 {
+				if len(vertical) > 0 {
+					previousCodes[x], vertical[x] = 0, 0
+				}
+				horizontal, lastCode = 0, -1
 				continue
 			}
 			r, g, b := blurred.Pix[j], blurred.Pix[j+1], blurred.Pix[j+2]
@@ -112,6 +127,25 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 				bins[code] = bin
 			}
 			bin.mass += mass
+			if trackSupport {
+				if lastCode == code {
+					horizontal++
+				} else {
+					horizontal = 1
+				}
+				verticalSupport := false
+				if len(vertical) > 0 {
+					if previousCodes[x] == uint32(code+1) {
+						vertical[x] = min(4, vertical[x]+1)
+					} else {
+						vertical[x] = 1
+					}
+					previousCodes[x] = uint32(code + 1)
+					verticalSupport = vertical[x] >= 4
+				}
+				lastCode = code
+				bin.detail = bin.detail || horizontal >= 4 || verticalSupport
+			}
 			bin.sum[0] += float64(r) * mass
 			bin.sum[1] += float64(g) * mass
 			bin.sum[2] += float64(b) * mass
@@ -123,6 +157,7 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 	}
 	sort.Ints(codes)
 	var groups [2][]point
+	combined := (o.TotalColors && o.Mode == "standard") || o.prioritizeColors()
 	total := 0.0
 	for _, k := range codes {
 		b := bins[k]
@@ -132,13 +167,15 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 		}
 		lab := labFloats(v)
 		group := 0
-		if math.Hypot(lab[1], lab[2]) < o.NeutralChroma {
+		if !combined && math.Hypot(lab[1], lab[2]) < o.NeutralChroma {
 			group = 1
 		}
-		if o.PreserveDetails {
+		if !o.LegacyColorPipeline {
 			lab = okLabLinear(Vec{linear(v[0]), linear(v[1]), linear(v[2])})
+			lab[1] *= o.chromaPriority()
+			lab[2] *= o.chromaPriority()
 		}
-		groups[group] = append(groups[group], point{lab, b.mass})
+		groups[group] = append(groups[group], point{lab: lab, mass: b.mass, detail: b.detail})
 		total += b.mass
 	}
 	if total == 0 {
@@ -150,7 +187,18 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 		if err := report(ctx, progress, []string{"Clustering colors", "Clustering neutrals"}[group], .15+float64(group)*.15); err != nil {
 			return nil, size, err
 		}
-		centers, masses, err := cluster(ctx, pts, o)
+		var centers []Vec
+		var masses []float64
+		var err error
+		if o.prioritizeColors() {
+			budget := o.Colors
+			if !o.TotalColors || o.Mode != "standard" {
+				budget *= 2
+			}
+			centers, masses, err = priorityCluster(ctx, pts, o, budget)
+		} else {
+			centers, masses, err = cluster(ctx, pts, o)
+		}
 		if err != nil {
 			return nil, size, err
 		}
@@ -166,7 +214,9 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 				result[old].Fraction += f
 			} else {
 				e := entry(rgb, f, o.NeutralChroma)
-				e.Population = []string{"chromatic", "achromatic"}[group]
+				if !combined {
+					e.Population = []string{"chromatic", "achromatic"}[group]
+				}
 				seen[rgb] = len(result)
 				result = append(result, e)
 			}
@@ -299,13 +349,33 @@ func cluster(ctx context.Context, pts []point, o Options) ([]Vec, []float64, err
 		return nil, nil, err
 	}
 	for len(centers) > 1 {
+		protected := make([]bool, len(centers))
+		if o.PreserveDetails {
+			labels, _, _ := assign(pts, centers)
+			for i, p := range pts {
+				if p.detail && p.mass >= 4 {
+					protected[labels[i]] = true
+				}
+			}
+			for i, c := range centers {
+				separation := math.Inf(1)
+				for j, other := range centers {
+					if i != j {
+						separation = math.Min(separation, distance(c, other))
+					}
+				}
+				// Keep coherent, visibly distinct marks under the area cutoff;
+				// still cull isolated speckles and near-duplicate shading.
+				protected[i] = protected[i] && separation >= 8*8
+			}
+		}
 		keep := []Vec{}
 		maxMass := 0
 		for i, m := range masses {
 			if m > masses[maxMass] {
 				maxMass = i
 			}
-			if m >= total*o.MinClusterFraction {
+			if m >= total*o.MinClusterFraction || protected[i] {
 				keep = append(keep, centers[i])
 			}
 		}
@@ -341,9 +411,11 @@ func Process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, pro
 		analysisOptions.Colors = o.HueForge.AnalysisColors
 	}
 	mappingSource := src
-	if o.PreserveDetails {
+	// Smoothing applies to both palette discovery and final pixel assignment,
+	// independently of detail-aware clustering and color matching.
+	if !o.LegacyColorPipeline {
 		var err error
-		mappingSource, err = detailSmooth(ctx, src, o.PreblurSigma, progress)
+		mappingSource, err = detailSmoothWithTolerance(ctx, src, o.PreblurSigma, o.SmoothingColorSigma, progress)
 		if err != nil {
 			return nil, err
 		}
@@ -377,6 +449,7 @@ func Process(ctx context.Context, src *image.NRGBA, o Options, lib *Library, pro
 	digest := sha256.Sum256(result.Image.Pix)
 	result.UniqueColors = usedPaletteColorCount(result.Palette)
 	result.SHA256 = fmt.Sprintf("%x", digest)
+	result.StackView = buildStackCoreView(result)
 	if err = report(ctx, progress, "Preview ready", 1); err != nil {
 		return nil, err
 	}
@@ -455,9 +528,9 @@ func mapImage(ctx context.Context, src, mappingSource *image.NRGBA, palette, ana
 								d = v
 							}
 						}
-						if o.PreserveDetails {
-							d = distance(ToLab(RGB{src.Pix[i], src.Pix[i+1], src.Pix[i+2]}), metricLabs[bestIdx])
-						}
+						// Measure the original image, even when smoothing changed the
+						// working pixels or matching used a different color space.
+						d = distance(ToLab(RGB{src.Pix[i], src.Pix[i+1], src.Pix[i+2]}), metricLabs[bestIdx])
 						weight := float64(a) / 255
 						delta := math.Sqrt(d)
 						s.sum += delta * weight

@@ -1,9 +1,18 @@
 export type HueForgeOptions = {
+  opticalModel: "hueforge-0.9.4.3-frontlit-v1" | "legacy-exponential";
+  firstLayerHeight: number;
+  lightPreset: "hueforge-default" | "neutral-white" | "warm-white" | "";
   layerHeight: number;
   baseDepth: number;
   maxDepth: number;
+  autoDepth: boolean;
   analysisColors: number;
   beamWidth: number;
+  maxRuns: number;
+  meshMode: "" | "color-match" | "combo" | "color-aware" | "color-pop";
+  meshCore: "" | "planned-colors" | "filament-blends";
+  exportWidthMm: number;
+  meshDetailMm: number;
   maxPerceivedColors: number;
   tdTransmission: number;
   tdScale: number;
@@ -11,12 +20,16 @@ export type HueForgeOptions = {
 };
 export type Options = {
   colors: number;
+  totalColors: boolean;
+  colorPriority: "" | "balanced" | "distinctive" | "vivid";
   analysisMaxPixels: number;
   neutralChroma: number;
   minClusterFraction: number;
   histogramBits: number;
   iterations: number;
   preblurSigma: number;
+  smoothingColorSigma: number;
+  legacyColorPipeline: boolean;
   mode: "standard" | "guided" | "stack";
   guidanceStrength: number;
   trueBlack: boolean;
@@ -27,6 +40,7 @@ export type Filter = {
   includeUnowned: boolean;
   materialTypes: string[];
   allowSecondary: boolean;
+  avoidSilkMetallic: boolean;
   excludedIds: number[];
 };
 export type Filament = {
@@ -48,6 +62,7 @@ export type Library = {
   skippedUnowned: number;
   skippedInvalid: number;
   skippedFiltered: number;
+  skippedFinish: number;
   skippedSecondary: number;
   skippedDuplicate: number;
   sha256: string;
@@ -69,9 +84,29 @@ export type Source = {
   };
 };
 export type Preset = { name: string; options: Options };
+export type Preferences = {
+  advanced: boolean;
+  checkOnStartup: boolean;
+  includePrereleases: boolean;
+};
+export const defaultPreferences: Preferences = {
+  advanced: false,
+  checkOnStartup: true,
+  includePrereleases: false,
+};
+export type UpdateResult = {
+  currentVersion: string;
+  latestVersion: string;
+  available: boolean;
+  prerelease: boolean;
+  includePrereleases: boolean;
+  releaseURL: string;
+  checkedAt: string;
+};
 export type Snapshot = {
   source: Source;
   settings: {
+    preferences: Preferences;
     options: Options;
     libraryPath: string;
     filter: Filter;
@@ -114,10 +149,34 @@ export type Result = {
     globalStackGuaranteed: false;
   };
   stack?: {
+    uniqueFilaments: number;
     runs: StackRun[];
     plannedDepth: number;
     weightedRmsDeltaE76: number;
     layerColors: { rgb: number[]; layer: number }[];
+    depthSelection?: {
+      hardMaximum: number;
+      printableMaximum: number;
+      comparedDepths: number;
+      bestScore: number;
+      selectedScore: number;
+      tolerancePercent: number;
+      scoreMetric: string;
+    };
+  };
+  stackView?: {
+    meshMode: string;
+    meshCore: string;
+    hasMeshCore: boolean;
+    layers: {
+      layer: number;
+      height: number;
+      runPosition: number;
+      predictedRGB: number[];
+      meshRGB?: number[];
+      meshEnabled: boolean;
+      pixelFraction: number;
+    }[];
   };
 };
 export type Preview = {
@@ -138,22 +197,35 @@ export type Request = {
 };
 export const defaults: Options = {
   colors: 8,
+  totalColors: true,
+  colorPriority: "balanced",
   analysisMaxPixels: 6291456,
   neutralChroma: 8,
   minClusterFraction: 0.005,
   histogramBits: 6,
   iterations: 24,
   preblurSigma: 1.5,
+  smoothingColorSigma: 0,
+  legacyColorPipeline: false,
   mode: "standard",
   guidanceStrength: 0.8,
   trueBlack: true,
   preserveDetails: true,
   hueforge: {
+    opticalModel: "hueforge-0.9.4.3-frontlit-v1",
+    firstLayerHeight: 0.16,
+    lightPreset: "hueforge-default",
     layerHeight: 0.08,
     baseDepth: 0.48,
     maxDepth: 2.24,
+    autoDepth: false,
     analysisColors: 32,
     beamWidth: 24,
+    maxRuns: 0,
+    meshMode: "color-match",
+    meshCore: "planned-colors",
+    exportWidthMm: 200,
+    meshDetailMm: 0.2,
     maxPerceivedColors: 64,
     tdTransmission: 0.05,
     tdScale: 0.1,
@@ -164,5 +236,6 @@ export const emptyFilter: Filter = {
   includeUnowned: false,
   materialTypes: [],
   allowSecondary: false,
+  avoidSilkMetallic: false,
   excludedIds: [],
 };

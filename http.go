@@ -3,6 +3,7 @@ package main
 import (
 	"colorninja/internal/engine"
 	"colorninja/internal/studio"
+	"colorninja/internal/updates"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -38,6 +39,7 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 		return fmt.Errorf("development server must bind to a loopback IP")
 	}
 	s := studio.New(context.Background(), configPath)
+	updater := updates.New(appVersion())
 	defer s.Shutdown()
 	mux := http.NewServeMux()
 	mux.Handle("/media/", s)
@@ -69,6 +71,21 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 		var result any
 		var err error
 		switch strings.TrimPrefix(r.URL.Path, "/api/") {
+		case "Version":
+			result = appVersion()
+		case "SavePreferences":
+			var p studio.Preferences
+			if err = get(0, &p); err == nil {
+				result, err = s.SavePreferences(p)
+			}
+		case "CheckUpdates":
+			var include, force bool
+			if err = get(0, &include); err == nil {
+				err = get(1, &force)
+			}
+			if err == nil {
+				result, err = updater.Check(r.Context(), include, force)
+			}
 		case "Initialize":
 			result, err = s.Initialize()
 		case "UseDemo":

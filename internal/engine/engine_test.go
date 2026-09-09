@@ -163,7 +163,7 @@ func TestHiddenRGBDoesNotContaminateBlur(t *testing.T) {
 	}
 }
 func TestClusterCullInvariant(t *testing.T) {
-	pts := []point{{Vec{0, 0, 0}, 100}, {Vec{10, 0, 0}, 1}, {Vec{50, 0, 0}, 10}, {Vec{100, 0, 0}, 1}}
+	pts := []point{{lab: Vec{0, 0, 0}, mass: 100}, {lab: Vec{10, 0, 0}, mass: 1}, {lab: Vec{50, 0, 0}, mass: 10}, {lab: Vec{100, 0, 0}, mass: 1}}
 	o := testOptions()
 	o.MinClusterFraction = .1
 	_, m, e := cluster(context.Background(), pts, o)
@@ -263,7 +263,8 @@ func TestStackTerminalRerank(t *testing.T) {
 	lib.Filaments = lib.Filaments[:2]
 	lib.Filaments = append(lib.Filaments, Filament{Name: "Gray 119", RGB: RGB{119, 119, 119}, TD: 1, Owned: true})
 	o := testOptions()
-	o.PreserveDetails = false // The exact #777777 optimum here is specific to CIELAB.
+	o.PreserveDetails = false
+	o.LegacyColorPipeline = true // The exact #777777 optimum here is specific to CIELAB.
 	o.Mode = "stack"
 	o.Colors = 2
 	o.HueForge.MaxPerceivedColors = 1
@@ -279,6 +280,7 @@ func TestStackBudgetCannotForceWorsePlan(t *testing.T) {
 	lib := testLibrary()
 	lib.Filaments = lib.Filaments[:3]
 	o := testOptions()
+	o.HueForge.OpticalModel, o.HueForge.FirstLayerHeight = LegacyModel, 0
 	o.Mode = "stack"
 	o.Colors = 3
 	o.HueForge.LayerHeight = 1
@@ -331,6 +333,7 @@ func TestStackOutputIsReachable(t *testing.T) {
 }
 func TestOpaqueBaseRequired(t *testing.T) {
 	o := testOptions()
+	o.HueForge.OpticalModel, o.HueForge.FirstLayerHeight = LegacyModel, 0
 	o.Mode = "stack"
 	o.HueForge.BaseTransmissionLimit = 1e-100
 	lib := testLibrary()
@@ -486,8 +489,10 @@ func TestPythonReferenceBehavior(t *testing.T) {
 	for _, ref := range refs {
 		t.Run(ref.Name, func(t *testing.T) {
 			o := testOptions()
-			o.TrueBlack = false       // Legacy Python fixtures predate the opt-out black override.
-			o.PreserveDetails = false // Keep testing the original CIELAB pipeline exactly.
+			o.TrueBlack = false          // Legacy Python fixtures predate the opt-out black override.
+			o.PreserveDetails = false    // Keep testing the original CIELAB pipeline exactly.
+			o.LegacyColorPipeline = true // Python blurred palette discovery only.
+			o.HueForge.OpticalModel, o.HueForge.FirstLayerHeight = LegacyModel, 0
 			o.Mode = ref.Mode
 			o.PreblurSigma = ref.Sigma
 			o.AnalysisMaxPixels = ref.Limit

@@ -34,12 +34,18 @@ type Preset struct {
 	Options engine.Options `json:"options"`
 }
 type Settings struct {
+	Preferences   Preferences          `json:"preferences"`
 	SchemaVersion int                  `json:"schemaVersion"`
 	Options       engine.Options       `json:"options"`
 	LibraryPath   string               `json:"libraryPath"`
 	Filter        engine.LibraryFilter `json:"filter"`
 	Presets       []Preset             `json:"presets"`
 	Recent        []string             `json:"recent"`
+}
+type Preferences struct {
+	Advanced           bool `json:"advanced"`
+	CheckOnStartup     bool `json:"checkOnStartup"`
+	IncludePrereleases bool `json:"includePrereleases"`
 }
 type Snapshot struct {
 	Source   Source          `json:"source"`
@@ -99,9 +105,11 @@ type Studio struct {
 func New(ctx context.Context, configPath string) *Studio {
 	o := engine.DefaultOptions()
 	o.Colors = 8
+	o.TotalColors = true
 	s := &Studio{ctx: ctx, configPath: configPath, settings: Settings{SchemaVersion: 1, Options: o, Presets: []Preset{}, Recent: []string{}, Filter: engine.LibraryFilter{MaterialTypes: []string{}, ExcludedIDs: []int{}}}}
+	s.settings.Preferences.CheckOnStartup = true
 	if raw, e := os.ReadFile(configPath); e == nil {
-		var saved Settings
+		saved := Settings{Preferences: s.settings.Preferences}
 		if e = json.Unmarshal(raw, &saved); e == nil && saved.SchemaVersion == 1 && saved.Options.Validate() == nil {
 			s.settings = saved
 		} else {
@@ -339,6 +347,12 @@ func (s *Studio) saveSettings() error {
 		return enc.Encode(settings)
 	})
 }
+func (s *Studio) SavePreferences(p Preferences) (Preferences, error) {
+	s.mu.Lock()
+	s.settings.Preferences = p
+	s.mu.Unlock()
+	return p, s.saveSettings()
+}
 func (s *Studio) SavePreset(name string, o engine.Options) ([]Preset, error) {
 	name = strings.TrimSpace(name)
 	if name == "" || len(name) > 60 {
@@ -459,6 +473,8 @@ func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool) 
 		return engine.SaveReport(path, source.Path, r, req.Options, source.Metadata, overwrite)
 	case "layers":
 		return engine.SaveLayerMap(s.ctx, path, r, overwrite)
+	case "hfp":
+		return engine.SaveHFP(s.ctx, path, r, source.Name, source.Metadata, overwrite)
 	default:
 		return fmt.Errorf("unknown export type")
 	}

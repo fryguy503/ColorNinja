@@ -3,9 +3,121 @@ import test from "node:test";
 import { defaults, type Options } from "../src/types.ts";
 import {
   applyColorBudget,
+  applyAutoDepth,
   applySavedPreset,
   changeProcessingMode,
+  applySmoothing,
+  smoothingPreset,
+  applyColorPriority,
+  displayedColorBudget,
+  applyDisplayedColorBudget,
 } from "../src/settings.ts";
+
+test("automatic depth retains the ceiling and snaps down when returning to manual depth", () => {
+  const options = structuredClone(defaults);
+  options.hueforge.maxDepth = 4.03;
+  const next = applyAutoDepth(options, true);
+  assert.equal(next.hueforge.maxDepth, 4.03);
+  assert.equal(next.hueforge.autoDepth, true);
+  const manual = applyAutoDepth(next, false);
+  assert.equal(manual.hueforge.maxDepth, 4);
+  assert.equal(manual.hueforge.autoDepth, false);
+  assert.equal(options.hueforge.autoDepth, false);
+  assert.deepEqual(next.hueforge, { ...options.hueforge, autoDepth: true });
+});
+
+test("color priority retains the color ceiling, smoothing, detail choice, calibration and history", () => {
+  for (const mode of ["standard", "guided", "stack"] as const) {
+    for (const totalColors of [true, false]) {
+      const original: Options = {
+        ...structuredClone(defaults),
+        mode,
+        colors: 8,
+        totalColors,
+        preserveDetails: false,
+        preblurSigma: 2.5,
+        smoothingColorSigma: 10,
+        legacyColorPipeline: true,
+      };
+      const saved = structuredClone(original);
+      for (const priority of ["distinctive", "vivid"] as const) {
+        const next = applyColorPriority(original, priority);
+        assert.deepEqual(next, {
+          ...saved,
+          colorPriority: priority,
+          legacyColorPipeline: false,
+        });
+        assert.equal(
+          displayedColorBudget(next),
+          mode === "standard" && !totalColors ? 16 : 8,
+        );
+        assert.deepEqual(original, saved);
+        const restored = applyColorPriority(next, "balanced");
+        assert.equal(restored.colors, original.colors);
+        assert.equal(restored.totalColors, totalColors);
+      }
+    }
+  }
+});
+
+test("priority palette edits and built-in presets mean the displayed total, including old split budgets", () => {
+  const original: Options = {
+    ...structuredClone(defaults),
+    colors: 8,
+    totalColors: false,
+    colorPriority: "distinctive",
+  };
+  assert.equal(displayedColorBudget(original), 16);
+  for (const count of [1, 8, 17, 256]) {
+    const edited = applyDisplayedColorBudget(original, count);
+    assert.equal(displayedColorBudget(edited), count);
+    assert.equal(edited.totalColors, true);
+    assert.deepEqual(applyColorBudget(original, count), edited);
+  }
+  const large = { ...original, colors: 256 };
+  assert.equal(displayedColorBudget(large), 512);
+  assert.equal(
+    displayedColorBudget(applyDisplayedColorBudget(large, 510)),
+    510,
+  );
+  assert.equal(changeProcessingMode(original, "guided").colors, 8);
+});
+
+test("smoothing presets keep detail preservation, budgets, mode, calibration and undo entries intact", () => {
+  for (const mode of ["standard", "guided", "stack"] as const) {
+    for (const preserveDetails of [true, false]) {
+      const original = {
+        ...structuredClone(defaults),
+        mode,
+        colors: 13,
+        preserveDetails,
+        legacyColorPipeline: true,
+      };
+      const saved = structuredClone(original);
+      for (const preset of ["Off", "Gentle", "Balanced", "Strong"] as const) {
+        const next = applySmoothing(original, preset);
+        assert.equal(smoothingPreset(next), preset);
+        assert.equal(next.colors, 13);
+        assert.equal(next.mode, mode);
+        assert.deepEqual(next.hueforge, original.hueforge);
+        assert.equal(next.totalColors, original.totalColors);
+        assert.equal(next.preserveDetails, preserveDetails);
+        assert.equal(next.legacyColorPipeline, false);
+        assert.deepEqual(original, saved);
+      }
+    }
+  }
+  assert.equal(smoothingPreset(defaults), "Balanced");
+  assert.equal(smoothingPreset({ ...defaults, preblurSigma: 2.3 }), "Custom");
+  assert.equal(
+    smoothingPreset({ ...defaults, preserveDetails: false }),
+    "Balanced",
+  );
+  assert.equal(
+    smoothingPreset({ ...defaults, legacyColorPipeline: true }),
+    "Custom",
+  );
+});
 
 test("preset followed by mode changes retains the requested budget and calibration", () => {
   for (const startingMode of ["standard", "guided", "stack"] as const) {

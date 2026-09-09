@@ -64,6 +64,50 @@ func TestPreviewAndExportUseSamePixels(t *testing.T) {
 	}
 }
 
+func TestPNGOverwriteReplacesPreviousExportWithCurrentPreview(t *testing.T) {
+	s := fixture(t)
+	r := req(s, 1)
+	first, err := s.Process(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "output.png")
+	if err = s.Export("png", path, first.ID, first.Revision, false); err != nil {
+		t.Fatal(err)
+	}
+	original, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.ID++
+	r.Options.Colors = 1
+	r.Options.TotalColors = true
+	next, err := s.Process(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if next.Result.SHA256 == first.Result.SHA256 {
+		t.Fatal("fixture did not change the result")
+	}
+	if err = s.Export("png", path, next.ID, next.Revision, false); err == nil {
+		t.Fatal("replaced an existing PNG without approval")
+	}
+	unchanged, err := os.ReadFile(path)
+	if err != nil || !bytes.Equal(original, unchanged) {
+		t.Fatal("unapproved export changed the file", err)
+	}
+	if err = s.Export("png", path, next.ID, next.Revision, true); err != nil {
+		t.Fatal("approved overwrite failed", err)
+	}
+	loaded, err := engine.LoadImage(context.Background(), path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(loaded.Image.Pix, next.Result.Image.Pix) {
+		t.Fatal("overwritten PNG differs from the current preview")
+	}
+}
+
 func TestPreviewColorCountsUseFullSourceAndActualResult(t *testing.T) {
 	s := fixture(t)
 	const sourceColors = 95 * 64 // 96x64 RGB gradient, with a fully transparent first column.
@@ -315,5 +359,60 @@ func TestReportSeparatesGuidanceAndStack(t *testing.T) {
 	}
 	if strings.Contains(string(raw), s.Snapshot().Source.Path) {
 		t.Fatal("report includes absolute input path")
+	}
+}
+
+func TestHFPExportUsesCurrentStackAndPersistsOptions(t *testing.T) {
+	s := fixture(t)
+	r := req(s, 1)
+	r.Options.Mode = "stack"
+	r.Options.Colors = 2
+	r.LibraryPath, _ = filepath.Abs(filepath.Join("..", "engine", "testdata", "library.json"))
+	r.Options.HueForge.MaxDepth = .8
+	r.Options.HueForge.MaxRuns = 3
+	r.Options.HueForge.MeshMode = "color-match"
+	r.Options.HueForge.MeshCore = "planned-colors"
+	r.Options.HueForge.ExportWidthMM = 150
+	r.Options.HueForge.MeshDetailMM = .16
+	p, err := s.Process(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "stack.hfp")
+	if err = s.Export("hfp", path, p.ID, p.Revision, false); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Width      float64 `json:"width_in_mm"`
+		Image      []byte  `json:"image_binary"`
+		ColorNinja struct {
+			SHA string `json:"rgbaSHA256"`
+		} `json:"colorninja"`
+	}
+	if err = json.Unmarshal(data, &doc); err != nil {
+		t.Fatal(err)
+	}
+	img, err := png.Decode(bytes.NewReader(doc.Image))
+	if err != nil || img.Bounds() != p.Result.Image.Bounds() || doc.Width != 150 || doc.ColorNinja.SHA != p.Result.SHA256 {
+		t.Fatal("HFP does not describe current preview", err)
+	}
+	project := filepath.Join(t.TempDir(), "stack.colorninja.json")
+	if err = s.SaveProject(project, r, false); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := s.OpenProject(project)
+	if err != nil || snapshot.Settings.Options.HueForge != r.Options.HueForge {
+		t.Fatal("project lost stack/export settings", err)
+	}
+	if err = s.Export("hfp", path, p.ID, p.Revision, true); err == nil {
+		t.Fatal("stale preview exported")
+	}
+	after, _ := os.ReadFile(path)
+	if !bytes.Equal(data, after) {
+		t.Fatal("stale export modified file")
 	}
 }

@@ -30,14 +30,27 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { invoke, on, desktop } from "./bridge";
+import { Updates } from "./Updates";
+import { StackInspector } from "./StackInspector";
 import {
   applyColorBudget,
+  applyAutoDepth,
+  applyColorPriority,
+  prioritizesColors,
+  displayedColorBudget,
+  applyDisplayedColorBudget,
   applySavedPreset,
   changeProcessingMode,
+  applySmoothing,
+  smoothingPreset,
+  smoothingPresets,
+  type SmoothingPreset,
 } from "./settings";
 import {
   defaults,
   emptyFilter,
+  defaultPreferences,
+  type Preferences,
   type Options,
   type Source,
   type Snapshot,
@@ -541,6 +554,20 @@ function Viewer({
 }
 
 function App() {
+  const [preferences, setPreferences] = useState<Preferences>(
+    copy(defaultPreferences),
+  );
+  const [preferencesReady, setPreferencesReady] = useState(false);
+  const [preferencesSaving, setPreferencesSaving] = useState(false);
+  const advanced = preferences.advanced;
+  const savePreferences = async (next: Preferences) => {
+    setPreferencesSaving(true);
+    try {
+      setPreferences(await invoke<Preferences>("SavePreferences", next));
+    } finally {
+      setPreferencesSaving(false);
+    }
+  };
   const [source, setSource] = useState<Source | null>(null),
     [options, setOptions] = useState<Options>(copy(defaults)),
     [preview, setPreview] = useState<Preview | null>(null),
@@ -586,6 +613,8 @@ function App() {
     if (!/context canceled|export canceled/.test(m)) notify(m, true);
   };
   const applySnapshot = (s: Snapshot) => {
+    setPreferences({ ...defaultPreferences, ...s.settings.preferences });
+    setPreferencesReady(true);
     setSource(s.source);
     setOptions(copy(s.settings.options));
     setLibraryPath(s.settings.libraryPath ?? "");
@@ -763,7 +792,10 @@ function App() {
   const chooseLibrary = async () => {
     const apply = async (path: string) => {
       if (!path) return;
-      const f = copy(emptyFilter);
+      const f = {
+        ...copy(emptyFilter),
+        avoidSilkMetallic: filter.avoidSilkMetallic,
+      };
       const lib = await invoke<Library>("SetLibrary", path, f);
       setLibraryPath(path);
       setFilter(f);
@@ -827,7 +859,9 @@ function App() {
             ? "PNG"
             : kind === "layers"
               ? "layer map"
-              : "palette report"),
+              : kind === "hfp"
+                ? "HueForge project"
+                : "palette report"),
         "Absolute output path",
         "",
         run,
@@ -1056,6 +1090,12 @@ function App() {
                   >
                     <Layers size={15} /> 16-bit layer map
                   </button>
+                  <button
+                    disabled={!preview?.result.stack}
+                    onClick={() => exportFile("hfp")}
+                  >
+                    <Layers size={15} /> HueForge project (.hfp)
+                  </button>
                 </div>
               </>
             )}
@@ -1085,70 +1125,51 @@ function App() {
             {tab === "adjust" ? (
               <>
                 <div className="panel-heading">
-                  <span>Make every color count.</span>
-                  <p>Less noise. More intention.</p>
+                  <span>A simpler image, in a few clicks.</span>
+                  <p>Choose colors, smooth, and export.</p>
                 </div>
-                <div className="field-label">PROCESSING MODE</div>
-                <div className="mode-list">
-                  {(["standard", "guided", "stack"] as const).map((m, i) => {
-                    const Icon = [Aperture, SwatchBook, Layers][i];
-                    return (
-                      <div
-                        key={m}
-                        className={
-                          "mode-choice " +
-                          (options.mode === m ? "selected" : "")
-                        }
-                      >
-                        <div className="mode-choice-row">
-                          <button
-                            type="button"
-                            className="mode-option"
-                            aria-pressed={options.mode === m}
-                            onClick={() =>
-                              update(changeProcessingMode(options, m))
-                            }
-                          >
-                            <span className="mode-icon">
-                              <Icon size={17} />
-                            </span>
-                            <span>
-                              <strong>{modeInfo[m][0]}</strong>
-                              <small>
-                                {m === "standard"
-                                  ? "Discover a perceptual palette"
-                                  : m === "guided"
-                                    ? "Use your owned filament colors"
-                                    : "Plan layers and filament swaps"}
-                              </small>
-                            </span>
-                            <span className="radio-dot" aria-hidden="true" />
-                          </button>
-                          <button
-                            type="button"
-                            className="mode-help-toggle"
-                            aria-label={`About ${modeInfo[m][0]}`}
-                            title={`About ${modeInfo[m][0]}`}
-                            aria-expanded={modeHelp === m}
-                            aria-controls={`mode-help-${m}`}
-                            onClick={() =>
-                              setModeHelp(modeHelp === m ? null : m)
-                            }
-                          >
-                            <Info size={15} aria-hidden="true" />
-                          </button>
-                        </div>
-                        <div
-                          id={`mode-help-${m}`}
-                          className="mode-help"
-                          hidden={modeHelp !== m}
-                        >
-                          <p>{modeInfo[m][1]}</p>
-                          <p>{modeInfo[m][2]}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="simple-mode">
+                  <label className="select-field">
+                    Workflow
+                    <select
+                      aria-label="Processing mode"
+                      value={options.mode}
+                      onChange={(e) => {
+                        setModeHelp(null);
+                        update(
+                          changeProcessingMode(
+                            options,
+                            e.target.value as Options["mode"],
+                          ),
+                        );
+                      }}
+                    >
+                      <option value="standard">Simple reducer</option>
+                      <option value="guided">Filament guided</option>
+                      <option value="stack">Global stack · experimental</option>
+                    </select>
+                  </label>
+                  <button
+                    className="mode-help-toggle"
+                    aria-label={`About ${modeInfo[options.mode][0]}`}
+                    aria-expanded={modeHelp === options.mode}
+                    aria-controls="workflow-help"
+                    onClick={() =>
+                      setModeHelp(
+                        modeHelp === options.mode ? null : options.mode,
+                      )
+                    }
+                  >
+                    <Info size={15} />
+                  </button>
+                </div>
+                <div
+                  id="workflow-help"
+                  className="mode-help"
+                  hidden={modeHelp !== options.mode}
+                >
+                  <p>{modeInfo[options.mode][1]}</p>
+                  <p>{modeInfo[options.mode][2]}</p>
                 </div>
                 <div className="settings-group">
                   <div className="group-heading">
@@ -1169,27 +1190,67 @@ function App() {
                   <Range
                     label={
                       options.mode === "standard"
-                        ? "Colors per population"
+                        ? options.totalColors || prioritizesColors(options)
+                          ? "Maximum colors"
+                          : "Colors per population"
                         : "Maximum filaments"
                     }
-                    value={options.colors}
+                    value={displayedColorBudget(options)}
                     min={1}
-                    max={32}
-                    onChange={(v) => change("colors", v)}
+                    max={Math.max(32, displayedColorBudget(options))}
+                    step={displayedColorBudget(options) > 256 ? 2 : 1}
+                    onChange={(v) =>
+                      update(applyDisplayedColorBudget(options, v))
+                    }
                   />
-                  <Numeric
-                    label="Exact budget"
-                    value={options.colors}
-                    min={1}
-                    max={256}
-                    onChange={(v) => change("colors", v)}
-                  />
+                  {advanced && (
+                    <Numeric
+                      label="Exact budget"
+                      value={displayedColorBudget(options)}
+                      min={1}
+                      max={Math.max(256, displayedColorBudget(options))}
+                      step={displayedColorBudget(options) > 256 ? 2 : 1}
+                      onChange={(v) =>
+                        update(applyDisplayedColorBudget(options, v))
+                      }
+                    />
+                  )}
                   <p className="field-help">
                     {options.mode === "standard"
-                      ? `Up to ${options.colors} colors + ${options.colors} neutrals. Small clusters are removed.`
+                      ? prioritizesColors(options)
+                        ? `Up to ${displayedColorBudget(options)} colors shared across color families, including essential light and dark tones.`
+                        : options.totalColors
+                          ? `At most ${options.colors} colors total, including neutrals.`
+                          : `Separate budgets: up to ${options.colors * 2} colors. Change this in Advanced.`
                       : "The output can contain more colors than physical filaments."}
                   </p>
-                  {options.mode === "guided" && (
+                  <label className="select-field">
+                    Color priority
+                    <select
+                      aria-label="Color priority"
+                      value={options.colorPriority || "balanced"}
+                      onChange={(e) =>
+                        update(
+                          applyColorPriority(
+                            options,
+                            e.target.value as Options["colorPriority"],
+                          ),
+                        )
+                      }
+                    >
+                      <option value="balanced">Overall balance</option>
+                      <option value="distinctive">Distinctive colors</option>
+                      <option value="vivid">Vivid colors</option>
+                    </select>
+                  </label>
+                  <p className="field-help">
+                    {options.colorPriority === "vivid"
+                      ? "Favor vivid accents more strongly, with fewer similar shades. Protects essential neutrals without adding saturation."
+                      : options.colorPriority === "distinctive"
+                        ? "Give distinctive hues and smaller accents more room while keeping the tones that define shapes."
+                        : "Balance colors by how much of the image they cover. Choose Distinctive colors to give accents more room."}
+                  </p>
+                  {advanced && options.mode === "guided" && (
                     <>
                       <Range
                         label="Filament guidance"
@@ -1206,7 +1267,7 @@ function App() {
                       </div>
                     </>
                   )}
-                  {options.mode !== "standard" && (
+                  {advanced && options.mode !== "standard" && (
                     <div className="true-black-option">
                       <label className="check-field">
                         <input
@@ -1225,35 +1286,71 @@ function App() {
                       </p>
                     </div>
                   )}
-                  <label className="check-field">
-                    <input
-                      type="checkbox"
-                      checked={options.preserveDetails}
-                      onChange={(e) =>
-                        change("preserveDetails", e.target.checked)
+                  {advanced && (
+                    <>
+                      <label className="check-field">
+                        <input
+                          type="checkbox"
+                          checked={options.preserveDetails}
+                          onChange={(e) =>
+                            change("preserveDetails", e.target.checked)
+                          }
+                        />
+                        Preserve details
+                      </label>
+                      <p className="field-help">
+                        Keep small marks and similar-colored shapes distinct.
+                        Smoothing works with either setting.
+                      </p>
+                    </>
+                  )}
+                  <div className="smoothing-control">
+                    <div className="group-heading">
+                      Smoothing <small>{smoothingPreset(options)}</small>
+                    </div>
+                    <div className="smoothing-presets">
+                      {(Object.keys(smoothingPresets) as SmoothingPreset[]).map(
+                        (name) => (
+                          <button
+                            key={name}
+                            aria-pressed={smoothingPreset(options) === name}
+                            onClick={() =>
+                              update(applySmoothing(options, name))
+                            }
+                          >
+                            {name}
+                          </button>
+                        ),
+                      )}
+                    </div>
+                    <p className="field-help">
+                      Balanced protects outlines. Strong smooths more texture.
+                      Off keeps original pixel detail.
+                    </p>
+                  </div>
+                  {advanced && (
+                    <Range
+                      label="Detail smoothing"
+                      help={
+                        options.legacyColorPipeline
+                          ? "Legacy pre-blur affects palette discovery only. Choose a smoothing preset or change the radius to smooth the output too."
+                          : "Smooth similar neighboring colors before analysis and mapping, while protecting contrasting edges. Zero disables smoothing."
+                      }
+                      value={options.preblurSigma}
+                      min={0}
+                      max={Math.max(5, options.preblurSigma)}
+                      step={0.1}
+                      format={(v) => `${v.toFixed(1)} px`}
+                      onChange={(v) =>
+                        update({
+                          ...options,
+                          preblurSigma: v,
+                          legacyColorPipeline: false,
+                        })
                       }
                     />
-                    Preserve details
-                  </label>
-                  <p className="field-help">
-                    Keep outlines and similar-colored shapes distinct while
-                    flattening texture. Turn off to use the original reduction.
-                  </p>
-                  <Range
-                    label="Detail smoothing"
-                    help={
-                      options.preserveDetails
-                        ? "Smooth similar neighboring colors before analysis and mapping, while protecting contrasting edges. Zero disables smoothing."
-                        : "Pre-blur affects palette discovery only. Original-resolution pixels are preserved until remapping."
-                    }
-                    value={options.preblurSigma}
-                    min={0}
-                    max={5}
-                    step={0.1}
-                    format={(v) => `${v.toFixed(1)} px`}
-                    onChange={(v) => change("preblurSigma", v)}
-                  />
-                  {options.mode !== "standard" && (
+                  )}
+                  {advanced && options.mode !== "standard" && (
                     <Numeric
                       label="Output color limit"
                       value={options.hueforge.maxPerceivedColors}
@@ -1291,8 +1388,114 @@ function App() {
                     </div>
                   </div>
                 )}
-                {options.mode === "stack" && (
-                  <Section title="Layer & stack settings" initial>
+                {options.mode !== "standard" && (
+                  <Section title="Front Lit & layers" initial>
+                    {options.mode === "stack" && (
+                      <>
+                        <label className="check-field">
+                          <input
+                            type="checkbox"
+                            checked={(options.hueforge.maxRuns || 0) > 0}
+                            onChange={(e) =>
+                              changeHF(
+                                "maxRuns",
+                                e.target.checked
+                                  ? Math.min(64, options.colors + 2)
+                                  : 0,
+                              )
+                            }
+                          />
+                          Allow filament returns
+                        </label>
+                        <p className="field-help">
+                          Reuse a filament after another color, such as black →
+                          yellow → black. The filament budget counts unique
+                          spools.
+                        </p>
+                        {(options.hueforge.maxRuns || 0) > 0 && (
+                          <Numeric
+                            label="Maximum filament runs"
+                            value={options.hueforge.maxRuns}
+                            min={1}
+                            max={64}
+                            onChange={(v) => changeHF("maxRuns", v)}
+                          />
+                        )}
+                      </>
+                    )}
+                    <label className="select-field">
+                      Front Lit model
+                      <select
+                        value={options.hueforge.opticalModel}
+                        onChange={(e) =>
+                          update({
+                            ...options,
+                            hueforge: {
+                              ...applyAutoDepth(
+                                options,
+                                e.target.value === "legacy-exponential"
+                                  ? false
+                                  : (options.hueforge.autoDepth ?? false),
+                              ).hueforge,
+                              opticalModel: e.target
+                                .value as HueForgeOptions["opticalModel"],
+                            },
+                          })
+                        }
+                      >
+                        <option value="hueforge-0.9.4.3-frontlit-v1">
+                          HueForge Front Lit
+                        </option>
+                        <option value="legacy-exponential">
+                          Legacy approximation
+                        </option>
+                      </select>
+                    </label>
+                    {options.hueforge.opticalModel ===
+                      "hueforge-0.9.4.3-frontlit-v1" && (
+                      <label className="select-field">
+                        Lighting
+                        <select
+                          value={
+                            options.hueforge.lightPreset || "neutral-white"
+                          }
+                          onChange={(e) =>
+                            changeHF(
+                              "lightPreset",
+                              e.target.value as HueForgeOptions["lightPreset"],
+                            )
+                          }
+                        >
+                          <option value="hueforge-default">
+                            HueForge default · setting 1
+                          </option>
+                          <option value="neutral-white">
+                            Neutral white · setting 2
+                          </option>
+                          <option value="warm-white">
+                            Warm white · setting 0
+                          </option>
+                        </select>
+                      </label>
+                    )}
+                    <p className="field-help">
+                      Match the lighting, first layer, regular layers, and
+                      filament TD values in HueForge. Printed results still
+                      depend on the filament measurements.
+                    </p>
+
+                    <Numeric
+                      label="First layer height"
+                      value={
+                        options.hueforge.firstLayerHeight ||
+                        options.hueforge.layerHeight
+                      }
+                      min={0.01}
+                      max={1}
+                      step={0.01}
+                      suffix="mm"
+                      onChange={(v) => changeHF("firstLayerHeight", v)}
+                    />
                     <Numeric
                       label="Layer height"
                       value={options.hueforge.layerHeight}
@@ -1311,179 +1514,312 @@ function App() {
                       suffix="mm"
                       onChange={(v) => changeHF("baseDepth", v)}
                     />
-                    <Numeric
-                      label="Maximum total depth"
-                      value={options.hueforge.maxDepth}
-                      min={0.02}
-                      max={40}
-                      step={0.08}
-                      suffix="mm"
-                      onChange={(v) => changeHF("maxDepth", v)}
-                    />
-                    <Numeric
-                      label="Search beam width"
-                      value={options.hueforge.beamWidth}
-                      min={1}
-                      max={512}
-                      onChange={(v) => changeHF("beamWidth", v)}
-                    />
-                    <p className="field-help">
-                      Depths must be exact multiples of layer height. The
-                      maximum includes the base.
-                    </p>
-                  </Section>
-                )}
-                <Section title="Advanced color controls">
-                  <Numeric
-                    label="Neutral chroma threshold"
-                    value={options.neutralChroma}
-                    min={0}
-                    max={200}
-                    step={0.5}
-                    onChange={(v) => change("neutralChroma", v)}
-                  />
-                  <Numeric
-                    label="Minimum cluster"
-                    value={Number(
-                      (options.minClusterFraction * 100).toFixed(4),
-                    )}
-                    min={0}
-                    max={99}
-                    step={0.1}
-                    suffix="%"
-                    onChange={(v) => change("minClusterFraction", v / 100)}
-                  />
-                  <Numeric
-                    label="Histogram precision"
-                    value={options.histogramBits}
-                    min={3}
-                    max={7}
-                    suffix="bits"
-                    onChange={(v) => change("histogramBits", v)}
-                  />
-                  <Numeric
-                    label="Clustering iterations"
-                    value={options.iterations}
-                    min={1}
-                    max={1000}
-                    onChange={(v) => change("iterations", v)}
-                  />
-                  <Numeric
-                    label={
-                      options.preserveDetails
-                        ? "Detail smoothing radius"
-                        : "Pre-blur radius"
-                    }
-                    value={options.preblurSigma}
-                    min={0}
-                    max={100}
-                    step={0.1}
-                    suffix="px"
-                    onChange={(v) => change("preblurSigma", v)}
-                  />
-                  <label className="select-field">
-                    Analysis resolution
-                    <select
-                      aria-label="Analysis resolution"
-                      value={
-                        [250000, 1000000, 6291456, 0].includes(
-                          options.analysisMaxPixels,
-                        )
-                          ? options.analysisMaxPixels
-                          : "custom"
-                      }
-                      onChange={(e) => {
-                        if (e.target.value !== "custom")
-                          change("analysisMaxPixels", Number(e.target.value));
-                      }}
-                    >
-                      <option value={250000}>250K pixels · fast</option>
-                      <option value={1000000}>1 megapixel · balanced</option>
-                      <option value={6291456}>6 megapixels · detailed</option>
-                      <option value={0}>Every source pixel</option>
-                      <option value="custom">Custom pixel limit</option>
-                    </select>
-                  </label>
-                  <Numeric
-                    label="Analysis pixel limit"
-                    value={options.analysisMaxPixels}
-                    min={0}
-                    max={100000000}
-                    step={1000}
-                    onChange={(v) => change("analysisMaxPixels", v)}
-                  />
-                  <p className="field-help">
-                    0 analyzes every pixel. Export dimensions always match the
-                    original.
-                  </p>
-                </Section>
-                {options.mode !== "standard" && (
-                  <Section title="Optical calibration">
-                    {options.mode === "guided" && (
+                    {options.mode === "stack" && (
                       <>
-                        <Numeric
-                          label="Layer height"
-                          value={options.hueforge.layerHeight}
-                          min={0.01}
-                          max={1}
-                          step={0.01}
-                          suffix="mm"
-                          onChange={(v) => changeHF("layerHeight", v)}
-                        />
-                        <Numeric
-                          label="Base depth"
-                          value={options.hueforge.baseDepth}
-                          min={0.01}
-                          max={20}
-                          step={0.08}
-                          suffix="mm"
-                          onChange={(v) => changeHF("baseDepth", v)}
-                        />
-                        <Numeric
-                          label="Maximum total depth"
-                          value={options.hueforge.maxDepth}
-                          min={0.02}
-                          max={40}
-                          step={0.08}
-                          suffix="mm"
-                          onChange={(v) => changeHF("maxDepth", v)}
-                        />
+                        <label className="check-field">
+                          <input
+                            type="checkbox"
+                            checked={options.hueforge.autoDepth ?? false}
+                            onChange={(e) =>
+                              update(applyAutoDepth(options, e.target.checked))
+                            }
+                          />
+                          Choose depth automatically
+                        </label>
+                        <p className="field-help">
+                          Compare printable depths and prefer the thinnest plan
+                          within 1% of the best color score found. The ceiling
+                          includes the base.
+                        </p>
                       </>
                     )}
                     <Numeric
-                      label="Analysis colors per population"
-                      value={options.hueforge.analysisColors}
-                      min={1}
-                      max={256}
-                      onChange={(v) => changeHF("analysisColors", v)}
+                      label={
+                        options.mode === "stack" && options.hueforge.autoDepth
+                          ? "Hard maximum depth"
+                          : "Maximum total depth"
+                      }
+                      value={options.hueforge.maxDepth}
+                      min={0.02}
+                      max={40}
+                      step={options.hueforge.autoDepth ? 0.01 : 0.08}
+                      suffix="mm"
+                      onChange={(v) => changeHF("maxDepth", v)}
                     />
-                    <Numeric
-                      label="TD scale"
-                      value={options.hueforge.tdScale}
-                      min={0.001}
-                      max={100}
-                      step={0.01}
-                      onChange={(v) => changeHF("tdScale", v)}
-                    />
-                    <Numeric
-                      label="Transmission at one TD"
-                      value={options.hueforge.tdTransmission}
-                      min={0.001}
-                      max={0.999}
-                      step={0.01}
-                      onChange={(v) => changeHF("tdTransmission", v)}
-                    />
-                    <Numeric
-                      label="Base transmission limit"
-                      value={options.hueforge.baseTransmissionLimit}
-                      min={0.001}
-                      max={1}
-                      step={0.01}
-                      onChange={(v) => changeHF("baseTransmissionLimit", v)}
-                    />
+                    {options.mode === "stack" && (
+                      <Numeric
+                        label="Search beam width"
+                        value={options.hueforge.beamWidth}
+                        min={1}
+                        max={512}
+                        onChange={(v) => changeHF("beamWidth", v)}
+                      />
+                    )}
+                    <p className="field-help">
+                      Total depth is the first layer plus whole regular layers.
+                      {options.hueforge.autoDepth
+                        ? " A ceiling between layers rounds down. Try 4.0 mm to allow a deeper search."
+                        : " The maximum includes the base."}
+                    </p>
                   </Section>
                 )}
-                <Section title="Presets" initial>
+                <div hidden={!advanced} id="advanced-controls">
+                  {options.mode === "stack" && (
+                    <Section title="HueForge project export" initial>
+                      <label className="select-field">
+                        Mesh mode
+                        <select
+                          value={options.hueforge.meshMode || "color-match"}
+                          onChange={(e) =>
+                            changeHF(
+                              "meshMode",
+                              e.target.value as HueForgeOptions["meshMode"],
+                            )
+                          }
+                        >
+                          <option value="color-match">Color Match</option>
+                          <option value="combo">Combo</option>
+                          <option value="color-aware">Color Aware</option>
+                          <option value="color-pop">Color Pop</option>
+                        </select>
+                      </label>
+                      {!options.hueforge.meshMode ||
+                      options.hueforge.meshMode === "color-match" ? (
+                        <>
+                          <label className="select-field">
+                            Mesh core
+                            <select
+                              value={
+                                options.hueforge.meshCore || "planned-colors"
+                              }
+                              onChange={(e) =>
+                                changeHF(
+                                  "meshCore",
+                                  e.target.value as HueForgeOptions["meshCore"],
+                                )
+                              }
+                            >
+                              <option value="planned-colors">
+                                Match planned layers
+                              </option>
+                              <option value="filament-blends">
+                                Use filament blends
+                              </option>
+                            </select>
+                          </label>
+                          <p className="field-help">
+                            The Color Core uses the optimized print stack. Match
+                            planned layers builds a separate Mesh Core from the
+                            output colors; filament blends copies the print
+                            stack into both cores.
+                          </p>
+                        </>
+                      ) : (
+                        <p className="field-help">
+                          HueForge will rebuild heights in this mode. Its mesh
+                          and colors can differ from this preview. Use Color
+                          Match to retain the planned color-to-layer
+                          assignments.
+                        </p>
+                      )}
+                      <Numeric
+                        label="Export width"
+                        value={options.hueforge.exportWidthMm || 200}
+                        min={1}
+                        max={2000}
+                        step={1}
+                        suffix="mm"
+                        onChange={(v) => changeHF("exportWidthMm", v)}
+                      />
+                      <Numeric
+                        label="Mesh detail"
+                        value={options.hueforge.meshDetailMm || 0.2}
+                        min={0.01}
+                        max={10}
+                        step={0.01}
+                        suffix="mm"
+                        onChange={(v) => changeHF("meshDetailMm", v)}
+                      />
+                      <p className="field-help">
+                        HFP embeds the simplified image and keeps its aspect
+                        ratio. Mesh detail controls HueForge's sampling
+                        resolution. Partially transparent pixels become solid
+                        mesh.
+                      </p>
+                    </Section>
+                  )}
+                  <Section title="Color & detail controls" initial>
+                    {options.mode === "standard" &&
+                      !prioritizesColors(options) && (
+                        <>
+                          <label className="check-field">
+                            <input
+                              type="checkbox"
+                              checked={!options.totalColors}
+                              onChange={(e) =>
+                                change("totalColors", !e.target.checked)
+                              }
+                            />
+                            Separate color and neutral budgets
+                          </label>
+                          <p className="field-help">
+                            Allows up to twice the selected count. Existing
+                            projects keep this setting.
+                          </p>
+                        </>
+                      )}
+                    <Numeric
+                      label="Smoothing color tolerance"
+                      value={options.smoothingColorSigma || 5}
+                      min={1}
+                      max={25}
+                      step={0.5}
+                      onChange={(v) =>
+                        update({
+                          ...options,
+                          smoothingColorSigma: v,
+                          legacyColorPipeline: false,
+                        })
+                      }
+                    />
+                    <p className="field-help">
+                      Higher values flatten stronger texture and may soften
+                      low-contrast details. Works with either Preserve details
+                      setting.
+                    </p>
+                    <Numeric
+                      label="Neutral chroma threshold"
+                      value={options.neutralChroma}
+                      min={0}
+                      max={200}
+                      step={0.5}
+                      onChange={(v) => change("neutralChroma", v)}
+                    />
+                    <Numeric
+                      label="Minimum cluster"
+                      value={Number(
+                        (options.minClusterFraction * 100).toFixed(4),
+                      )}
+                      min={0}
+                      max={99}
+                      step={0.1}
+                      suffix="%"
+                      onChange={(v) => change("minClusterFraction", v / 100)}
+                    />
+                    <Numeric
+                      label="Histogram precision"
+                      value={options.histogramBits}
+                      min={3}
+                      max={7}
+                      suffix="bits"
+                      onChange={(v) => change("histogramBits", v)}
+                    />
+                    <Numeric
+                      label="Clustering iterations"
+                      value={options.iterations}
+                      min={1}
+                      max={1000}
+                      onChange={(v) => change("iterations", v)}
+                    />
+                    <Numeric
+                      label={
+                        options.legacyColorPipeline
+                          ? "Legacy pre-blur radius"
+                          : "Detail smoothing radius"
+                      }
+                      value={options.preblurSigma}
+                      min={0}
+                      max={100}
+                      step={0.1}
+                      suffix="px"
+                      onChange={(v) =>
+                        update({
+                          ...options,
+                          preblurSigma: v,
+                          legacyColorPipeline: false,
+                        })
+                      }
+                    />
+                    <label className="select-field">
+                      Analysis resolution
+                      <select
+                        aria-label="Analysis resolution"
+                        value={
+                          [250000, 1000000, 6291456, 0].includes(
+                            options.analysisMaxPixels,
+                          )
+                            ? options.analysisMaxPixels
+                            : "custom"
+                        }
+                        onChange={(e) => {
+                          if (e.target.value !== "custom")
+                            change("analysisMaxPixels", Number(e.target.value));
+                        }}
+                      >
+                        <option value={250000}>250K pixels · fast</option>
+                        <option value={1000000}>1 megapixel · balanced</option>
+                        <option value={6291456}>6 megapixels · detailed</option>
+                        <option value={0}>Every source pixel</option>
+                        <option value="custom">Custom pixel limit</option>
+                      </select>
+                    </label>
+                    <Numeric
+                      label="Analysis pixel limit"
+                      value={options.analysisMaxPixels}
+                      min={0}
+                      max={100000000}
+                      step={1000}
+                      onChange={(v) => change("analysisMaxPixels", v)}
+                    />
+                    <p className="field-help">
+                      0 analyzes every pixel. Export dimensions always match the
+                      original.
+                    </p>
+                  </Section>
+                  {options.mode !== "standard" && (
+                    <Section title="Optical calibration">
+                      <Numeric
+                        label="Analysis colors per population"
+                        value={options.hueforge.analysisColors}
+                        min={1}
+                        max={256}
+                        onChange={(v) => changeHF("analysisColors", v)}
+                      />
+                      {options.hueforge.opticalModel !==
+                        "hueforge-0.9.4.3-frontlit-v1" && (
+                        <>
+                          <Numeric
+                            label="TD scale"
+                            value={options.hueforge.tdScale}
+                            min={0.001}
+                            max={100}
+                            step={0.01}
+                            onChange={(v) => changeHF("tdScale", v)}
+                          />
+                          <Numeric
+                            label="Transmission at one TD"
+                            value={options.hueforge.tdTransmission}
+                            min={0.001}
+                            max={0.999}
+                            step={0.01}
+                            onChange={(v) => changeHF("tdTransmission", v)}
+                          />
+                          <Numeric
+                            label="Base transmission limit"
+                            value={options.hueforge.baseTransmissionLimit}
+                            min={0.001}
+                            max={1}
+                            step={0.01}
+                            onChange={(v) =>
+                              changeHF("baseTransmissionLimit", v)
+                            }
+                          />
+                        </>
+                      )}
+                    </Section>
+                  )}
+                </div>
+                <Section title="Presets">
                   <div className="preset-buttons">
                     <button
                       onClick={() => update(applyColorBudget(options, 4))}
@@ -1585,6 +1921,25 @@ function App() {
                   <label className="check-field">
                     <input
                       type="checkbox"
+                      checked={filter.avoidSilkMetallic}
+                      disabled={!libraryPath}
+                      onChange={(e) =>
+                        refreshLibrary({
+                          ...filter,
+                          avoidSilkMetallic: e.target.checked,
+                        })
+                      }
+                    />{" "}
+                    Avoid silk &amp; metallic finishes
+                  </label>
+                  <p className="field-help">
+                    Excludes silk, metallic, pearl, Elixir, and Starlight from
+                    Filament Guide and Global Stack. Checks material, name, and
+                    tags.
+                  </p>
+                  <label className="check-field">
+                    <input
+                      type="checkbox"
                       checked={filter.includeUnowned}
                       disabled={!libraryPath}
                       onChange={(e) =>
@@ -1647,6 +2002,12 @@ function App() {
                         <small>of {library.total} library entries</small>
                       </span>
                     </div>
+                    {library.skippedFinish > 0 && (
+                      <p className="field-help">
+                        {library.skippedFinish} excluded for silk or metallic
+                        finish.
+                      </p>
+                    )}
                     <div className="search-field">
                       <Search size={14} />
                       <input
@@ -1699,6 +2060,24 @@ function App() {
             )}
           </div>
           <div className="controls-footer">
+            <div className="advanced-heading">
+              <label className="switch-label">
+                <input
+                  type="checkbox"
+                  checked={advanced}
+                  disabled={preferencesSaving || !preferencesReady}
+                  onChange={(e) =>
+                    savePreferences({
+                      ...preferences,
+                      advanced: e.target.checked,
+                    }).catch(handleError)
+                  }
+                />
+                <span className="switch" />
+                Advanced
+              </label>
+            </div>
+
             <div>
               <label className="switch-label">
                 <input
@@ -1759,9 +2138,9 @@ function App() {
             </div>
             <div className="results-scroll">
               <div className="palette-total">
-                <strong>{preview?.result.palette.length ?? "—"}</strong>
+                <strong>{preview?.result.uniqueColors ?? "—"}</strong>
                 <div>
-                  perceptual colors
+                  output colors
                   <span>
                     {dirty
                       ? "Update preview to refresh"
@@ -1772,78 +2151,84 @@ function App() {
               {preview ? (
                 <>
                   <div className="palette-strip">
-                    {preview.result.palette.map((c) => (
-                      <span
-                        key={c.hex}
-                        title={`${c.hex} · ${pct(c.pixelFraction)}`}
-                        style={{
-                          background: c.hex,
-                          flex: Math.max(0.01, c.pixelFraction),
-                        }}
-                      />
-                    ))}
+                    {preview.result.palette
+                      .filter((c) => c.pixelFraction > 0)
+                      .map((c) => (
+                        <span
+                          key={c.hex}
+                          title={`${c.hex} · ${pct(c.pixelFraction)}`}
+                          style={{
+                            background: c.hex,
+                            flex: Math.max(0.01, c.pixelFraction),
+                          }}
+                        />
+                      ))}
                   </div>
                   <div className="palette-grid">
-                    {preview.result.palette.map((c) => (
-                      <button
-                        className="palette-swatch"
-                        key={c.hex}
-                        title={`Copy ${c.hex} · ${pct(c.pixelFraction)} of visible pixels`}
-                        onClick={async () => {
-                          try {
-                            await navigator.clipboard.writeText(c.hex);
-                            notify(`Copied ${c.hex}`);
-                          } catch {
-                            notify(c.hex);
-                          }
-                        }}
-                      >
-                        <span style={{ background: c.hex }} />
-                        <div>
-                          <strong>{c.hex}</strong>
-                          <small>
-                            {c.pixelFraction < 0.005
-                              ? "<1%"
-                              : pct(c.pixelFraction)}
-                          </small>
-                        </div>
-                      </button>
-                    ))}
+                    {preview.result.palette
+                      .filter((c) => c.pixelFraction > 0)
+                      .map((c) => (
+                        <button
+                          className="palette-swatch"
+                          key={c.hex}
+                          title={`Copy ${c.hex} · ${pct(c.pixelFraction)} of visible pixels`}
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(c.hex);
+                              notify(`Copied ${c.hex}`);
+                            } catch {
+                              notify(c.hex);
+                            }
+                          }}
+                        >
+                          <span style={{ background: c.hex }} />
+                          <div>
+                            <strong>{c.hex}</strong>
+                            <small>
+                              {c.pixelFraction < 0.005
+                                ? "<1%"
+                                : pct(c.pixelFraction)}
+                            </small>
+                          </div>
+                        </button>
+                      ))}
                   </div>
-                  <div className="result-section">
-                    <div className="field-label">IMAGE INSIGHTS</div>
-                    <div className="stat-row">
-                      <span>Dimensions</span>
-                      <strong>{preview.result.sourceSize.join(" × ")}</strong>
+                  {advanced && (
+                    <div className="result-section">
+                      <div className="field-label">IMAGE INSIGHTS</div>
+                      <div className="stat-row">
+                        <span>Dimensions</span>
+                        <strong>{preview.result.sourceSize.join(" × ")}</strong>
+                      </div>
+                      <div className="stat-row">
+                        <span>Analysis</span>
+                        <strong>
+                          {(
+                            (preview.result.analysisSize[0] *
+                              preview.result.analysisSize[1]) /
+                            1000000
+                          ).toFixed(2)}{" "}
+                          MP
+                        </strong>
+                      </div>
+                      <div className="stat-row">
+                        <span title="Alpha-weighted mean CIE76 distance from the original">
+                          Mean color distance <Info size={11} />
+                        </span>
+                        <strong>
+                          {preview.result.quality.meanDeltaE76.toFixed(2)} ΔE
+                        </strong>
+                      </div>
+                      <div className="stat-row">
+                        <span>Processing time</span>
+                        <strong>{preview.seconds.toFixed(2)} s</strong>
+                      </div>
+                      <div className="stat-row">
+                        <span>Output</span>
+                        <strong>Lossless PNG</strong>
+                      </div>
                     </div>
-                    <div className="stat-row">
-                      <span>Analysis</span>
-                      <strong>
-                        {(
-                          (preview.result.analysisSize[0] *
-                            preview.result.analysisSize[1]) /
-                          1000000
-                        ).toFixed(2)}{" "}
-                        MP
-                      </strong>
-                    </div>
-                    <div className="stat-row">
-                      <span title="Alpha-weighted mean CIE76 distance from the original">
-                        Mean color distance <Info size={11} />
-                      </span>
-                      <strong>
-                        {preview.result.quality.meanDeltaE76.toFixed(2)} ΔE
-                      </strong>
-                    </div>
-                    <div className="stat-row">
-                      <span>Processing time</span>
-                      <strong>{preview.seconds.toFixed(2)} s</strong>
-                    </div>
-                    <div className="stat-row">
-                      <span>Output</span>
-                      <strong>Lossless PNG</strong>
-                    </div>
-                  </div>
+                  )}
                   {selected.length > 0 && (
                     <div className="result-section">
                       <div className="field-label">
@@ -1879,19 +2264,38 @@ function App() {
                     </div>
                   )}
                   {preview.result.stack && (
-                    <div className="stack-summary">
-                      <Layers size={17} />
-                      <div>
-                        <strong>
-                          {preview.result.stack.plannedDepth.toFixed(2)} mm
-                          total depth
-                        </strong>
-                        <span>
-                          {preview.result.stack.runs.length} filaments ·{" "}
-                          {preview.result.stack.layerColors.length} layers
-                        </span>
+                    <>
+                      <div className="stack-summary">
+                        <Layers size={17} />
+                        <div>
+                          <strong>
+                            {preview.result.stack.plannedDepth.toFixed(2)} mm
+                            total depth
+                          </strong>
+                          <span>
+                            {preview.result.stack.uniqueFilaments} filaments ·{" "}
+                            {preview.result.stack.runs.length} runs ·{" "}
+                            {preview.result.stack.layerColors.length} layers
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                      {preview.result.stack.depthSelection && (
+                        <p className="field-help">
+                          Auto depth ·{" "}
+                          {preview.result.stack.depthSelection.comparedDepths}{" "}
+                          depths compared ·{" "}
+                          {preview.result.stack.depthSelection.hardMaximum.toFixed(
+                            2,
+                          )}{" "}
+                          mm ceiling.
+                        </p>
+                      )}
+                      <StackInspector
+                        key={preview.result.rgbaSHA256 + ":" + preview.id}
+                        result={preview.result}
+                        stale={dirty}
+                      />
+                    </>
                   )}
                   {preview.options.mode !== "standard" && (
                     <div className="optics-note">
@@ -1899,7 +2303,10 @@ function App() {
                       <p>
                         {preview.options.mode === "guided"
                           ? "Filament colors and pairwise hues guide this image. Open the PNG in HueForge to create the final layer plan."
-                          : "This stack uses an independent optical approximation. Verify the colors and swap heights in your printing workflow."}
+                          : preview.options.hueforge.opticalModel ===
+                              "hueforge-0.9.4.3-frontlit-v1"
+                            ? "Front Lit layer colors follow the validated HueForge model. Match your lighting, filament measurements, and swap heights before printing."
+                            : "This stack uses the legacy optical approximation. Choose HueForge Front Lit for the validated layer-color model."}
                       </p>
                     </div>
                   )}
@@ -1952,7 +2359,11 @@ function App() {
           )}
         </div>
         <div>
-          <span>ColorNinja 1.0</span>
+          <Updates
+            preferences={preferences}
+            savePreferences={savePreferences}
+            ready={preferencesReady}
+          />
           <i />{" "}
           <span>
             {options.mode === "standard"
