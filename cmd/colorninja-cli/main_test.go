@@ -2,12 +2,56 @@ package main
 
 import (
 	"colorninja/internal/engine"
+	"colorninja/internal/studio"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestCLIProjectAndSettingsProfilesRoundTrip(t *testing.T) {
+	dir := t.TempDir()
+	base := filepath.Join("..", "..", "internal", "engine", "testdata")
+	output, project, report := filepath.Join(dir, "first.png"), filepath.Join(dir, "saved.colorninja"), filepath.Join(dir, "report.json")
+	args := []string{filepath.Join(base, "gradient.png"), "-o", output, "--colorninja-project", project, "--export-profile", "--palette-json", report, "--colors", "3", "--total-colors", "--color-priority", "vivid", "--quiet"}
+	if err := argsRun(t, args...); err != nil {
+		t.Fatal(err)
+	}
+	p, err := studio.LoadProfile(studio.ProfilePath(output))
+	if err != nil || p.Options.ColorPriority != "vivid" || p.Options.Colors != 3 {
+		t.Fatal("profile lost settings", err)
+	}
+	for _, path := range []string{project, report} {
+		if _, err := studio.LoadProfile(studio.ProfilePath(path)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := studio.New(context.Background(), filepath.Join(dir, "settings.json"))
+	defer s.Shutdown()
+	snap, err := s.OpenProject(project)
+	if err != nil || snap.Preview == nil {
+		t.Fatal("CLI project failed to open", err)
+	}
+	second := filepath.Join(dir, "second.png")
+	if err = argsRun(t, filepath.Join(base, "gradient.png"), "-o", second, "--settings-profile", studio.ProfilePath(output), "--quiet"); err != nil {
+		t.Fatal(err)
+	}
+	a, _ := os.ReadFile(output)
+	b, _ := os.ReadFile(second)
+	if string(a) != string(b) {
+		t.Fatal("profile did not reproduce exported image")
+	}
+	blocked := filepath.Join(dir, "blocked.png")
+	os.WriteFile(studio.ProfilePath(blocked), []byte("keep"), 0600)
+	if err = argsRun(t, filepath.Join(base, "gradient.png"), "-o", blocked, "--export-profile", "--quiet"); err == nil {
+		t.Fatal("profile collision accepted")
+	}
+	if _, err = os.Stat(blocked); !os.IsNotExist(err) {
+		t.Fatal("image exported before profile collision check")
+	}
+}
 
 func argsRun(t *testing.T, args ...string) error {
 	t.Helper()

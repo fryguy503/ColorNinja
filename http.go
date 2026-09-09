@@ -125,6 +125,32 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 			if err = get(0, &name); err == nil {
 				result, err = s.DeletePreset(name)
 			}
+		case "RenamePreset":
+			var oldName, name string
+			if err = get(0, &oldName); err == nil {
+				err = get(1, &name)
+			}
+			if err == nil {
+				result, err = s.RenamePreset(oldName, name)
+			}
+		case "SaveProfile":
+			var name, path string
+			var req studio.Request
+			if err = get(0, &name); err == nil {
+				err = get(1, &req)
+			}
+			if err == nil {
+				err = get(2, &path)
+			}
+			if err == nil {
+				err = s.SaveProfile(path, name, req, false)
+				result = path
+			}
+		case "OpenProfile":
+			var path string
+			if err = get(0, &path); err == nil {
+				result, err = studio.LoadProfile(path)
+			}
 		case "SaveProject":
 			var req studio.Request
 			var path string

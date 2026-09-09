@@ -84,15 +84,25 @@ export type Source = {
   };
 };
 export type Preset = { name: string; options: Options };
+export type SettingsProfile = {
+  format: "ColorNinja settings";
+  schemaVersion: number;
+  name: string;
+  options: Options;
+  filter: Filter;
+  librarySHA256?: string;
+};
 export type Preferences = {
   advanced: boolean;
   checkOnStartup: boolean;
   includePrereleases: boolean;
+  exportProfile: boolean;
 };
 export const defaultPreferences: Preferences = {
   advanced: false,
   checkOnStartup: true,
   includePrereleases: false,
+  exportProfile: false,
 };
 export type UpdateResult = {
   currentVersion: string;
@@ -104,6 +114,7 @@ export type UpdateResult = {
   checkedAt: string;
 };
 export type Snapshot = {
+  preview?: Preview;
   source: Source;
   settings: {
     preferences: Preferences;

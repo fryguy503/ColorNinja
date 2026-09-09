@@ -135,13 +135,46 @@ func (a *App) SavePreset(name string, o engine.Options) ([]studio.Preset, error)
 	return a.studio.SavePreset(name, o)
 }
 func (a *App) DeletePreset(name string) ([]studio.Preset, error) { return a.studio.DeletePreset(name) }
-func (a *App) SaveProject(req studio.Request) (string, error) {
-	path, e := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{Title: "Save ColorNinja project", DefaultFilename: "Untitled.colorninja.json", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja project", Pattern: "*.json"}}, CanCreateDirectories: true})
+func (a *App) RenamePreset(oldName, name string) ([]studio.Preset, error) {
+	return a.studio.RenamePreset(oldName, name)
+}
+func (a *App) SaveProfile(name string, req studio.Request) (string, error) {
+	path, e := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{Title: "Save settings profile", DefaultFilename: "Settings.colorninja-profile.json", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja settings profile", Pattern: "*.json"}}, CanCreateDirectories: true})
 	if e != nil || path == "" {
 		return "", e
 	}
 	if filepath.Ext(path) == "" {
-		path += ".colorninja.json"
+		path += ".colorninja-profile.json"
+	}
+	overwrite, e := a.confirmOverwrite(path)
+	if e != nil {
+		return "", e
+	}
+	if e = a.studio.SaveProfile(path, name, req, overwrite); e != nil {
+		return "", e
+	}
+	return path, nil
+}
+func (a *App) OpenProfile() (*studio.SettingsProfile, error) {
+	path, e := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Open settings profile", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja settings profile", Pattern: "*.json"}}})
+	if e != nil || path == "" {
+		return nil, e
+	}
+	p, e := studio.LoadProfile(path)
+	return &p, e
+}
+func (a *App) SaveProject(req studio.Request) (string, error) {
+	sourceName := a.studio.Snapshot().Source.Name
+	base := strings.TrimSuffix(sourceName, filepath.Ext(sourceName))
+	if base == "" {
+		base = "Untitled"
+	}
+	path, e := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{Title: "Save portable ColorNinja project", DefaultFilename: base + ".colorninja", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja project", Pattern: "*.colorninja"}}, CanCreateDirectories: true})
+	if e != nil || path == "" {
+		return "", e
+	}
+	if !strings.EqualFold(filepath.Ext(path), ".colorninja") {
+		path += ".colorninja"
 	}
 	overwrite, e := a.confirmOverwrite(path)
 	if e != nil {
@@ -153,7 +186,7 @@ func (a *App) SaveProject(req studio.Request) (string, error) {
 	return path, nil
 }
 func (a *App) OpenProject() (*studio.Snapshot, error) {
-	path, e := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Open ColorNinja project", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja project", Pattern: "*.json"}}})
+	path, e := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Open ColorNinja project", Filters: []runtime.FileFilter{{DisplayName: "ColorNinja project", Pattern: "*.colorninja;*.json"}}})
 	if e != nil || path == "" {
 		return nil, e
 	}
@@ -193,6 +226,8 @@ func (a *App) Export(kind string, id, revision uint64) (string, error) {
 		suffix, label = "-layers", "16-bit layer map"
 	} else if kind == "hfp" {
 		ext, suffix, label = ".hfp", "-colorninja", "HueForge project"
+	} else if kind == "project" {
+		ext, suffix, label = ".colorninja", "", "ColorNinja project"
 	}
 	path, e := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{Title: "Export " + label, DefaultFilename: base + suffix + ext, Filters: []runtime.FileFilter{{DisplayName: label, Pattern: "*" + ext}}, CanCreateDirectories: true})
 	if e != nil || path == "" {
@@ -205,7 +240,14 @@ func (a *App) Export(kind string, id, revision uint64) (string, error) {
 	if e != nil {
 		return "", e
 	}
-	if e = a.studio.Export(kind, path, id, revision, overwrite); e != nil {
+	profileOverwrite := false
+	if s.Settings.Preferences.ExportProfile {
+		profileOverwrite, e = a.confirmOverwrite(studio.ProfilePath(path))
+		if e != nil {
+			return "", e
+		}
+	}
+	if e = a.studio.Export(kind, path, id, revision, overwrite, profileOverwrite); e != nil {
 		return "", e
 	}
 	return path, nil

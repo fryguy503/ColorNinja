@@ -7,6 +7,17 @@ production compilation, and source formatting checks to pass.
 
 ## Automated coverage
 
+Beta 2 adds exact portable project round trips in all three modes, including
+alpha, metadata, stack cores and layer maps after original files are removed;
+changed-on-disk library snapshots; corrupt archives; legacy JSON projects;
+unrendered settings; companion profiles for every export type; collision checks;
+profile opt-out; preset rename persistence; and CLI profile reproduction.
+
+A Beta 2 UI pass created and renamed a preset, exported a portable project with
+its companion profile, changed the color budget, reopened the saved eight-color
+result, and restored options from the exported profile. The profile preference
+and named preset were persisted in an isolated settings directory.
+
 The beta includes [palette-priority validation](palette-priority.md): accent retention
 against grayscale and different dominant hue families; neutral protection;
 noise/alpha checks; small budgets; all-mode palette and layer consistency; and
@@ -105,8 +116,8 @@ the checked fixtures, not universal error bounds.
 
 ## Desktop validation boundary
 
-The beta release gate includes 97 Go tests (with 246 Front Lit reference
-subcases and five Python reference cases), six frontend tests, TypeScript and
+The beta release gate includes 104 Go tests (with 246 Front Lit reference
+subcases and five Python reference cases), eight frontend tests, TypeScript and
 production builds, formatting, Go vet, and Windows Wails/CLI compilation.
 The final packaged executables are checked after extraction: file checksums,
 clean source provenance, all three CLI modes, overwrite protection, embedded

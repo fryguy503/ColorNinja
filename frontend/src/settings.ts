@@ -1,4 +1,12 @@
-import type { Options } from "./types.ts";
+import type { Options, Filter } from "./types.ts";
+
+export function normalizeFilter(filter: Filter): Filter {
+  return {
+    ...filter,
+    materialTypes: filter.materialTypes ?? [],
+    excludedIds: filter.excludedIds ?? [],
+  };
+}
 
 export function applyAutoDepth(options: Options, enabled: boolean): Options {
   const h = options.hueforge;
@@ -103,6 +111,13 @@ export function applyColorBudget(options: Options, colors: number): Options {
 }
 
 // Saved presets restore tuning, while the explicitly selected mode stays active.
-export function applySavedPreset(options: Options, preset: Options): Options {
-  return { ...structuredClone(preset), mode: options.mode };
+export function applySavedPreset(
+  options: Options,
+  preset: Options,
+  keepWorkflow = true,
+): Options {
+  return {
+    ...structuredClone(preset),
+    mode: keepWorkflow ? options.mode : preset.mode,
+  };
 }

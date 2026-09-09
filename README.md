@@ -9,19 +9,19 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current release: `v1.0.0-beta.1` — Windows x64.** This beta adds smarter palette
-priorities, improved Front Lit planning, automatic depth selection, an interactive
-stack map, and HueForge project export. Review your output before printing.
+**Current release: `v1.0.0-beta.2` — Windows x64.** This beta adds portable
+projects, settings profiles beside exports, and easier preset management, alongside
+Front Lit planning, automatic depth selection, and HueForge project export. Review your output before printing.
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.1)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.2)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
 
 ## Download and run
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.1)
-   and download **`ColorNinja-1.0.0-beta.1-windows-x64.zip`** from **Assets**.
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.2)
+   and download **`ColorNinja-1.0.0-beta.2-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and **Export PNG**.
@@ -41,7 +41,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.1-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.2-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
@@ -56,7 +56,9 @@ Get-FileHash .\ColorNinja-1.0.0-beta.1-windows-x64.zip -Algorithm SHA256
   configurable mesh settings, including Color Match.
 - Compare original and result with a sliding divider or linked side-by-side views.
 - Zoom, pan, inspect unique color counts, and review palettes, coverage, and quality metrics.
-- Save projects and presets, undo settings, and export PNGs and JSON palette reports.
+- Save portable projects with embedded images, filaments, settings, and exact results.
+- Create and manage named presets, load/save settings profiles, and optionally write
+  a profile beside every export. Undo settings and export PNGs and palette reports.
 - Preserve source dimensions and transparency; apply EXIF orientation and supported ICC profiles.
 - Read PNG, JPEG, WebP, GIF, TIFF, and BMP. Animated inputs use the first frame.
 
@@ -99,7 +101,8 @@ Image processing remains local and works offline.
   zero for transparency. It is not a normalized height map, STL, or G-code.
 - Processing uses 8-bit RGBA. HDR and 16-bit photo precision are not preserved.
   Inputs are limited to 100 megapixels and 512 MB encoded size.
-- Projects reference source files and library paths; they do not embed those files.
+- New `.colorninja` projects embed source pixels, the library snapshot, and any
+  current rendered result. Older JSON projects still depend on their original files.
 - Builds remain portable and unsigned. The app checks for updates;
   installation is manual. There is no installer or automatic replacement of the app.
 - Automated coverage is described in [validation](docs/validation.md). Complete
@@ -166,7 +169,7 @@ For frontend development:
 - [User guide](docs/user-guide.md): controls, shortcuts, libraries, projects, and CLI options.
 - [Architecture](docs/architecture.md): image engine, optical model, and desktop integration.
 - [Validation](docs/validation.md): automated coverage and manual testing boundaries.
-- [Beta release notes](docs/releases/v1.0.0-beta.1.md).
+- [Beta release notes](docs/releases/v1.0.0-beta.2.md).
 - [Python reference](docs/python-reference.md): the original implementation retained for regression comparison.
 
 Please [open an issue](https://github.com/fryguy503/ColorNinja/issues) with your

@@ -201,19 +201,49 @@ refresh, then use the export menu's **HueForge project (.hfp)** option. The proj
 embeds the reduced image, physical Color Core, and virtual Mesh Core. See
 [the HFP guide](hueforge-project.md) for the tested import workflow and limits.
 
-## Projects and shortcuts
+## Projects, presets, and profiles
 
-Projects (`*.colorninja.json`) store the source path, options, library path,
-and filters. They reference original files rather than embedding them, so keep
-those files available. Preferences and presets live under `%APPDATA%\ColorNinja`.
+**Save project** (Ctrl+S) creates a portable `.colorninja` file. It contains the
+normalized source image and metadata, all processing settings, a filament library
+snapshot, and the current rendered result with stack/layer data. **Open project**
+(Ctrl+Shift+O), or dropping a project onto the window, restores it without the
+original files. Saved previews open immediately; Refresh preview explicitly
+recalculates them. When saving unrendered settings, the project contains those
+settings and its source; a result is generated on reopening.
 
-| Shortcut | Action |
-| --- | --- |
-| Ctrl+O | Open image |
-| Ctrl+Shift+O | Open project |
-| Ctrl+S | Save project |
-| Ctrl+E | Export PNG |
-| Ctrl+Z / Ctrl+Shift+Z | Undo / redo settings |
+The export menu includes **ColorNinja project (.colorninja)** for preserving the
+exact current export. Older `.colorninja.json` projects can still be opened when
+their referenced files exist. Save again to make them portable.
+
+**Presets & profiles**, directly below Workflow, contains named reusable settings.
+Create a preset from the current settings, click its name to apply it, or use its
+rename/delete controls. Saving the same name replaces that preset. Presets keep
+the current workflow by default; clear **Keep current workflow** to restore the
+saved mode as well. Presets are stored in local preferences and do not contain
+images or change the current filament library.
+
+**Save profile** writes a `.colorninja-profile.json` with processing options and
+filament filters. **Load profile** restores those options, including workflow,
+for the current image. It does not embed an image or library. Filament exclusions
+refer to library entries, so they are retained only when the library fingerprint
+matches; otherwise the desktop clears individual exclusions. Save imported settings
+as a named preset if you want to keep them in the preset list.
+
+Enable **Also save settings profile** in the export menu to write a companion
+profile for every exported PNG, palette report, layer map, HFP, or ColorNinja
+project. For example, `art.png` receives `art.png.colorninja-profile.json`. The
+checkbox is remembered. Profiles describe the exported preview's actual settings.
+Existing profile files require their own overwrite approval. Each file is saved
+atomically; a later companion-file I/O failure reports the successful main export.
+
+Ctrl+O opens an image, Ctrl+E exports PNG, and Ctrl+Z / Ctrl+Shift+Z undo/redo tuning.
+Preferences live under `%APPDATA%\ColorNinja`.
+
+For batch exports, add `--colorninja-project design.colorninja` and
+`--export-profile`. Reuse a profile with `--settings-profile FILE`; it overrides
+processing flags and cannot be combined with `--options-json`. The CLI requires
+the matching library when a profile includes individual filament exclusions.
+Portable project libraries are limited to 32 MB.
 
 ## Version and updates
 

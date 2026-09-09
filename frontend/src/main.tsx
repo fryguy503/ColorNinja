@@ -17,6 +17,7 @@ import {
   Redo2,
   RotateCcw,
   Save,
+  Pencil,
   SlidersHorizontal,
   Sparkles,
   SwatchBook,
@@ -40,6 +41,7 @@ import {
   displayedColorBudget,
   applyDisplayedColorBudget,
   applySavedPreset,
+  normalizeFilter,
   changeProcessingMode,
   applySmoothing,
   smoothingPreset,
@@ -58,6 +60,7 @@ import {
   type Library,
   type Filter,
   type Preset,
+  type SettingsProfile,
   type Request,
   type HueForgeOptions,
   type Filament,
@@ -593,6 +596,7 @@ function App() {
     [showExport, setShowExport] = useState(false),
     [showPalette, setShowPalette] = useState(true),
     [search, setSearch] = useState("");
+  const [keepWorkflow, setKeepWorkflow] = useState(true);
   const [modeHelp, setModeHelp] = useState<Options["mode"] | null>(null);
   const [dialog, setDialog] = useState<{
     title: string;
@@ -618,14 +622,27 @@ function App() {
     setSource(s.source);
     setOptions(copy(s.settings.options));
     setLibraryPath(s.settings.libraryPath ?? "");
-    setFilter({ ...copy(emptyFilter), ...s.settings.filter });
+    setFilter(normalizeFilter({ ...copy(emptyFilter), ...s.settings.filter }));
     setLibrary(s.library);
     setPresets(s.settings.presets ?? []);
     setRecent(s.settings.recent ?? []);
-    setPreview(null);
+    setPreview(s.preview ?? null);
+    renderedKey.current = s.preview
+      ? s.source.revision +
+        ":" +
+        JSON.stringify([
+          s.settings.options,
+          s.settings.libraryPath ?? "",
+          normalizeFilter({ ...copy(emptyFilter), ...s.settings.filter }),
+        ])
+      : "";
+    if (s.preview) {
+      seq.current = Math.max(seq.current, s.preview.id);
+      setProgress({ stage: "Saved project restored", fraction: 1 });
+    }
     setHistory([copy(s.settings.options)]);
     setHistoryIndex(0);
-    setDirty(true);
+    setDirty(!s.preview);
     if (s.warning) notify(s.warning, true);
     else if (s.source.metadata.warnings?.length)
       notify(s.source.metadata.warnings.join(" "));
@@ -689,6 +706,7 @@ function App() {
     manualVersion.current = rerun;
     setDirty(signature !== renderedKey.current);
     setBusy(false);
+    if (signature === renderedKey.current && !manualRequested) return;
     const canceled = invoke("Cancel").catch(() => {});
     if (!auto && !manualRequested) return;
     if (options.mode !== "standard" && !libraryPath) {
@@ -861,7 +879,9 @@ function App() {
               ? "layer map"
               : kind === "hfp"
                 ? "HueForge project"
-                : "palette report"),
+                : kind === "project"
+                  ? "ColorNinja project"
+                  : "palette report"),
         "Absolute output path",
         "",
         run,
@@ -974,10 +994,74 @@ function App() {
     };
   }, []);
   const savePreset = () =>
-    textDialog("Save a preset", "Preset name", "", async (name) => {
-      setPresets(await invoke<Preset[]>("SavePreset", name, options));
-      notify(`Preset saved: ${name}`);
+    textDialog(
+      "Save a preset",
+      "Name (an existing name replaces that preset)",
+      "",
+      async (name) => {
+        setPresets(await invoke<Preset[]>("SavePreset", name, options));
+        notify(`Preset saved: ${name}`);
+      },
+    );
+  const renamePreset = (preset: Preset) =>
+    textDialog("Rename preset", "New name", preset.name, async (name) => {
+      setPresets(await invoke<Preset[]>("RenamePreset", preset.name, name));
+      notify(`Preset renamed: ${name}`);
     });
+  const saveProfile = async () => {
+    const run = async (path?: string) => {
+      const output = await invoke<string>(
+        "SaveProfile",
+        "Custom settings",
+        request(),
+        ...(path ? [path] : []),
+      );
+      if (output) notify(`Settings profile saved: ${output}`);
+    };
+    try {
+      if (!desktop) {
+        textDialog("Save settings profile", "Absolute profile path", "", run);
+        return;
+      }
+      await run();
+    } catch (e) {
+      handleError(e);
+    }
+  };
+  const openProfile = async () => {
+    const run = async (path?: string) => {
+      const profile = await invoke<SettingsProfile | null>(
+        "OpenProfile",
+        ...(path ? [path] : []),
+      );
+      if (!profile) return;
+      const matches =
+        !!profile.librarySHA256 && profile.librarySHA256 === library?.sha256;
+      const next = normalizeFilter({
+        ...copy(emptyFilter),
+        ...profile.filter,
+        excludedIds: matches ? (profile.filter.excludedIds ?? []) : [],
+      });
+      if (libraryPath)
+        setLibrary(await invoke<Library>("SetLibrary", libraryPath, next));
+      setFilter(next);
+      update(copy(profile.options));
+      notify(
+        matches || !profile.filter.excludedIds?.length
+          ? "Settings profile loaded. Save it as a preset to reuse it."
+          : "Settings loaded. Individual filament exclusions were cleared because this library differs.",
+      );
+    };
+    try {
+      if (!desktop) {
+        textDialog("Open settings profile", "Absolute profile path", "", run);
+        return;
+      }
+      await run();
+    } catch (e) {
+      handleError(e);
+    }
+  };
   const cancel = () => {
     seq.current++;
     setBusy(false);
@@ -1037,7 +1121,7 @@ function App() {
           <IconButton
             title="Save project (Ctrl+S)"
             onClick={saveProject}
-            disabled={!source}
+            disabled={!source || loading || exporting}
           >
             <Save size={17} />
           </IconButton>
@@ -1053,7 +1137,14 @@ function App() {
             <button
               className="button primary"
               onClick={() => exportFile("png")}
-              disabled={!preview || dirty || busy || exporting}
+              disabled={
+                !preview ||
+                dirty ||
+                busy ||
+                exporting ||
+                preferencesSaving ||
+                loading
+              }
             >
               {exporting ? (
                 <LoaderCircle className="spin" size={16} />
@@ -1066,7 +1157,7 @@ function App() {
               className="export-caret"
               aria-label="More export options"
               onClick={() => setShowExport(!showExport)}
-              disabled={!preview || dirty || busy}
+              disabled={exporting || preferencesSaving || loading}
             >
               <ChevronDown size={15} />
             </button>
@@ -1078,24 +1169,85 @@ function App() {
                   onClick={() => setShowExport(false)}
                 />
                 <div className="dropdown export-menu">
-                  <button onClick={() => exportFile("png")}>
+                  <button
+                    disabled={
+                      !preview ||
+                      dirty ||
+                      busy ||
+                      preferencesSaving ||
+                      exporting
+                    }
+                    onClick={() => exportFile("project")}
+                  >
+                    <Save size={15} /> ColorNinja project (.colorninja)
+                  </button>
+                  <button
+                    disabled={
+                      !preview ||
+                      dirty ||
+                      busy ||
+                      preferencesSaving ||
+                      exporting
+                    }
+                    onClick={() => exportFile("png")}
+                  >
                     <FileImage size={15} /> Full-resolution PNG
                   </button>
-                  <button onClick={() => exportFile("palette")}>
+                  <button
+                    disabled={
+                      !preview ||
+                      dirty ||
+                      busy ||
+                      preferencesSaving ||
+                      exporting
+                    }
+                    onClick={() => exportFile("palette")}
+                  >
                     <SwatchBook size={15} /> Palette & settings JSON
                   </button>
                   <button
-                    disabled={!preview?.result.stack}
+                    disabled={
+                      !preview?.result.stack ||
+                      dirty ||
+                      busy ||
+                      preferencesSaving ||
+                      exporting
+                    }
                     onClick={() => exportFile("layers")}
                   >
                     <Layers size={15} /> 16-bit layer map
                   </button>
                   <button
-                    disabled={!preview?.result.stack}
+                    disabled={
+                      !preview?.result.stack ||
+                      dirty ||
+                      busy ||
+                      preferencesSaving ||
+                      exporting
+                    }
                     onClick={() => exportFile("hfp")}
                   >
                     <Layers size={15} /> HueForge project (.hfp)
                   </button>
+                  <label className="export-profile-option">
+                    <input
+                      type="checkbox"
+                      checked={preferences.exportProfile}
+                      disabled={preferencesSaving || exporting}
+                      onChange={(e) =>
+                        savePreferences({
+                          ...preferences,
+                          exportProfile: e.target.checked,
+                        }).catch(handleError)
+                      }
+                    />
+                    <span>
+                      Also save settings profile
+                      <small>
+                        A reusable profile beside every exported file.
+                      </small>
+                    </span>
+                  </label>
                 </div>
               </>
             )}
@@ -1171,6 +1323,80 @@ function App() {
                   <p>{modeInfo[options.mode][1]}</p>
                   <p>{modeInfo[options.mode][2]}</p>
                 </div>
+                <Section title="Presets & profiles">
+                  <p className="field-help">
+                    Save named settings for other images. Profiles let you share
+                    or import settings.
+                  </p>
+                  <div className="preset-buttons">
+                    <button
+                      onClick={() => update(applyColorBudget(options, 4))}
+                    >
+                      Minimal · 4
+                    </button>
+                    <button
+                      onClick={() => update(applyColorBudget(options, 8))}
+                    >
+                      Balanced · 8
+                    </button>
+                    <button
+                      onClick={() => update(applyColorBudget(options, 16))}
+                    >
+                      Detailed · 16
+                    </button>
+                  </div>
+                  <label className="check-field">
+                    <input
+                      type="checkbox"
+                      checked={keepWorkflow}
+                      onChange={(e) => setKeepWorkflow(e.target.checked)}
+                    />
+                    Keep current workflow when applying a preset
+                  </label>
+                  {presets.map((p) => (
+                    <div className="custom-preset" key={p.name}>
+                      <button
+                        onClick={() =>
+                          update(
+                            applySavedPreset(options, p.options, keepWorkflow),
+                          )
+                        }
+                      >
+                        {p.name}
+                      </button>
+                      <IconButton
+                        title={`Rename preset ${p.name}`}
+                        onClick={() => renamePreset(p)}
+                      >
+                        <Pencil size={13} />
+                      </IconButton>
+                      <IconButton
+                        title={`Delete preset ${p.name}`}
+                        onClick={() =>
+                          invoke<Preset[]>("DeletePreset", p.name)
+                            .then(setPresets)
+                            .catch(handleError)
+                        }
+                      >
+                        <Trash2 size={13} />
+                      </IconButton>
+                    </div>
+                  ))}
+                  <button
+                    className="text-button save-preset"
+                    onClick={savePreset}
+                  >
+                    <Plus size={13} /> Create preset from current settings
+                  </button>
+                  <div className="profile-actions">
+                    <button className="text-button" onClick={saveProfile}>
+                      <Save size={13} /> Save profile
+                    </button>
+                    <button className="text-button" onClick={openProfile}>
+                      <FolderOpen size={13} /> Load profile
+                    </button>
+                  </div>
+                </Section>
                 <div className="settings-group">
                   <div className="group-heading">
                     Palette{" "}
@@ -1819,52 +2045,6 @@ function App() {
                     </Section>
                   )}
                 </div>
-                <Section title="Presets">
-                  <div className="preset-buttons">
-                    <button
-                      onClick={() => update(applyColorBudget(options, 4))}
-                    >
-                      Minimal · 4
-                    </button>
-                    <button
-                      onClick={() => update(applyColorBudget(options, 8))}
-                    >
-                      Balanced · 8
-                    </button>
-                    <button
-                      onClick={() => update(applyColorBudget(options, 16))}
-                    >
-                      Detailed · 16
-                    </button>
-                  </div>
-                  {presets.map((p) => (
-                    <div className="custom-preset" key={p.name}>
-                      <button
-                        onClick={() =>
-                          update(applySavedPreset(options, p.options))
-                        }
-                      >
-                        {p.name}
-                      </button>
-                      <IconButton
-                        title={`Delete preset ${p.name}`}
-                        onClick={() =>
-                          invoke<Preset[]>("DeletePreset", p.name)
-                            .then(setPresets)
-                            .catch(handleError)
-                        }
-                      >
-                        <Trash2 size={13} />
-                      </IconButton>
-                    </div>
-                  ))}
-                  <button
-                    className="text-button save-preset"
-                    onClick={savePreset}
-                  >
-                    <Plus size={13} /> Save current settings
-                  </button>
-                </Section>
                 <Section title="Recent images">
                   {recent.length ? (
                     recent.map((path) => (
@@ -1903,7 +2083,9 @@ function App() {
                 </button>
                 {libraryPath && (
                   <div className="library-path" title={libraryPath}>
-                    {libraryPath.split(/[\\/]/).pop()}
+                    {libraryPath === "embedded:project-filaments"
+                      ? "Project filaments (embedded)"
+                      : libraryPath.split(/[\\/]/).pop()}
                     <button
                       className="text-button"
                       onClick={() => refreshLibrary()}

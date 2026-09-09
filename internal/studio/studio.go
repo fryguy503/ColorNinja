@@ -46,12 +46,14 @@ type Preferences struct {
 	Advanced           bool `json:"advanced"`
 	CheckOnStartup     bool `json:"checkOnStartup"`
 	IncludePrereleases bool `json:"includePrereleases"`
+	ExportProfile      bool `json:"exportProfile"`
 }
 type Snapshot struct {
 	Source   Source          `json:"source"`
 	Settings Settings        `json:"settings"`
 	Library  *engine.Library `json:"library"`
 	Warning  string          `json:"warning"`
+	Preview  *Preview        `json:"preview,omitempty"`
 }
 type Request struct {
 	ID          uint64               `json:"id"`
@@ -82,24 +84,27 @@ type Document struct {
 	Filter        engine.LibraryFilter `json:"filter"`
 }
 type Studio struct {
-	ctx           context.Context
-	mu            sync.RWMutex
-	worker        sync.Mutex
-	settingsMu    sync.Mutex
-	cancel        context.CancelFunc
-	loadCancel    context.CancelFunc
-	loadSerial    uint64
-	job           uint64
-	revision      uint64
-	image         *image.NRGBA
-	source        Source
-	settings      Settings
-	result        *engine.Result
-	resultRequest Request
-	resultJob     uint64
-	configPath    string
-	warning       string
-	Emit          func(string, any)
+	ctx             context.Context
+	mu              sync.RWMutex
+	worker          sync.Mutex
+	settingsMu      sync.Mutex
+	cancel          context.CancelFunc
+	loadCancel      context.CancelFunc
+	loadSerial      uint64
+	job             uint64
+	revision        uint64
+	image           *image.NRGBA
+	source          Source
+	settings        Settings
+	result          *engine.Result
+	resultRequest   Request
+	resultLibrary   []byte
+	embeddedLibrary []byte
+	projectPath     string
+	resultJob       uint64
+	configPath      string
+	warning         string
+	Emit            func(string, any)
 }
 
 func New(ctx context.Context, configPath string) *Studio {
@@ -145,17 +150,22 @@ func (s *Studio) Snapshot() Snapshot {
 	settings := s.settings
 	source := s.source
 	warning := s.warning
+	var preview *Preview
+	if s.result != nil {
+		req := s.resultRequest
+		preview = &Preview{ID: req.ID, Revision: req.Revision, URL: fmt.Sprintf("/media/result/%d.png", s.resultJob), Result: s.result, Options: req.Options}
+	}
 	s.mu.RUnlock()
 	var lib *engine.Library
 	if settings.LibraryPath != "" {
-		l, e := engine.LoadLibrary(settings.LibraryPath, settings.Filter)
+		l, e := s.loadLibrary(settings.LibraryPath, settings.Filter)
 		if e == nil {
 			lib = &l
 		} else {
 			warning = e.Error()
 		}
 	}
-	return Snapshot{source, settings, lib, warning}
+	return Snapshot{source, settings, lib, warning, preview}
 }
 func (s *Studio) beginLoad() (context.Context, uint64) {
 	s.mu.Lock()
@@ -189,6 +199,8 @@ func (s *Studio) installImage(ctx context.Context, loaded *engine.LoadedImage, p
 	s.revision++
 	s.image = loaded.Image
 	s.result = nil
+	s.resultLibrary = nil
+	s.projectPath = ""
 	s.source = Source{Name: filepath.Base(path), Path: path,
 		Width: loaded.Image.Bounds().Dx(), Height: loaded.Image.Bounds().Dy(),
 		UniqueColors: uniqueColors, URL: fmt.Sprintf("/media/source/%d.png", s.revision),
@@ -221,6 +233,12 @@ func (s *Studio) UseDemo() (Snapshot, error) {
 	return s.Snapshot(), nil
 }
 func (s *Studio) LoadImage(path string) (Snapshot, error) {
+	if strings.HasSuffix(strings.ToLower(path), ".colorninja") || strings.HasSuffix(strings.ToLower(path), ".colorninja.json") {
+		return s.OpenProject(path)
+	}
+	return s.loadSourceImage(path)
+}
+func (s *Studio) loadSourceImage(path string) (Snapshot, error) {
 	if strings.TrimSpace(path) == "" {
 		return Snapshot{}, fmt.Errorf("select an image")
 	}
@@ -244,7 +262,7 @@ func (s *Studio) LoadImage(path string) (Snapshot, error) {
 	return s.Snapshot(), nil
 }
 func (s *Studio) SetLibrary(path string, filter engine.LibraryFilter) (*engine.Library, error) {
-	lib, e := engine.LoadLibrary(path, filter)
+	lib, e := s.loadLibrary(path, filter)
 	if e != nil {
 		return nil, e
 	}
@@ -300,8 +318,16 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 	}
 	start := time.Now()
 	var library *engine.Library
+	var libraryRaw []byte
+	if req.LibraryPath != "" {
+		var err error
+		libraryRaw, err = s.libraryBytes(req.LibraryPath)
+		if err != nil && req.Options.Mode != "standard" {
+			return nil, err
+		}
+	}
 	if req.Options.Mode != "standard" {
-		l, e := engine.LoadLibrary(req.LibraryPath, req.Filter)
+		l, e := engine.ParseLibrary(libraryRaw, req.Filter)
 		if e != nil {
 			return nil, e
 		}
@@ -323,6 +349,7 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 		return nil, context.Canceled
 	}
 	s.result = r
+	s.resultLibrary = libraryRaw
 	s.resultRequest = req
 	s.resultJob = job
 	s.settings.Options = req.Options
@@ -341,6 +368,9 @@ func (s *Studio) saveSettings() error {
 	s.mu.RLock()
 	settings := s.settings
 	s.mu.RUnlock()
+	if settings.LibraryPath == projectLibraryPath {
+		settings.LibraryPath = ""
+	}
 	return engine.AtomicWrite(s.configPath, true, func(w io.Writer) error {
 		enc := json.NewEncoder(w)
 		enc.SetIndent("", "  ")
@@ -356,7 +386,7 @@ func (s *Studio) SavePreferences(p Preferences) (Preferences, error) {
 func (s *Studio) SavePreset(name string, o engine.Options) ([]Preset, error) {
 	name = strings.TrimSpace(name)
 	if name == "" || len(name) > 60 {
-		return nil, fmt.Errorf("preset name must contain 1–60 characters")
+		return nil, fmt.Errorf("preset name must contain 1â€“60 characters")
 	}
 	if e := o.Validate(); e != nil {
 		return nil, e
@@ -394,24 +424,8 @@ func (s *Studio) DeletePreset(name string) ([]Preset, error) {
 	s.mu.Unlock()
 	return p, s.saveSettings()
 }
-func (s *Studio) SaveProject(path string, req Request, overwrite bool) error {
-	if e := req.Options.Validate(); e != nil {
-		return e
-	}
-	s.mu.RLock()
-	source := s.source
-	s.mu.RUnlock()
-	if req.Revision != source.Revision {
-		return fmt.Errorf("image changed; save again")
-	}
-	if e := engine.DistinctPaths(path, source.Path, req.LibraryPath); e != nil {
-		return e
-	}
-	doc := Document{1, source.Path, source.Demo, req.Options, req.LibraryPath, req.Filter}
-	return engine.AtomicWrite(path, overwrite, func(w io.Writer) error { enc := json.NewEncoder(w); enc.SetIndent("", "  "); return enc.Encode(doc) })
-}
-func (s *Studio) OpenProject(path string) (Snapshot, error) {
-	raw, e := os.ReadFile(path)
+func (s *Studio) openLegacyProject(path string) (Snapshot, error) {
+	raw, e := readBounded(path, 2<<20)
 	if e != nil {
 		return Snapshot{}, e
 	}
@@ -439,13 +453,14 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	if d.Demo {
 		_, e = s.UseDemo()
 	} else {
-		_, e = s.LoadImage(d.Source)
+		_, e = s.loadSourceImage(d.Source)
 	}
 	if e != nil {
 		return Snapshot{}, e
 	}
 	s.mu.Lock()
 	s.settings.Options = d.Options
+	s.projectPath = path
 	s.settings.LibraryPath = d.LibraryPath
 	s.settings.Filter = d.Filter
 	s.mu.Unlock()
@@ -454,7 +469,7 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	}
 	return s.Snapshot(), nil
 }
-func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool) error {
+func (s *Studio) exportSingle(kind, path string, id, revision uint64, overwrite bool) error {
 	s.mu.RLock()
 	r := s.result
 	req := s.resultRequest
@@ -467,6 +482,8 @@ func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool) 
 		return e
 	}
 	switch kind {
+	case "project":
+		return s.SaveProject(path, req, overwrite)
 	case "png":
 		return engine.SavePNG(s.ctx, path, r, source.Metadata, overwrite)
 	case "palette":

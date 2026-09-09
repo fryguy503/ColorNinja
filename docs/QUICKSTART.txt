@@ -1,4 +1,4 @@
-ColorNinja Studio 1.0.0-beta.1 - Windows x64
+ColorNinja Studio 1.0.0-beta.2 - Windows x64
 
 BETA: This is a testing release. Review output before printing.
 
@@ -76,8 +76,16 @@ Mode, Mesh Core, width, and detail. Start with Color Match / Match planned layer
 refresh, then choose HueForge project (.hfp) in the export menu. Both cores and
 the reduced image are included. See docs/hueforge-project.md for validation.
 
-Ctrl+S saves a project, Ctrl+Shift+O opens one. Projects reference image and
-library paths; keep those originals available. Ctrl+O opens an image, Ctrl+E
+Ctrl+S saves a portable .colorninja project; Ctrl+Shift+O opens one. New projects
+include the source image, filament library snapshot, settings, and current result.
+Old .colorninja.json projects still need their originals until saved again.
+The export menu also offers ColorNinja project (.colorninja). Enable Also save
+settings profile there to save a reusable profile beside every exported file.
+
+Presets & profiles appears below Workflow. Create, rename, apply, and delete
+named settings. Keep current workflow starts enabled; clear it to restore the
+preset workflow too. Save profile and Load profile share settings between images.
+Profiles do not contain images or library contents. Ctrl+O opens an image, Ctrl+E
 exports PNG, and Ctrl+Z / Ctrl+Shift+Z undo / redo settings. Preferences are
 saved under %APPDATA%\ColorNinja. Presets store processing options.
 
@@ -90,3 +98,6 @@ See docs/user-guide.md, docs/architecture.md, and docs/validation.md for help,
 processing details, and test scope. LICENSE contains ColorNinja's MIT license.
 SHA256SUMS.txt records checksums; THIRD-PARTY-NOTICES.txt contains dependency
 licenses. BUILD-INFO.json identifies the original build artifact and toolchain.
+
+CLI portable project: add --colorninja-project design.colorninja.
+CLI companion profiles: add --export-profile. Reuse with --settings-profile FILE.

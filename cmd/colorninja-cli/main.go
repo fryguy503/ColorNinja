@@ -3,6 +3,7 @@ package main
 
 import (
 	"colorninja/internal/engine"
+	"colorninja/internal/studio"
 	"context"
 	"encoding/json"
 	"flag"
@@ -20,8 +21,8 @@ func (f *stringsFlag) String() string     { return strings.Join(*f, ",") }
 func (f *stringsFlag) Set(v string) error { *f = append(*f, v); return nil }
 func run() error {
 	o := engine.DefaultOptions()
-	var output, report, layerMap, library, optionsPath, hfp string
-	var includeUnowned, allowSecondary, avoidSilkMetallic, stack, full, force, quiet bool
+	var output, report, layerMap, library, optionsPath, hfp, project, profileInput string
+	var includeUnowned, allowSecondary, avoidSilkMetallic, stack, full, force, quiet, exportProfile bool
 	var materials stringsFlag
 	colors := 0
 	chunkPixels := 131072
@@ -39,9 +40,12 @@ func run() error {
 	f.Float64Var(&o.NeutralChroma, "neutral-chroma", o.NeutralChroma, "achromatic threshold in Lab")
 	minimum := o.MinClusterFraction * 100
 	f.Float64Var(&minimum, "min-cluster-percent", minimum, "minimum cluster population percentage")
-	f.IntVar(&o.HistogramBits, "histogram-bits", o.HistogramBits, "RGB histogram precision (3–7)")
+	f.IntVar(&o.HistogramBits, "histogram-bits", o.HistogramBits, "RGB histogram precision (3â€“7)")
 	f.IntVar(&o.Iterations, "iterations", o.Iterations, "clustering iteration limit")
 	f.IntVar(&chunkPixels, "chunk-pixels", chunkPixels, "compatibility flag; Go mapping uses bounded parallel rows")
+	f.StringVar(&project, "colorninja-project", "", "save a portable ColorNinja project with source, settings, filaments, and exact result")
+	f.BoolVar(&exportProfile, "export-profile", false, "save a .colorninja-profile.json beside every exported file")
+	f.StringVar(&profileInput, "settings-profile", "", "load a ColorNinja settings profile (overrides processing flags)")
 	f.StringVar(&report, "palette-json", "", "save palette, settings, metrics, and provenance")
 	f.StringVar(&library, "hueforge-library", "", "HueForge filament library JSON")
 	f.StringVar(&library, "filament-library", "", "alias for --hueforge-library")
@@ -57,7 +61,7 @@ func run() error {
 	f.StringVar(&o.HueForge.MeshCore, "hueforge-mesh-core", "planned-colors", "HFP Color Match mesh core: planned-colors or filament-blends")
 	f.Float64Var(&o.HueForge.ExportWidthMM, "hueforge-width-mm", 200, "HFP width in mm; aspect ratio is retained")
 	f.Float64Var(&o.HueForge.MeshDetailMM, "hueforge-mesh-detail-mm", .2, "HFP mesh detail spacing in mm")
-	f.Float64Var(&o.GuidanceStrength, "hueforge-guidance-strength", o.GuidanceStrength, "pull toward filament-derived hues (0–1)")
+	f.Float64Var(&o.GuidanceStrength, "hueforge-guidance-strength", o.GuidanceStrength, "pull toward filament-derived hues (0â€“1)")
 	f.BoolVar(&o.TrueBlack, "true-black", o.TrueBlack, "use #000000 for black filaments (set --true-black=false for library colors)")
 	f.BoolVar(&o.PreserveDetails, "preserve-details", o.PreserveDetails, "protect small shapes and coherent color groups; smoothing works with either setting")
 	f.Float64Var(&o.HueForge.LayerHeight, "hueforge-layer-height", o.HueForge.LayerHeight, "layer height in mm")
@@ -77,7 +81,7 @@ func run() error {
 	f.BoolVar(&quiet, "quiet", false, "suppress summary")
 	f.StringVar(&optionsPath, "options-json", "", "load a Go Options JSON object (overrides processing flags)")
 	f.Usage = func() {
-		fmt.Fprintln(f.Output(), "ColorNinja Go · perceptual image reduction\nUsage: colorninja-cli input.png -o output.png [options]")
+		fmt.Fprintln(f.Output(), "ColorNinja Go Â· perceptual image reduction\nUsage: colorninja-cli input.png -o output.png [options]")
 		f.PrintDefaults()
 	}
 	args := os.Args[1:]
@@ -132,6 +136,18 @@ func run() error {
 			return e
 		}
 	}
+	filter := engine.LibraryFilter{IncludeUnowned: includeUnowned, MaterialTypes: materials, AllowSecondary: allowSecondary, AvoidSilkMetallic: avoidSilkMetallic}
+	var importedProfile *studio.SettingsProfile
+	if profileInput != "" {
+		if optionsPath != "" {
+			return fmt.Errorf("choose either --settings-profile or --options-json")
+		}
+		p, err := studio.LoadProfile(profileInput)
+		if err != nil {
+			return err
+		}
+		o, filter, importedProfile = p.Options, p.Filter, &p
+	}
 	if layerMap != "" && o.Mode != "stack" {
 		return fmt.Errorf("height map requires explicit --hueforge-stack")
 	}
@@ -147,7 +163,16 @@ func run() error {
 	if output == "" {
 		output = strings.TrimSuffix(input, filepath.Ext(input)) + "-colorninja.png"
 	}
-	if e := engine.DistinctPaths(input, output, report, layerMap, library, optionsPath, hfp); e != nil {
+	outputs := []string{output, report, layerMap, hfp, project}
+	paths := []string{input, output, report, layerMap, library, optionsPath, hfp, project, profileInput}
+	if exportProfile {
+		for _, path := range outputs {
+			if path != "" {
+				paths = append(paths, studio.ProfilePath(path))
+			}
+		}
+	}
+	if e := engine.DistinctPaths(paths...); e != nil {
 		return e
 	}
 	for _, path := range []string{output, layerMap} {
@@ -156,7 +181,15 @@ func run() error {
 		}
 	}
 	if !force {
-		for _, path := range []string{output, report, layerMap, hfp} {
+		checkOutputs := append([]string{}, outputs...)
+		if exportProfile {
+			for _, path := range outputs {
+				if path != "" {
+					checkOutputs = append(checkOutputs, studio.ProfilePath(path))
+				}
+			}
+		}
+		for _, path := range checkOutputs {
 			if path != "" {
 				if _, e := os.Stat(path); e == nil {
 					return fmt.Errorf("output already exists: %s (use --force to replace)", path)
@@ -172,10 +205,21 @@ func run() error {
 		return e
 	}
 	var lib *engine.Library
+	var libraryRaw []byte
+	if library != "" {
+		var err error
+		libraryRaw, err = os.ReadFile(library)
+		if err != nil {
+			return err
+		}
+	}
 	if o.Mode != "standard" {
-		l, e := engine.LoadLibrary(library, engine.LibraryFilter{IncludeUnowned: includeUnowned, MaterialTypes: materials, AllowSecondary: allowSecondary, AvoidSilkMetallic: avoidSilkMetallic})
+		l, e := engine.ParseLibrary(libraryRaw, filter)
 		if e != nil {
 			return e
+		}
+		if importedProfile != nil && len(filter.ExcludedIDs) > 0 && importedProfile.LibrarySHA256 != l.SHA256 {
+			return fmt.Errorf("profile filament exclusions require the matching library; load the profile in the desktop to adapt it")
 		}
 		lib = &l
 	}
@@ -201,17 +245,31 @@ func run() error {
 			return fmt.Errorf("PNG saved to %s; HFP export failed: %w", output, e)
 		}
 	}
+	if project != "" {
+		if e = studio.SaveResultProject(ctx, project, input, source, result, o, filter, libraryRaw, force); e != nil {
+			return fmt.Errorf("PNG saved to %s; ColorNinja project failed: %w", output, e)
+		}
+	}
+	if exportProfile {
+		for _, path := range outputs {
+			if path != "" {
+				if e = studio.SaveSettingsProfile(studio.ProfilePath(path), filepath.Base(input), o, filter, libraryRaw, force); e != nil {
+					return fmt.Errorf("outputs saved; settings profile failed for %s: %w", path, e)
+				}
+			}
+		}
+	}
 	if !quiet {
 		if hfp != "" {
 			fmt.Printf("HFP: %s (mesh mode %s)\n", hfp, o.HueForge.MeshMode)
 		}
-		fmt.Printf("Saved %s · %d × %d · %d colors · %.2f s\n", output, result.SourceSize[0], result.SourceSize[1], len(result.Palette), time.Since(start).Seconds())
-		fmt.Printf("Mean ΔE76 %.4f · RMS %.4f · RGBA SHA256 %s\n", result.Quality.Mean, result.Quality.RMS, result.SHA256)
+		fmt.Printf("Saved %s Â· %d Ã— %d Â· %d colors Â· %.2f s\n", output, result.SourceSize[0], result.SourceSize[1], len(result.Palette), time.Since(start).Seconds())
+		fmt.Printf("Mean Î”E76 %.4f Â· RMS %.4f Â· RGBA SHA256 %s\n", result.Quality.Mean, result.Quality.RMS, result.SHA256)
 		if result.Guidance != nil {
 			fmt.Printf("Guided by %d owned/eligible filaments; no global stack promised.\n", len(result.Guidance.Selected))
 		}
 		if result.Stack != nil {
-			fmt.Printf("Stack: %d filaments · %d runs · %.2f mm total\n", result.Stack.UniqueFilaments, len(result.Stack.Runs), result.Stack.PlannedDepth)
+			fmt.Printf("Stack: %d filaments Â· %d runs Â· %.2f mm total\n", result.Stack.UniqueFilaments, len(result.Stack.Runs), result.Stack.PlannedDepth)
 		}
 	}
 	for _, warning := range source.Metadata.Warnings {

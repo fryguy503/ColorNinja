@@ -113,9 +113,14 @@ and result ID instead of rerunning processing. Old media URLs cannot retrieve
 a newer document. Output writes use temporary siblings; atomic no-clobber
 hardlinks prevent racing writers from silently replacing existing files.
 
-Projects and preferences have schema version 1. Projects reference image and
-library files; relative paths are resolved against the project on opening.
-Presets store processing options. Palette reports include settings, hashes,
+Preferences and legacy JSON projects retain schema version 1. New portable projects
+use a version 2 ZIP manifest, embedded normalized source PNG, library snapshot,
+result PNG/JSON, and binary layer map. Entry allowlists, size limits, checksums,
+and result/stack consistency are checked before replacing a document. No archive
+paths are extracted. Legacy relative paths resolve against the project folder.
+Presets store processing options. Version 1 settings profiles store options, filters,
+and a library fingerprint for portable reuse. Optional companion profiles always
+use the request and inventory captured with the exported result. Palette reports include settings, hashes,
 metrics, and guidance/stack details; they are not project files. The original
 filament library is never written.
 

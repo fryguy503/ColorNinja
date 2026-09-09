@@ -11,6 +11,8 @@ artifacts/
 .env
 .env.*
 *.colorninja.json
+*.colorninja
+*.colorninja-profile.json
 personal_library.json
 settings.json
 .codex/

@@ -5,6 +5,7 @@ import {
   applyColorBudget,
   applyAutoDepth,
   applySavedPreset,
+  normalizeFilter,
   changeProcessingMode,
   applySmoothing,
   smoothingPreset,
@@ -12,6 +13,29 @@ import {
   displayedColorBudget,
   applyDisplayedColorBudget,
 } from "../src/settings.ts";
+
+test("presets can restore their saved workflow without mutating either settings object", () => {
+  const current = structuredClone(defaults);
+  const preset = structuredClone(defaults);
+  preset.mode = "stack";
+  preset.hueforge.autoDepth = true;
+  const restored = applySavedPreset(current, preset, false);
+  assert.equal(restored.mode, "stack");
+  assert.equal(restored.hueforge.autoDepth, true);
+  restored.hueforge.maxDepth = 8;
+  assert.equal(preset.hueforge.maxDepth, defaults.hueforge.maxDepth);
+  assert.equal(current.mode, "standard");
+  assert.equal(applySavedPreset(current, preset).mode, "standard");
+});
+
+test("profiles and portable projects normalize empty library filters", () => {
+  const filter = { includeUnowned: false, materialTypes: null, excludedIds: null, allowSecondary: false, avoidSilkMetallic: true };
+  const normalized = normalizeFilter(filter as any);
+  assert.deepEqual(normalized.materialTypes, []);
+  assert.deepEqual(normalized.excludedIds, []);
+  assert.equal(normalized.avoidSilkMetallic, true);
+  assert.equal(filter.materialTypes, null);
+});
 
 test("automatic depth retains the ceiling and snaps down when returning to manual depth", () => {
   const options = structuredClone(defaults);
