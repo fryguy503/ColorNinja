@@ -38,6 +38,25 @@ func surfaceFixture() (Options, Library, *image.NRGBA, []PaletteEntry) {
 	return o, lib, img, palette
 }
 
+func TestSurfacePenaltyCannotImproveByDilutingDetoursWithOpaquePadding(t *testing.T) {
+	o := DefaultOptions()
+	o.Mode = "stack"
+	o.HueForge.ReduceShowThrough = true
+	black, white, pink := RGB{}, RGB{255, 255, 255}, RGB{255, 0, 180}
+	selected := []RGB{black, white}
+	target := o.colorVectors(selected)
+	base := stackState{rgbs: []RGB{black, pink, white}, layers: []int{1, 2, 3}}
+	padded := stackState{rgbs: []RGB{black, black, black, pink, white}, layers: []int{1, 2, 3, 4, 5}}
+	edges := []stackBoundary{{a: 0, b: 1, weight: 1, geometryScale: 1}}
+	a := stackSurface(base, selected, []int{1, 3}, target, o, edges)
+	b := stackSurface(padded, selected, []int{1, 5}, target, o, edges)
+	aDetour := a.Penalty - 16*a.MeanHeightJumpMM*a.MeanHeightJumpMM
+	bDetour := b.Penalty - 16*b.MeanHeightJumpMM*b.MeanHeightJumpMM
+	if math.Abs(aDetour-bDetour) > 1e-8 || b.Penalty <= a.Penalty {
+		t.Fatal("opaque padding diluted appearance penalty", a, b)
+	}
+}
+
 func TestSurfacePlanningMovesNeighboringColorsTogether(t *testing.T) {
 	o, lib, img, palette := surfaceFixture()
 	ctx := context.Background()

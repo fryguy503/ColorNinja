@@ -22,6 +22,7 @@ type Comparison struct {
 	Swaps         int                  `json:"swaps"`
 	Depth         float64              `json:"depth"`
 	BoundaryStep  float64              `json:"boundaryStep"`
+	VolumeMM3     float64              `json:"volumeMm3"`
 	SHA256        string               `json:"rgbaSHA256"`
 }
 
@@ -39,6 +40,7 @@ func comparison(ctx context.Context, name, source string, req Request, r *engine
 	}
 	if r.SurfaceView != nil {
 		c.BoundaryStep = r.SurfaceView.MeanJumpMM
+		c.VolumeMM3 = r.SurfaceView.VolumeMM3
 	}
 	w, h := r.Image.Bounds().Dx(), r.Image.Bounds().Dy()
 	scale := float64(max(w, h)) / 640
@@ -95,7 +97,7 @@ func (s *Studio) ClearComparisons() error {
 // current rendered result. Applying a candidate uses the normal guarded path.
 func (s *Studio) ComparePlans(req Request) ([]Comparison, error) {
 	if req.Options.Mode != "stack" {
-		return nil, fmt.Errorf("plan comparisons require Color Match or Color Pop stack planning")
+		return nil, fmt.Errorf("plan comparisons require a filament stack workflow")
 	}
 	return s.comparePlans(req, "")
 }
@@ -109,6 +111,7 @@ func (s *Studio) comparePlans(req Request, excluded string) ([]Comparison, error
 	if err := req.Options.Validate(); err != nil {
 		return nil, err
 	}
+	req.Options = workflowOptions(req.Options)
 	s.mu.Lock()
 	if req.Revision != s.revision || s.image == nil {
 		s.mu.Unlock()
@@ -134,7 +137,11 @@ func (s *Studio) comparePlans(req Request, excluded string) ([]Comparison, error
 	if err != nil {
 		return nil, err
 	}
-	names := []string{"Best color", "Cleaner boundaries", "Fewer swaps", "Thinner print"}
+	names := []string{"Best color", "Cleaner boundaries", "Fewer swaps", "Thinner print", "Layer preference"}
+	fixed := req.Options.HeightMap.Mode != "" && req.Options.HeightMap.Mode != "color-match"
+	if fixed {
+		names = []string{"Best color at depth limit", "Cleaner boundaries", "Fewer swaps", "Thinner print", "Deeper search"}
+	}
 	if req.Options.ColorPop.Enabled {
 		names = []string{"Current bands", "More color height", "Fewer swaps", "Reversed regions"}
 		if req.Options.ColorPop.ColorPercent > 80 {
@@ -190,6 +197,9 @@ func (s *Studio) comparePlans(req Request, excluded string) ([]Comparison, error
 			}
 		} else {
 			o.HueForge.ReduceShowThrough = false
+			o.HueForge.OptimizeMaterial = false
+			o.HueForge.LayerPreference = ""
+			o.HueForge.ColorOrder = ""
 			o.HueForge.AutoDepth = false
 			// Snap an automatic ceiling down before evaluating fixed-depth plans.
 			if req.Options.HueForge.AutoDepth {
@@ -205,14 +215,26 @@ func (s *Studio) comparePlans(req Request, excluded string) ([]Comparison, error
 					o.Colors--
 				}
 			case 3:
-				if o.HueForge.OpticalModel != engine.FrontlitModel {
+				if !o.HueForge.SupportsHFP() {
 					continue
 				}
 				o.HueForge.AutoDepth = true
+			case 4:
+				if fixed {
+					o.HueForge.SearchEffort = "refine"
+					break
+				}
+				o.HueForge.SurfaceColorTolerance = max(5, o.HueForge.SurfaceColorTolerance)
+				o.HueForge.ColorOrder = req.Options.HueForge.ColorOrder
+				o.HueForge.LayerPreference = req.Options.HueForge.LayerPreference
+				if o.HueForge.LayerPreference == "" {
+					o.HueForge.LayerPreference = "auto"
+				}
+				o.HueForge.ReduceShowThrough = true
 			}
 		}
 		candidate.Options = o
-		s.emit("progress", Progress{req.ID, engine.Progress{Stage: "Comparing " + name, Fraction: float64(i) / 4}})
+		s.emit("progress", Progress{req.ID, engine.Progress{Stage: "Comparing " + name, Fraction: float64(i) / float64(len(names))}})
 		r, e := s.processor.Process(ctx, src, o, &candidateLib, nil)
 		if e != nil {
 			if ctx.Err() != nil {

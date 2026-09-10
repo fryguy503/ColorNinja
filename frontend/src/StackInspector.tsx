@@ -55,7 +55,14 @@ export function StackInspector({
       >
         <div className="stack-map-heading">
           <div>
-            <span className="eyebrow">FRONT LIT · STACK MAP</span>
+            <span className="eyebrow">
+              {plan.model?.includes("backlit")
+                ? "BACKLIT"
+                : plan.model?.includes("frontlit")
+                  ? "FRONT LIT"
+                  : "LEGACY"}{" "}
+              · STACK MAP
+            </span>
             <h2 id="stack-map-title">From filament to image</h2>
             <p>
               {plan.plannedDepth.toFixed(2)} mm · {view.layers.length} layers ·{" "}
@@ -79,9 +86,9 @@ export function StackInspector({
           <p className="stack-map-notice">
             Automatic depth selected {plan.plannedDepth.toFixed(2)} mm under
             your {plan.depthSelection.hardMaximum.toFixed(2)} mm ceiling.{" "}
-            {plan.depthSelection.comparedDepths} printable depths compared;
-            within {plan.depthSelection.tolerancePercent}% of the best color
-            score found.
+            {plan.depthSelection.comparedDepths} eligible depths compared;
+            within {plan.depthSelection.tolerancePercent}% of the best
+            optimization score found.
           </p>
         )}
         <p className="stack-map-hint">

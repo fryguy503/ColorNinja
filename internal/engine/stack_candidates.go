@@ -19,6 +19,32 @@ func diverseStacks(states []stackState, limit int) []stackState {
 	return out
 }
 
+// Move a whole filament run with its thickness. Swapping identities alone
+// leaves the old thicknesses behind and can miss a useful later accent band.
+func relocateRuns(s stackState, o Options, try func([]int, []int) error) error {
+	for from := range s.indices {
+		for to := range s.indices {
+			if from == to {
+				continue
+			}
+			ids, runs := append([]int(nil), s.indices...), append([]int(nil), s.runs...)
+			id, count := ids[from], runs[from]
+			ids, runs = append(ids[:from], ids[from+1:]...), append(runs[:from], runs[from+1:]...)
+			ids, runs = append(ids, 0), append(runs, 0)
+			copy(ids[to+1:], ids[to:len(ids)-1])
+			copy(runs[to+1:], runs[to:len(runs)-1])
+			ids[to], runs[to] = id, count
+			if runs[0] < o.HueForge.BaseLayers() {
+				continue
+			}
+			if err := try(ids, runs); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // Structural moves conserve depth and respect the unique-spool/run budgets.
 func structuralMoves(s stackState, lib Library, o Options, try func([]int, []int) error) error {
 	for p := 1; p < len(s.indices); p++ {

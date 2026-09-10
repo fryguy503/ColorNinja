@@ -29,7 +29,7 @@ func rebuildStack(ids, runs []int, lib Library, h HueForgeOptions) stackState {
 	s.rgbs = append(s.rgbs, s.current.RGB(h))
 	s.layers = append(s.layers, h.BaseLayers())
 	s.positions = append(s.positions, 1)
-	for layer := h.BaseLayers(); h.frontlit() && layer < runs[0]; layer++ {
+	for layer := h.BaseLayers(); h.compatibleOptics() && layer < runs[0]; layer++ {
 		rgb := s.current.step(lib.Filaments[ids[0]], h, false)
 		s.used++
 		s.rgbs = append(s.rgbs, rgb)
@@ -131,6 +131,11 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 		}
 		if o.HueForge.SearchEffort == "refine" {
 			if err := structuralMoves(best, lib, o, try); err != nil {
+				return best, err
+			}
+		}
+		if o.materialOptimization() || o.layerOptimization() {
+			if err := relocateRuns(best, o, try); err != nil {
 				return best, err
 			}
 		}

@@ -27,8 +27,11 @@ func TestComparisonsPreserveActiveResultAndPersistFour(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(alternatives) != 4 {
+	if len(alternatives) != 5 {
 		t.Fatal("missing alternatives", len(alternatives))
+	}
+	if alternatives[4].Options.HueForge.LayerPreference != "auto" || alternatives[4].VolumeMM3 <= 0 || alternatives[0].Options.HueForge.LayerPreference != "" {
+		t.Fatal("material comparison or measured volume missing")
 	}
 	if s.result != p.Result || s.resultRequest.ID != p.ID {
 		t.Fatal("comparison replaced active result")

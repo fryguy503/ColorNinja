@@ -206,13 +206,16 @@ export function ColorPopPanel({
               mode: e.target.value as Options["mode"],
               hueforge: {
                 ...options.hueforge,
-                opticalModel: "hueforge-0.9.4.3-frontlit-v1",
+                opticalModel:
+                  options.hueforge.opticalModel === "legacy-exponential"
+                    ? "hueforge-0.9.4.3-frontlit-v1"
+                    : options.hueforge.opticalModel,
               },
             })
           }
         >
           <option value="standard">Prepare image · no library needed</option>
-          <option value="stack">Plan filament stack · experimental</option>
+          <option value="stack">Plan filament stack</option>
         </select>
       </label>
       {options.mode === "stack" && (

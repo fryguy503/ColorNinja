@@ -43,6 +43,12 @@ func optimizationMetric(o Options, boundaries bool) string {
 	if boundaries {
 		unit += " with physical-scale boundary penalty"
 	}
+	if o.materialOptimization() {
+		unit += " with area-weighted material penalty"
+	}
+	if o.layerOptimization() {
+		unit += " with source-color layer preference"
+	}
 	return unit
 }
 func constraintIDs(lib Library, o Options) (required []int, base, top int, err error) {
@@ -96,6 +102,9 @@ func completeConstraints(ids []int, lib Library, o Options) bool {
 		return false
 	}
 	if top >= 0 && ids[len(ids)-1] != top {
+		return false
+	}
+	if top >= 0 && o.HueForge.HighlightOnlyAtTop && contains(ids[:len(ids)-1], top) {
 		return false
 	}
 	for _, id := range required {
@@ -158,7 +167,7 @@ func enforceHeightConstraints(ctx context.Context, s stackState, colors []RGB, l
 				continue
 			}
 			heights[p] = s.layers[j]
-			score := stackSurface(s, selected, heights, target, o, boundaries).Penalty
+			score := stackGeometryPenalty(ctx, s, selected, heights, target, o, boundaries)
 			if score < best {
 				best, winner, sample = score, id, j
 			}

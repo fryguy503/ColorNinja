@@ -11,6 +11,20 @@ import (
 	"testing"
 )
 
+func TestCLIPausedChannelModesRejectedBeforeWriting(t *testing.T) {
+	dir := t.TempDir()
+	for _, mode := range []string{"standard", "combo", "max-channel", "scaled-max-channel", "color-aware"} {
+		out := filepath.Join(dir, mode+".png")
+		err := argsRun(t, filepath.Join("..", "..", "internal", "engine", "testdata", "gradient.png"), "-o", out, "--hueforge-stack", "--height-mode", mode, "--hueforge-library", filepath.Join("..", "..", "internal", "engine", "testdata", "library.json"), "--quiet")
+		if err == nil || !strings.Contains(err.Error(), "temporarily disabled") {
+			t.Fatal("channel mode was not rejected", mode, err)
+		}
+		if _, err = os.Stat(out); !os.IsNotExist(err) {
+			t.Fatal("disabled workflow wrote output")
+		}
+	}
+}
+
 func TestCLIProjectAndSettingsProfilesRoundTrip(t *testing.T) {
 	dir := t.TempDir()
 	base := filepath.Join("..", "..", "internal", "engine", "testdata")
@@ -96,7 +110,7 @@ func TestCLIShowThroughOption(t *testing.T) {
 	dir := t.TempDir()
 	base := filepath.Join("..", "..", "internal", "engine", "testdata")
 	output, report, hfp := filepath.Join(dir, "stack.png"), filepath.Join(dir, "stack.json"), filepath.Join(dir, "stack.hfp")
-	if err := argsRun(t, filepath.Join(base, "gradient.png"), "-o", output, "--hueforge-library", filepath.Join(base, "library.json"), "--hueforge-stack", "--hueforge-reduce-show-through", "--hueforge-max-depth", "0.8", "--colors", "2", "--palette-json", report, "--hueforge-project", hfp, "--quiet"); err != nil {
+	if err := argsRun(t, filepath.Join(base, "gradient.png"), "-o", output, "--hueforge-library", filepath.Join(base, "library.json"), "--hueforge-stack", "--hueforge-reduce-show-through", "--hueforge-optimize-material", "--hueforge-max-depth", "0.8", "--colors", "2", "--palette-json", report, "--hueforge-project", hfp, "--quiet"); err != nil {
 		t.Fatal(err)
 	}
 	raw, err := os.ReadFile(report)
@@ -109,6 +123,9 @@ func TestCLIShowThroughOption(t *testing.T) {
 	}
 	if _, err := os.Stat(hfp); err != nil {
 		t.Fatal(err)
+	}
+	if !saved.Options.HueForge.OptimizeMaterial || saved.Result.SurfaceView.VolumeMM3 <= 0 {
+		t.Fatal("CLI did not enable material planning or report volume")
 	}
 }
 func TestCLIRejectsInvalidModeAndInputOverwrite(t *testing.T) {

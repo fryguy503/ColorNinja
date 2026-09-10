@@ -24,6 +24,10 @@ try {
     New-Item -ItemType Directory -Path $release | Out-Null
     Copy-Item -LiteralPath $gui -Destination (Join-Path $release 'ColorNinja.exe')
     Copy-Item -LiteralPath 'build\bin\colorninja-cli.exe', 'build\bin\BUILD-INFO.json' -Destination $release
+    if ($info.sourceManifestSHA256) {
+        if ((Get-FileHash -LiteralPath 'build/bin/SOURCE-MANIFEST.json' -Algorithm SHA256).Hash.ToLowerInvariant() -ne $info.sourceManifestSHA256) { throw 'Source manifest does not match build metadata.' }
+        Copy-Item -LiteralPath 'build/bin/SOURCE-MANIFEST.json' -Destination $release
+    }
     Copy-Item -LiteralPath 'docs\QUICKSTART.txt' -Destination (Join-Path $release 'START-HERE.txt')
     Copy-Item -LiteralPath 'README.md', 'LICENSE' -Destination $release
     Copy-Item -LiteralPath 'docs' -Destination (Join-Path $release 'docs') -Recurse

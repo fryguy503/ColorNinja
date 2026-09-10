@@ -1,4 +1,35 @@
-ColorNinja Studio 1.0.0-beta.7 - Windows x64
+ColorNinja Studio 1.0.0 - Windows x64
+
+Color Match and Color Pop are the current stack workflows. The new channel
+workflows are temporarily disabled. Older channel projects open in Color Match
+and need a new preview; the original saved file is unchanged.
+
+COLOR MATCH ORDERING
+Generate a Color Match preview, then use Tune > Color order. Drag source color
+groups into the preferred order: first is bottom, last is top. Arrow buttons
+also move groups. Order strength adjusts the preference from 0% (off) to 100%.
+Dragging or changing strength recalculates even with Auto preview off. Reset
+order returns to automatic color matching. Filament pins, color accuracy,
+available blends, and print limits still apply, so some groups may overlap.
+Projects and profiles save the requested order and weight. See docs/color-order.md.
+
+Backlit remains available in Layers. Simple reducer and Filament Guide remain
+available for image preparation. This release is unsigned. See docs/production-readiness.md for the software
+validation scope and remaining physical-print and native-dialog acceptance.
+
+Retained from the prior development build: automatic Color Match layer ordering.
+Enable Optimize layer order in Layers. The engine analyzes color regions and
+related shades, favors compact accents above surrounding colors, and checks
+actual mapped heights even when filaments return. No manual color ordering is
+required. Color fit and boundary appearance remain part of the objective.
+Enabling starts with a 5% color-score allowance, adjustable in Advanced.
+Dev.1 material-reduction settings migrate to this automatic preset. Solid volume
+remains a secondary measurement, not the automatic optimization target.
+Choose depth automatically now tests shortening interior runs too, checking the
+full blend path and appearance before removing layers. Desktop HFP exports use
+HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
+See docs/print-optimization.md for the overview and measured comparisons, and
+docs/releases/v1.0.0.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.
@@ -10,7 +41,7 @@ Global stack is now named Color Match. Existing projects, presets, and
 CLI commands retain their behavior. Color Match exports retain tuned Mesh Core
 TDs; Color Pop exports use a separate mesh encoding to preserve their bands.
 
-BETA: This is a testing release. Review output before printing.
+Review the planned heights and colors in HueForge before printing.
 
 Extract this folder, then double-click ColorNinja.exe.
 The GUI needs Microsoft Edge WebView2 Runtime. Python, Node.js, and Go are

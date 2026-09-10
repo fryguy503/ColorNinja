@@ -52,9 +52,9 @@ func hfpMaterial(f Filament) hfpFilament {
 
 func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta ImageMetadata) (map[string]any, error) {
 	if r == nil || r.Stack == nil || r.Image == nil || len(r.Stack.Runs) == 0 {
-		return nil, fmt.Errorf("HFP export requires a current Color Match or Color Pop stack preview")
+		return nil, fmt.Errorf("HFP export requires a current filament stack preview")
 	}
-	if r.ColorPop != nil {
+	if r.ColorPop != nil || r.HeightMap != nil || r.Stack.Options.backlit() {
 		var err error
 		r, err = colorPopMeshResult(ctx, r)
 		if err != nil {
@@ -65,8 +65,8 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 	if err := h.Validate(); err != nil {
 		return nil, err
 	}
-	if !h.frontlit() {
-		return nil, fmt.Errorf("HFP export requires the HueForge Front Lit optical model; refresh the preview with that model")
+	if !h.compatibleOptics() {
+		return nil, fmt.Errorf("HFP export requires a HueForge optical model; refresh the preview with that model")
 	}
 	if h.MaxLayers() > 998 {
 		return nil, fmt.Errorf("HFP export supports at most 998 planned layers plus import headroom")
@@ -162,7 +162,19 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		"red_shift": 0, "green_shift": 0, "blue_shift": 0, "ignore_red": false, "ignore_green": false, "ignore_blue": false,
 		"colorninja": map[string]any{"schemaVersion": 1, "meshCore": core, "opticalModel": h.OpticalModel, "rgbaSHA256": r.SHA256, "librarySHA256": r.Stack.LibrarySHA256, "alphaPolicy": "nonzero alpha becomes solid mesh", "meshRecomputed": mode != "color-match"},
 	}
+	if h.backlit() {
+		intensity := (h.TDScale - 1) * 100
+		if math.Abs(intensity-math.Round(intensity)) > 1e-7 {
+			return nil, fmt.Errorf("Backlit HFP export needs a TD scale in 0.01 increments")
+		}
+		doc["lighting_visualizer"] = 1
+		doc["light_intensity"] = int(math.Round(intensity))
+	}
 	if mode == "color-match" {
+		if r.HeightMap != nil {
+			doc["colorninja"].(map[string]any)["heightMap"] = r.HeightMap
+			doc["colorninja"].(map[string]any)["meshEncoding"] = "unique-rgb-keys-for-planned-heights"
+		}
 		if r.ColorPop != nil {
 			doc["colorninja"].(map[string]any)["colorPop"] = r.ColorPop
 			doc["colorninja"].(map[string]any)["meshEncoding"] = "unique-rgb-keys-for-fixed-color-pop-bands"

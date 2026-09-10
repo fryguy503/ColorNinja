@@ -1,0 +1,7221 @@
+{
+  "executableSHA256": "caff612e57571238eb23909b21c92be7da74ead54348bafbe22b38352ea0eb69",
+  "cases": [
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.298828125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.5478515625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.1494140625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.038671875
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.07089843750000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.0193359375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.2015625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.5271484375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.6724609375000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.396484375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.7146484375000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.6119140625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5218750000000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.362109375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.5994140625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.3857421875
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.72578125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.5041015625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.5361328125000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.62109375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.44414062499999996
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.11953125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.54609375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.0453125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.7458984375000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.6298828125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.7439453125000001
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.623046875
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.1919921875
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.3134765625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.4671875
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.48261718749999993
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.2578125
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.5005859375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.1833984375
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.431640625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.5640625
+    },
+    {
+      "mode": "standard",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.2484375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.80078125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.93359375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.59765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.6875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.87109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.65625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.86328125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.83984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.73046875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.13671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.9296875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.37109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.70703125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.94921875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.81640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.5703125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 0,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.64453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.82177734375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.884033203125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.784423828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.10634765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.114404296875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.101513671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.483984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.799755859375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7687011718750001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.47705078125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.878857421875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.891259765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5787109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.67939453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.852978515625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.612060546875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.834765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.618212890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.722900390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.802734375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.74091796875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.2671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.684375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.1138671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.889599609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.860595703125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.883251953125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.89404296875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.326318359375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.456298828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.6470703125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.832568359375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.3017578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.737451171875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.423779296875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.53564453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.7298828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 25,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.5455078125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.6474609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.77197265625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.57275390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.0837890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.09990234375000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.07412109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.38984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.70888671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7366210937500001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.4501953125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.8241210937500001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.79814453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.559765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.5736328125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.76845703125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.53662109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.7984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.58017578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.66064453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.7421875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.6419921875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.21796875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.63828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.091015625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.8416992187500001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.78369140625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.8368164062500001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.8037109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.28154296875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.40869140625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.587109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.7159179687499999
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.287109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.65849609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.34365234375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.5009765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.674609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 50,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.446484375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.47314453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.659912109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.361083984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.06123046875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.085400390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.046728515625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.295703125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.6180175781249999
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.704541015625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.42333984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.769384765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.705029296875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5408203125000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.46787109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.6839355468749999
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.461181640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.7621093750000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.5421386718750001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.5983886718750001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.681640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.5430664062499999
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.16875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.5921875000000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.0681640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.793798828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.706787109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.790380859375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.71337890625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.236767578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.361083984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.5271484375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.599267578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.2724609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.579541015625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.263525390625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.46630859375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.6193359375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 75,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.3474609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.298828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.5478515625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.1494140625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.038671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.07089843750000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.0193359375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.2015625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.5271484375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.6724609375000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.396484375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.7146484375000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.6119140625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5218750000000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.362109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.5994140625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.3857421875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.72578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.5041015625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.5361328125000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.62109375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.44414062499999996
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.11953125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.54609375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.0453125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.7458984375000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.6298828125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.7439453125000001
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.623046875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.1919921875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.3134765625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.4671875
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.48261718749999993
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.2578125
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.5005859375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.1833984375
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.431640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.5640625
+    },
+    {
+      "mode": "combo",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.2484375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.578125
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.80078125
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.93359375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.59765625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.6875
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.87109375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.65625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.86328125
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.83984375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.73046875
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.13671875
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.9296875
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.37109375
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.70703125
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.94921875
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.81640625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.5703125
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.64453125
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9960937796859071
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.33203125989530236
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.33203125989530236
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.33203125989530236
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.04296875128056854
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.04296875128056854
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.04296875128056854
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.27473959152121097
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.5481770996702835
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.6562500195577741
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.38671876152511686
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.6276041853707284
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.6367187689756975
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.4361979296663776
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.4908854312961921
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.6966146040940657
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.46614584722556174
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.7161458546761423
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.4778645975748077
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.47005209734197706
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.6614583530463278
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.5611979333916679
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.13932292081881315
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.5846354340901598
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.06770833535119891
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.6901041872333735
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.6250000186264515
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.6601562696741894
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.6223958518821746
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.21875000651925802
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.2278645901242271
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.481770847691223
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.5598958500195295
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.24479167396202683
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.3437500102445483
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.26822917466051877
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.4843750144354999
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.6132812682772055
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "rgb-weights",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.295572925475426
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9999999934669326
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.559749316202287
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.8360344380644416
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.370992543857988
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.1710807534590301
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.0978429944964689
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.14613704841550176
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.06484871062139909
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.27343503961551646
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.5879535259710386
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7382139695414058
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.47089735712382785
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.7776521411030087
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.7075682512751451
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5920551586695677
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.4297862783132455
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.6429671043407039
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.41667439676700335
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.7853493204136559
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.5451397744485803
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.687158510128602
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.6444551407400062
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.5375939347591118
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.2051903167629921
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.5690624604620925
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.0948248940300536
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.8345168058943515
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.7590842275356093
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.8284901276662209
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.6762042175582645
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.2470676118518292
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.44773595497929297
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.540570420807986
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.5392888705555033
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.317926184943001
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.6963348055252603
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.24954187896628577
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.4586634281800721
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.5806493148482783
+    },
+    {
+      "mode": "standard",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.38159100990191247
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.578125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.890625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.80078125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.93359375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.59765625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.6875
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.87109375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.65625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.86328125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.83984375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.73046875
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.13671875
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.9296875
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.37109375
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.70703125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.94921875
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.81640625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.5703125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 0,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.64453125
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9970703108667331
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.8870076415505718
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.9560789220161103
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.839818448464497
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.13652018836475752
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.12114043612411722
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.13321394960387545
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.11289186515534977
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.5019525099038791
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.8149571314927596
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7851394298853515
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.49565402678095694
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.8946083477757522
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.9151733128187862
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5962559771673919
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.6963137570783113
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.8638667760851759
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.6197935991917508
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.8496576426034139
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.628472443612145
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.7606568150321504
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.8085747226850015
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.7642812961897779
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.288602266690748
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.6901171776155232
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.1262452860075134
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.9117542014735879
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.8928960568839024
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.9043881569165553
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.9073323043895661
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.3400872154629573
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.48986367624482324
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.6654160427019965
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.8467362801388758
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31678623373575027
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.786388388881315
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.44031515724157144
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.5424002320450181
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.7340295162120696
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 25,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.5787961899754781
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9980468717334663
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.7779215331011435
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.9160640940322208
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.683543146928994
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.14804037672951503
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.11337462224823444
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.1375216492077509
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.09687748031069954
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.42578001980775826
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.7392892629855192
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7694976097707029
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.4874018035619139
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.8556229455515043
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.8459716256375726
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5948557043347839
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.6074712641566228
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.790233552170352
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.5520871983835016
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.828221535206828
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.6006948872242901
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.736157380064301
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.753868195370003
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.6887188423795558
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.260798283381496
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.6497656052310463
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.11577182201502681
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.8860084029471758
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.8482921137678047
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.8790888138331104
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.8302896087791323
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.3090806809259146
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.4758211024896465
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.623800835403993
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.7442538102777516
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31716621747150053
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.7563705277626301
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.3767240644831429
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.514487964090036
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.6829027824241392
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 50,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.5130611299509562
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9990234326001994
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.6688354246517152
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.8760492660483312
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.527267845393491
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.15956056509427258
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.10560880837235168
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.14182934881162632
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.08086309546604932
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.34960752971163733
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.663621394478279
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7538557896560544
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.4791495803428709
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.8166375433272566
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.7767699384563589
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5934554315021758
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.5186287712349341
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.716600328255528
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.48438079757525254
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.806785427810242
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.5729173308364353
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.7116579450964515
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.6991616680550047
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.6131563885693339
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.2329943000722441
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.6094140328465694
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.1052983580225402
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.8602626044207636
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.803688170651707
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.8537894707496656
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.7532469131686984
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.2780741463888719
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.46177852873446973
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.5821856281059895
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.6417713404166275
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31754620120725074
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.7263526666439453
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.3131329717247143
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.4865756961350541
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.6317760486362087
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 75,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.44732606992643437
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9999999934669326
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.559749316202287
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.8360344380644416
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.370992543857988
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.1710807534590301
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.0978429944964689
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.14613704841550176
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.06484871062139909
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.27343503961551646
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.5879535259710386
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.7382139695414058
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.47089735712382785
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.7776521411030087
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.7075682512751451
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.5920551586695677
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.4297862783132455
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.6429671043407039
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.41667439676700335
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.7853493204136559
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.5451397744485803
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.687158510128602
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.6444551407400062
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.5375939347591118
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.2051903167629921
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.5690624604620925
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.0948248940300536
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.8345168058943515
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.7590842275356093
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.8284901276662209
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.6762042175582645
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.2470676118518292
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.44773595497929297
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.540570420807986
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.5392888705555033
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.317926184943001
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.6963348055252603
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.24954187896628577
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.4586634281800721
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.5806493148482783
+    },
+    {
+      "mode": "combo",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.38159100990191247
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.99609375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.125
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.12890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.578125
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.890625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.80078125
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.93359375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.59765625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.6875
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.87109375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.65625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.86328125
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.83984375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.73046875
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.13671875
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.9375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.9296875
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.984375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.37109375
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.70703125
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.94921875
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.31640625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.81640625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.50390625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.5703125
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.78515625
+    },
+    {
+      "mode": "max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.64453125
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "brightness": 0.9960937796859071
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        255,
+        0,
+        0
+      ],
+      "brightness": 0.33203125989530236
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        255,
+        0
+      ],
+      "brightness": 0.33203125989530236
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        255
+      ],
+      "brightness": 0.33203125989530236
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        32,
+        32,
+        32
+      ],
+      "brightness": 0.0
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        0,
+        0
+      ],
+      "brightness": 0.04296875128056854
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        33,
+        0
+      ],
+      "brightness": 0.04296875128056854
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        0,
+        0,
+        33
+      ],
+      "brightness": 0.04296875128056854
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        42,
+        148
+      ],
+      "brightness": 0.27473959152121097
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        228,
+        94,
+        99
+      ],
+      "brightness": 0.5481770996702835
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        97,
+        205,
+        202
+      ],
+      "brightness": 0.6562500195577741
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        41,
+        127,
+        129
+      ],
+      "brightness": 0.38671876152511686
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        239,
+        187,
+        56
+      ],
+      "brightness": 0.6276041853707284
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        191,
+        252
+      ],
+      "brightness": 0.6367187689756975
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        153,
+        151,
+        31
+      ],
+      "brightness": 0.4361979296663776
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        39,
+        201
+      ],
+      "brightness": 0.4908854312961921
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        240,
+        93,
+        202
+      ],
+      "brightness": 0.6966146040940657
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        111,
+        71,
+        176
+      ],
+      "brightness": 0.46614584722556174
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        110,
+        217,
+        223
+      ],
+      "brightness": 0.7161458546761423
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        168,
+        122,
+        77
+      ],
+      "brightness": 0.4778645975748077
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        18,
+        201,
+        142
+      ],
+      "brightness": 0.47005209734197706
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        159,
+        221
+      ],
+      "brightness": 0.6614583530463278
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        215,
+        42,
+        174
+      ],
+      "brightness": 0.5611979333916679
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        81,
+        6,
+        20
+      ],
+      "brightness": 0.13932292081881315
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        187,
+        111,
+        151
+      ],
+      "brightness": 0.5846354340901598
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        12,
+        5,
+        35
+      ],
+      "brightness": 0.06770833535119891
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        103,
+        240,
+        187
+      ],
+      "brightness": 0.6901041872333735
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        27,
+        213,
+        240
+      ],
+      "brightness": 0.6250000186264515
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        128,
+        238,
+        141
+      ],
+      "brightness": 0.6601562696741894
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        252,
+        125,
+        101
+      ],
+      "brightness": 0.6223958518821746
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        21,
+        52,
+        95
+      ],
+      "brightness": 0.21875000651925802
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        16,
+        129,
+        30
+      ],
+      "brightness": 0.2278645901242271
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        46,
+        143,
+        181
+      ],
+      "brightness": 0.481770847691223
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        63,
+        124,
+        243
+      ],
+      "brightness": 0.5598958500195295
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        36,
+        81,
+        71
+      ],
+      "brightness": 0.24479167396202683
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        33,
+        209,
+        22
+      ],
+      "brightness": 0.3437500102445483
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        59,
+        18,
+        129
+      ],
+      "brightness": 0.26822917466051877
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        146,
+        82,
+        144
+      ],
+      "brightness": 0.4843750144354999
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        137,
+        133,
+        201
+      ],
+      "brightness": 0.6132812682772055
+    },
+    {
+      "mode": "scaled-max-channel",
+      "model": "perceptual",
+      "mixing": 100,
+      "rgb": [
+        165,
+        12,
+        50
+      ],
+      "brightness": 0.295572925475426
+    }
+  ]
+}

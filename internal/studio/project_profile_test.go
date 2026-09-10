@@ -130,6 +130,8 @@ func TestPortableProjectRestoresExactPixelsAndStackWithoutOriginalFiles(t *testi
 			r.Options.HueForge.MaxDepth = 1.04
 			r.Options.HueForge.AutoDepth = true
 			r.Options.HueForge.ReduceShowThrough = true
+			r.Options.HueForge.OptimizeMaterial = true
+			r.Options.HueForge.LayerPreference = "auto"
 			r.Options.HueForge.MaxRuns = 6
 			r.Filter.AvoidSilkMetallic = true
 			preview, err := s.Process(r)

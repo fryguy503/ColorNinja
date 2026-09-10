@@ -3,10 +3,14 @@ export type HueForgeOptions = {
   requiredFilaments?: string;
   baseFilament?: string;
   highlightFilament?: string;
+  highlightOnlyAtTop?: boolean;
   surfaceColorTolerance?: number;
   depthTolerance?: number;
   tdSensitivityPercent?: number;
-  opticalModel: "hueforge-0.9.4.3-frontlit-v1" | "legacy-exponential";
+  opticalModel:
+    | "hueforge-0.9.4.3-frontlit-v1"
+    | "hueforge-0.9.4.3-backlit-v1"
+    | "legacy-exponential";
   firstLayerHeight: number;
   lightPreset: "hueforge-default" | "neutral-white" | "warm-white" | "";
   layerHeight: number;
@@ -14,6 +18,18 @@ export type HueForgeOptions = {
   maxDepth: number;
   autoDepth: boolean;
   reduceShowThrough: boolean;
+  optimizeMaterial?: boolean;
+  colorOrder?: string;
+  colorOrderWeight?: number;
+  layerPreference?:
+    | ""
+    | "auto"
+    | "red"
+    | "yellow"
+    | "green"
+    | "cyan"
+    | "blue"
+    | "purple";
   analysisColors: number;
   beamWidth: number;
   maxRuns: number;
@@ -41,6 +57,55 @@ export type ColorPopOptions = {
   grayOnTop: boolean;
   gapLayers: number;
 };
+export type HeightMode =
+  | ""
+  | "color-match"
+  | "standard"
+  | "combo"
+  | "max-channel"
+  | "scaled-max-channel"
+  | "color-aware";
+export type HeightMapOptions = {
+  mode: HeightMode;
+  standardModel: "" | "rgb-weights" | "perceptual";
+  mixing: number;
+  fullRange: boolean;
+  brightness: number;
+  gamma: number;
+  invert: boolean;
+  channelOrder: string;
+  channelShift: [number, number, number];
+  ignore: [boolean, boolean, boolean];
+  bandWeights: [number, number, number];
+  invertBands: [boolean, boolean, boolean];
+  gapLayers: number;
+};
+export const defaultHeightMap: HeightMapOptions = {
+  mode: "",
+  standardModel: "",
+  mixing: 100,
+  fullRange: true,
+  brightness: 0,
+  gamma: 1,
+  invert: false,
+  channelOrder: "rgb",
+  channelShift: [0, 0, 0],
+  ignore: [false, false, false],
+  bandWeights: [1, 1, 1],
+  invertBands: [false, false, false],
+  gapLayers: 1,
+};
+export type HeightMapInfo = {
+  mode: HeightMode;
+  warning?: string;
+  bands: {
+    name: string;
+    channel: number;
+    startLayer: number;
+    endLayer: number;
+    pixelFraction: number;
+  }[];
+};
 export const defaultColorPop: ColorPopOptions = {
   enabled: false,
   selection: "existing",
@@ -62,6 +127,7 @@ export type ColorPopInfo = {
   qualityReference: string;
 };
 export type Options = {
+  heightMap?: HeightMapOptions;
   colorPop: ColorPopOptions;
   protectedColors?: string;
   calibrationNote?: string;
@@ -195,6 +261,7 @@ export type StackRun = {
   endHeight: number;
 };
 export type Result = {
+  heightMap?: HeightMapInfo;
   colorPop?: ColorPopInfo;
   calibration?: {
     note?: string;
@@ -225,6 +292,17 @@ export type Result = {
     globalStackGuaranteed: false;
   };
   stack?: {
+    colorOrder?: ColorOrderReport;
+    model?: string;
+    layerPreference?: {
+      family: string;
+      sourceFraction: number;
+      preferredMeanHeightMm: number;
+      referenceMeanHeightMm: number;
+      raisedFraction: number;
+      satisfied: boolean;
+      message: string;
+    };
     uniqueFilaments: number;
     runs: StackRun[];
     plannedDepth: number;
@@ -288,6 +366,7 @@ export type Request = {
   filter: Filter;
 };
 export const defaults: Options = {
+  heightMap: structuredClone(defaultHeightMap),
   colorPop: { ...defaultColorPop },
   colors: 8,
   totalColors: true,
@@ -318,6 +397,7 @@ export const defaults: Options = {
     baseFilament: "",
     highlightFilament: "",
     surfaceColorTolerance: 5,
+    colorOrderWeight: 50,
     depthTolerance: 1,
     analysisColors: 32,
     beamWidth: 24,
@@ -333,6 +413,15 @@ export const defaults: Options = {
   },
 };
 export type SurfaceView = {
+  volumeMm3?: number;
+  meanThicknessMm?: number;
+  materialRuns?: {
+    position: number;
+    volumeMm3: number;
+    buriedVolumeMm3: number;
+    visibleAreaFraction: number;
+    startCoverageFraction: number;
+  }[];
   width: number;
   height: number;
   layers: number[];
@@ -361,6 +450,7 @@ export type Comparison = {
   swaps: number;
   depth: number;
   boundaryStep: number;
+  volumeMm3?: number;
   rgbaSHA256: string;
 };
 export const emptyFilter: Filter = {
@@ -369,4 +459,17 @@ export const emptyFilter: Filter = {
   allowSecondary: false,
   avoidSilkMetallic: false,
   excludedIds: [],
+};
+
+export type ColorOrderReport = {
+  groups: {
+    key: string;
+    rgb: number[];
+    sourceFraction: number;
+    meanHeightMm: number;
+  }[];
+  requested: string;
+  weight: number;
+  orderedFraction: number;
+  message: string;
 };

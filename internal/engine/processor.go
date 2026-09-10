@@ -25,13 +25,16 @@ type Processor struct {
 }
 
 func processingKey(o Options) Options {
+	if !o.fixedHeights() {
+		o.HeightMap = HeightMapOptions{}
+	}
 	if !o.ColorPop.Enabled {
 		o.ColorPop = ColorPopOptions{}
 	}
 	o.CalibrationNote = ""
 	o.HueForge.MeshMode = ""
 	o.HueForge.MeshCore = ""
-	if !o.HueForge.ReduceShowThrough || o.Mode != "stack" {
+	if (!o.HueForge.ReduceShowThrough && !o.layerOptimization()) || o.Mode != "stack" {
 		o.HueForge.ExportWidthMM = 0
 		o.HueForge.MeshDetailMM = 0
 	}

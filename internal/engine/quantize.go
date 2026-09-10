@@ -442,6 +442,9 @@ func (p *Processor) process(ctx context.Context, src *image.NRGBA, o Options, li
 	if o.ColorPop.Enabled {
 		return processColorPop(ctx, src, o, lib, progress)
 	}
+	if o.fixedHeights() {
+		return processHeightMap(ctx, src, o, lib, progress)
+	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -465,8 +468,18 @@ func (p *Processor) process(ctx context.Context, src *image.NRGBA, o Options, li
 	if o.Mode == "guided" {
 		palette, result.Guidance, err = guide(ctx, palette, *lib, o, progress)
 	} else if o.Mode == "stack" {
+		if o.layerOptimization() {
+			if err = report(ctx, progress, "Analyzing color regions for layer order", .33); err != nil {
+				return nil, err
+			}
+			regions, e := analyzeLayerRegions(ctx, mappingSource)
+			if e != nil {
+				return nil, e
+			}
+			ctx = context.WithValue(ctx, layerRegionsKey{}, regions)
+		}
 		var boundaries []stackBoundary
-		if o.HueForge.ReduceShowThrough {
+		if o.HueForge.ReduceShowThrough || o.layerOptimization() {
 			if err = report(ctx, progress, "Analyzing neighboring colors", .34); err != nil {
 				return nil, err
 			}

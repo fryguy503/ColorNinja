@@ -316,6 +316,13 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	} else if entries["result.png"] != nil || entries["layers.bin"] != nil {
 		return Snapshot{}, fmt.Errorf("incomplete saved result")
 	}
+	// Validate old options and the saved image/layers before migrating the
+	// export choice. The cached preview's print plan remains intact.
+	paused := m.Options.HeightMap.Mode != "" && m.Options.HeightMap.Mode != "color-match"
+	m.Options = workflowOptions(m.Options)
+	if paused {
+		result = nil
+	} // Never display cached channel heights as a Color Match preview.
 	if result != nil && result.Stack != nil {
 		// Saved Mesh Core displays may describe Beta 5's opaque TD bands. Rebuild
 		// this derived export view after validating the exact saved pixels/heights.
@@ -333,6 +340,9 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	s.source.Path = ""
 	s.source.Name, s.source.Demo = filepath.Base(m.Name), false
 	s.warning = ""
+	if paused {
+		s.warning = "Channel workflows are temporarily disabled. This project is now set to Color Match; generate a new preview."
+	}
 	s.projectPath = path
 	s.embeddedLibrary = library
 	s.settings.LibraryPath = ""

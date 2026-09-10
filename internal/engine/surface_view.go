@@ -8,20 +8,23 @@ import (
 // SurfaceView is a bounded diagnostic grid, not a native HueForge mesh. Metrics
 // come from every source pixel; the displayed surface is explicitly sampled.
 type SurfaceView struct {
-	Width                int      `json:"width"`
-	Height               int      `json:"height"`
-	Layers               []uint16 `json:"layers"`
-	WidthMM              float64  `json:"widthMm"`
-	HeightMM             float64  `json:"heightMm"`
-	SpacingMM            float64  `json:"spacingMm"`
-	RequestedSpacingMM   float64  `json:"requestedSpacingMm"`
-	PixelMM              float64  `json:"pixelMm"`
-	Sampled              bool     `json:"sampled"`
-	MeanJumpMM           float64  `json:"meanJumpMm"`
-	P95JumpMM            float64  `json:"p95JumpMm"`
-	MaxJumpMM            float64  `json:"maxJumpMm"`
-	BoundaryAreaFraction float64  `json:"boundaryAreaFraction"`
-	SolidifiedFraction   float64  `json:"solidifiedFraction"`
+	VolumeMM3            float64       `json:"volumeMm3"`
+	MeanThicknessMM      float64       `json:"meanThicknessMm"`
+	MaterialRuns         []RunMaterial `json:"materialRuns"`
+	Width                int           `json:"width"`
+	Height               int           `json:"height"`
+	Layers               []uint16      `json:"layers"`
+	WidthMM              float64       `json:"widthMm"`
+	HeightMM             float64       `json:"heightMm"`
+	SpacingMM            float64       `json:"spacingMm"`
+	RequestedSpacingMM   float64       `json:"requestedSpacingMm"`
+	PixelMM              float64       `json:"pixelMm"`
+	Sampled              bool          `json:"sampled"`
+	MeanJumpMM           float64       `json:"meanJumpMm"`
+	P95JumpMM            float64       `json:"p95JumpMm"`
+	MaxJumpMM            float64       `json:"maxJumpMm"`
+	BoundaryAreaFraction float64       `json:"boundaryAreaFraction"`
+	SolidifiedFraction   float64       `json:"solidifiedFraction"`
 }
 
 func BuildSurfaceView(ctx context.Context, r *Result, o Options) (*SurfaceView, error) {
@@ -50,6 +53,7 @@ func BuildSurfaceView(ctx context.Context, r *Result, o Options) (*SurfaceView, 
 		}
 	}
 	hist := make([]float64, 4097)
+	tops := make([]float64, 4097)
 	visible, partial, edges := 0., 0., 0.
 	for y := 0; y < h; y++ {
 		if err := ctx.Err(); err != nil {
@@ -62,6 +66,9 @@ func BuildSurfaceView(ctx context.Context, r *Result, o Options) (*SurfaceView, 
 				continue
 			}
 			visible++
+			if int(layer) < len(tops) {
+				tops[layer]++
+			}
 			if a := r.Image.Pix[y*r.Image.Stride+x*4+3]; a > 0 && a < 255 {
 				partial++
 			}
@@ -103,5 +110,6 @@ func BuildSurfaceView(ctx context.Context, r *Result, o Options) (*SurfaceView, 
 			}
 		}
 	}
+	surfaceMaterial(v, tops, visible, r.Stack, o.HueForge)
 	return v, nil
 }

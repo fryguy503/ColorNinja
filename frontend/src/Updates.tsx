@@ -201,12 +201,12 @@ export function Updates({
                   })
                 }
               />
-              Include beta / alpha builds
+              Include release candidates, beta and alpha builds
             </label>
             <p className="field-help">
               {preferences.includePrereleases
                 ? "Includes stable releases and preview builds, which may have unfinished features."
-                : "Only stable releases are offered. Enable beta / alpha to follow preview builds."}
+                : "Only stable releases are offered. Enable preview builds to follow release candidates, betas and alphas."}
             </p>
             <div className="update-status" aria-live="polite">
               {busy

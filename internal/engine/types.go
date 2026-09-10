@@ -16,25 +16,26 @@ func (c RGB) Hex() string { return fmt.Sprintf("#%02X%02X%02X", c[0], c[1], c[2]
 type Vec [3]float64
 
 type Options struct {
-	ColorPop            ColorPopOptions `json:"colorPop"`
-	Colors              int             `json:"colors"`
-	TotalColors         bool            `json:"totalColors"`
-	ColorPriority       string          `json:"colorPriority"`
-	AnalysisMaxPixels   int             `json:"analysisMaxPixels"`
-	NeutralChroma       float64         `json:"neutralChroma"`
-	MinClusterFraction  float64         `json:"minClusterFraction"`
-	HistogramBits       int             `json:"histogramBits"`
-	Iterations          int             `json:"iterations"`
-	PreblurSigma        float64         `json:"preblurSigma"`
-	SmoothingColorSigma float64         `json:"smoothingColorSigma"`
-	LegacyColorPipeline bool            `json:"legacyColorPipeline"`
-	Mode                string          `json:"mode"`
-	GuidanceStrength    float64         `json:"guidanceStrength"`
-	TrueBlack           bool            `json:"trueBlack"`
-	PreserveDetails     bool            `json:"preserveDetails"`
-	ProtectedColors     string          `json:"protectedColors,omitempty"`
-	CalibrationNote     string          `json:"calibrationNote,omitempty"`
-	HueForge            HueForgeOptions `json:"hueforge"`
+	HeightMap           HeightMapOptions `json:"heightMap"`
+	ColorPop            ColorPopOptions  `json:"colorPop"`
+	Colors              int              `json:"colors"`
+	TotalColors         bool             `json:"totalColors"`
+	ColorPriority       string           `json:"colorPriority"`
+	AnalysisMaxPixels   int              `json:"analysisMaxPixels"`
+	NeutralChroma       float64          `json:"neutralChroma"`
+	MinClusterFraction  float64          `json:"minClusterFraction"`
+	HistogramBits       int              `json:"histogramBits"`
+	Iterations          int              `json:"iterations"`
+	PreblurSigma        float64          `json:"preblurSigma"`
+	SmoothingColorSigma float64          `json:"smoothingColorSigma"`
+	LegacyColorPipeline bool             `json:"legacyColorPipeline"`
+	Mode                string           `json:"mode"`
+	GuidanceStrength    float64          `json:"guidanceStrength"`
+	TrueBlack           bool             `json:"trueBlack"`
+	PreserveDetails     bool             `json:"preserveDetails"`
+	ProtectedColors     string           `json:"protectedColors,omitempty"`
+	CalibrationNote     string           `json:"calibrationNote,omitempty"`
+	HueForge            HueForgeOptions  `json:"hueforge"`
 }
 type HueForgeOptions struct {
 	OpticalModel          string  `json:"opticalModel"`
@@ -45,10 +46,15 @@ type HueForgeOptions struct {
 	MaxDepth              float64 `json:"maxDepth"`
 	AutoDepth             bool    `json:"autoDepth"`
 	ReduceShowThrough     bool    `json:"reduceShowThrough"`
+	OptimizeMaterial      bool    `json:"optimizeMaterial"`
+	LayerPreference       string  `json:"layerPreference"`
+	ColorOrder            string  `json:"colorOrder,omitempty"`
+	ColorOrderWeight      float64 `json:"colorOrderWeight"`
 	SearchEffort          string  `json:"searchEffort,omitempty"`
 	RequiredFilaments     string  `json:"requiredFilaments,omitempty"`
 	BaseFilament          string  `json:"baseFilament,omitempty"`
 	HighlightFilament     string  `json:"highlightFilament,omitempty"`
+	HighlightOnlyAtTop    bool    `json:"highlightOnlyAtTop"`
 	SurfaceColorTolerance float64 `json:"surfaceColorTolerance"`
 	DepthTolerance        float64 `json:"depthTolerance"`
 	TDSensitivityPercent  float64 `json:"tdSensitivityPercent"`
@@ -66,10 +72,10 @@ type HueForgeOptions struct {
 }
 
 func DefaultOptions() Options {
-	return Options{ColorPop: DefaultColorPopOptions(), Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
+	return Options{HeightMap: DefaultHeightMapOptions(), ColorPop: DefaultColorPopOptions(), Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
 		MinClusterFraction: .005, HistogramBits: 6, Iterations: 24,
 		PreblurSigma: 1.5, Mode: "standard", GuidanceStrength: .8, TrueBlack: true, PreserveDetails: true,
-		HueForge: HueForgeOptions{MeshCore: "compact-blends", SearchEffort: "preview", SurfaceColorTolerance: 5, DepthTolerance: 1, OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
+		HueForge: HueForgeOptions{ColorOrderWeight: 50, MeshCore: "compact-blends", SearchEffort: "preview", SurfaceColorTolerance: 5, DepthTolerance: 1, OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
 }
 
 // Older projects, presets, and preferences lack the new preservation options.
@@ -79,6 +85,7 @@ func (o *Options) UnmarshalJSON(data []byte) error {
 	type plainOptions Options
 	value := plainOptions(*o)
 	value.ColorPop = DefaultColorPopOptions()
+	value.HeightMap = DefaultHeightMapOptions()
 	if *o == (Options{}) {
 		value.TrueBlack = true
 		value.PreserveDetails = true
@@ -102,8 +109,24 @@ func (o *HueForgeOptions) UnmarshalJSON(data []byte) error {
 	v.MaxRuns = 0
 	v.AutoDepth = false
 	v.ReduceShowThrough = false
+	v.OptimizeMaterial = false
+	v.LayerPreference = ""
+	v.ColorOrder, v.ColorOrderWeight = "", 50
+	v.HighlightOnlyAtTop = false
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
+	}
+	// Dev.1 exposed material reduction as the layer-order control. Upgrade that
+	// saved choice, but respect an explicit new preference (including off).
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	if _, present := fields["layerPreference"]; !present && v.OptimizeMaterial {
+		v.LayerPreference, v.OptimizeMaterial = "auto", false
+		// The replacement is an appearance preset. Start it with the normal
+		// 5% allowance; explicit new-format tolerances remain authoritative.
+		v.SurfaceColorTolerance = max(5, v.SurfaceColorTolerance)
 	}
 	*o = HueForgeOptions(v)
 	o.MeshCore = o.meshCore()
@@ -129,6 +152,15 @@ func (o Options) selectionFraction() float64 {
 }
 func finite(v float64) bool { return !math.IsNaN(v) && !math.IsInf(v, 0) }
 func (o Options) Validate() error {
+	if err := o.HueForge.validateColorOrder(); err != nil {
+		return err
+	}
+	if err := o.HeightMap.validate(o); err != nil {
+		return err
+	}
+	if !validLayerPreference(o.HueForge.LayerPreference) {
+		return fmt.Errorf("layer preference must be auto, red, yellow, green, cyan, blue, purple, or empty")
+	}
 	if err := o.ColorPop.validate(o); err != nil {
 		return err
 	}
@@ -179,7 +211,10 @@ func (o Options) Validate() error {
 	}
 	return nil
 }
-func (o HueForgeOptions) frontlit() bool { return o.OpticalModel == FrontlitModel }
+func (o HueForgeOptions) frontlit() bool         { return o.OpticalModel == FrontlitModel }
+func (o HueForgeOptions) backlit() bool          { return o.OpticalModel == BacklitModel }
+func (o HueForgeOptions) compatibleOptics() bool { return o.frontlit() || o.backlit() }
+func (o HueForgeOptions) SupportsHFP() bool      { return o.compatibleOptics() }
 func (o HueForgeOptions) FirstHeight() float64 {
 	if o.FirstLayerHeight > 0 {
 		return o.FirstLayerHeight
@@ -205,6 +240,9 @@ func (o HueForgeOptions) MaxLayers() int {
 }
 func (o HueForgeOptions) TransitionLayers() int { return o.MaxLayers() - o.BaseLayers() }
 func (o HueForgeOptions) Validate() error {
+	if err := o.validateColorOrder(); err != nil {
+		return err
+	}
 	if !finite(o.TDSensitivityPercent) || o.TDSensitivityPercent < 0 || o.TDSensitivityPercent > 25 {
 		return fmt.Errorf("TD sensitivity must be between 0 and 25 percent")
 	}
@@ -217,8 +255,8 @@ func (o HueForgeOptions) Validate() error {
 	if len(o.RequiredFilaments) > 8192 || len(o.BaseFilament) > 256 || len(o.HighlightFilament) > 256 {
 		return fmt.Errorf("filament constraints are too long")
 	}
-	if o.AutoDepth && !o.frontlit() {
-		return fmt.Errorf("automatic depth requires the HueForge Front Lit model")
+	if o.AutoDepth && !o.compatibleOptics() {
+		return fmt.Errorf("automatic depth requires a HueForge optical model")
 	}
 	if o.MeshMode != "" && o.MeshMode != "color-match" && o.MeshMode != "combo" && o.MeshMode != "color-aware" && o.MeshMode != "color-pop" {
 		return fmt.Errorf("unknown HueForge mesh mode %q", o.MeshMode)
@@ -233,9 +271,9 @@ func (o HueForgeOptions) Validate() error {
 		return fmt.Errorf("maximum filament runs must be 0–64; 0 keeps one run per filament")
 	}
 	if o.LightPreset != "" && o.LightPreset != "hueforge-default" && o.LightPreset != "neutral-white" && o.LightPreset != "warm-white" {
-		return fmt.Errorf("unknown frontlit light preset %q", o.LightPreset)
+		return fmt.Errorf("unknown light preset %q", o.LightPreset)
 	}
-	if o.OpticalModel != "" && o.OpticalModel != LegacyModel && !o.frontlit() {
+	if o.OpticalModel != "" && o.OpticalModel != LegacyModel && !o.compatibleOptics() {
 		return fmt.Errorf("unknown optical model %q", o.OpticalModel)
 	}
 	if !finite(o.FirstLayerHeight) || o.FirstLayerHeight < 0 {
@@ -285,6 +323,7 @@ type Quality struct {
 	Max  float64 `json:"maxDeltaE76"`
 }
 type Result struct {
+	HeightMap    *HeightMapInfo   `json:"heightMap,omitempty"`
 	ColorPop     *ColorPopInfo    `json:"colorPop,omitempty"`
 	Calibration  *CalibrationInfo `json:"calibration,omitempty"`
 	SurfaceView  *SurfaceView     `json:"surfaceView,omitempty"`

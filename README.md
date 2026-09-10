@@ -9,23 +9,30 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current beta: `v1.0.0-beta.7` — Windows x64.** This release adds Color Pop
-with hue selection, separate color/grayscale height bands, and a full-color
-poppy demo. Global stack is now named Color Match. See the
-[Beta 7 notes](docs/releases/v1.0.0-beta.7.md) and [validation scope](docs/validation.md).
+**Version `v1.0.0` — Windows x64.** Color Match and Color Pop are the supported
+stack workflows. Color Match includes a draggable source-color order, adjustable
+preference strength, and automatic recalculation. Backlit, Simple reducer, Filament
+Guide, portable projects, and self-contained HueForge exports remain available.
+The new channel workflows are temporarily disabled.
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.7)
+[Download ColorNinja 1.0](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0)
+· [Release notes](docs/releases/v1.0.0.md)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
+
+See the [color-order guide](docs/color-order.md) and
+[validation and remaining acceptance work](docs/production-readiness.md).
+The Windows executables are unsigned. Software checks do not replace physical
+print validation with your own filaments and lighting.
 
 ## Download and run
 
 If you already have a Windows ZIP, start at step 2. Local builds are packaged in
 `build/releases`.
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.7)
-   and download **`ColorNinja-1.0.0-beta.7-windows-x64.zip`** from **Assets**.
+1. Open the [1.0 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0)
+   and download **`ColorNinja-1.0.0-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and choose **Export → Full-resolution PNG**.
@@ -45,7 +52,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.7-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
@@ -182,7 +189,7 @@ For frontend development:
 - [User guide](docs/user-guide.md): controls, shortcuts, libraries, projects, and CLI options.
 - [Architecture](docs/architecture.md): image engine, optical model, and desktop integration.
 - [Validation](docs/validation.md): automated coverage and manual testing boundaries.
-- [Beta release notes](docs/releases/v1.0.0-beta.7.md).
+- [1.0 release notes](docs/releases/v1.0.0.md).
 - [Python reference](docs/python-reference.md): the original implementation retained for regression comparison.
 
 Please [open an issue](https://github.com/fryguy503/ColorNinja/issues) with your

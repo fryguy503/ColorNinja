@@ -1,0 +1,7686 @@
+{
+  "executableSHA256": "caff612e57571238eb23909b21c92be7da74ead54348bafbe22b38352ea0eb69",
+  "functionRVA": "0x12ed0",
+  "cases": [
+    {
+      "rgb": [
+        130,
+        129,
+        156
+      ],
+      "shifts": [
+        0,
+        1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.43820312499999997,
+      "region": 1
+    },
+    {
+      "rgb": [
+        208,
+        147,
+        11
+      ],
+      "shifts": [
+        -1,
+        -255,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7707358410641505,
+      "region": 2
+    },
+    {
+      "rgb": [
+        98,
+        54,
+        187
+      ],
+      "shifts": [
+        255,
+        -1,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.126328125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        116,
+        160,
+        153
+      ],
+      "shifts": [
+        -80,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5724758026534669,
+      "region": 1
+    },
+    {
+      "rgb": [
+        8,
+        101,
+        32
+      ],
+      "shifts": [
+        -255,
+        -80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7705078125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        95,
+        244,
+        248
+      ],
+      "shifts": [
+        1,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6524434562901635,
+      "region": 2
+    },
+    {
+      "rgb": [
+        31,
+        63,
+        221
+      ],
+      "shifts": [
+        0,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2848828125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        100,
+        134,
+        114
+      ],
+      "shifts": [
+        -1,
+        -255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.7493412549988456,
+      "region": 2
+    },
+    {
+      "rgb": [
+        68,
+        238,
+        107
+      ],
+      "shifts": [
+        -1,
+        1,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8014453125000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        69,
+        129,
+        90
+      ],
+      "shifts": [
+        1,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.4647328620966063,
+      "region": 1
+    },
+    {
+      "rgb": [
+        4,
+        113,
+        89
+      ],
+      "shifts": [
+        0,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.27125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        158,
+        181,
+        132
+      ],
+      "shifts": [
+        -255,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.9259616372416088,
+      "region": 2
+    },
+    {
+      "rgb": [
+        60,
+        222,
+        195
+      ],
+      "shifts": [
+        80,
+        0,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.725390625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        228,
+        7,
+        94
+      ],
+      "shifts": [
+        0,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.06435721292555986,
+      "region": 1
+    },
+    {
+      "rgb": [
+        31,
+        184,
+        59
+      ],
+      "shifts": [
+        0,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.46351562500000004,
+      "region": 1
+    },
+    {
+      "rgb": [
+        120,
+        140,
+        153
+      ],
+      "shifts": [
+        1,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.3955061311073101,
+      "region": 2
+    },
+    {
+      "rgb": [
+        226,
+        165,
+        165
+      ],
+      "shifts": [
+        80,
+        -80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5220703125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        72,
+        187,
+        178
+      ],
+      "shifts": [
+        255,
+        255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9601066159938164,
+      "region": 1
+    },
+    {
+      "rgb": [
+        105,
+        111,
+        4
+      ],
+      "shifts": [
+        -255,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.905859375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        131,
+        65,
+        220
+      ],
+      "shifts": [
+        -1,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.46430281066782536,
+      "region": 2
+    },
+    {
+      "rgb": [
+        20,
+        116,
+        127
+      ],
+      "shifts": [
+        0,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.34222656250000005,
+      "region": 2
+    },
+    {
+      "rgb": [
+        166,
+        159,
+        57
+      ],
+      "shifts": [
+        0,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6300751543052991,
+      "region": 0
+    },
+    {
+      "rgb": [
+        24,
+        115,
+        127
+      ],
+      "shifts": [
+        80,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3473828125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        67,
+        145,
+        184
+      ],
+      "shifts": [
+        -1,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.4973316218299317,
+      "region": 1
+    },
+    {
+      "rgb": [
+        63,
+        65,
+        233
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.364765625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        80,
+        152,
+        166
+      ],
+      "shifts": [
+        -1,
+        80,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.7968668852601731,
+      "region": 1
+    },
+    {
+      "rgb": [
+        118,
+        143,
+        230
+      ],
+      "shifts": [
+        1,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2977734375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        122,
+        242,
+        171
+      ],
+      "shifts": [
+        80,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.7751022430557127,
+      "region": 0
+    },
+    {
+      "rgb": [
+        9,
+        99,
+        175
+      ],
+      "shifts": [
+        80,
+        -80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3668359375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        109,
+        251,
+        69
+      ],
+      "shifts": [
+        1,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.84817347177816,
+      "region": 1
+    },
+    {
+      "rgb": [
+        227,
+        45,
+        130
+      ],
+      "shifts": [
+        1,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5225390625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        148,
+        174,
+        238
+      ],
+      "shifts": [
+        80,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.9677195959947893,
+      "region": 1
+    },
+    {
+      "rgb": [
+        79,
+        141,
+        240
+      ],
+      "shifts": [
+        80,
+        255,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.290390625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        235,
+        8,
+        238
+      ],
+      "shifts": [
+        -255,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.37363073444285344,
+      "region": 2
+    },
+    {
+      "rgb": [
+        159,
+        237,
+        237
+      ],
+      "shifts": [
+        80,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.722109375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        28,
+        180,
+        165
+      ],
+      "shifts": [
+        80,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6635522746728186,
+      "region": 1
+    },
+    {
+      "rgb": [
+        200,
+        156,
+        39
+      ],
+      "shifts": [
+        -1,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6202343750000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        121,
+        181,
+        132
+      ],
+      "shifts": [
+        1,
+        255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6061350025227445,
+      "region": 1
+    },
+    {
+      "rgb": [
+        254,
+        41,
+        51
+      ],
+      "shifts": [
+        1,
+        -255,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3931640625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        1,
+        148,
+        248
+      ],
+      "shifts": [
+        1,
+        255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5036023473594993,
+      "region": 1
+    },
+    {
+      "rgb": [
+        129,
+        86,
+        220
+      ],
+      "shifts": [
+        1,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2874609375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        217,
+        215,
+        116
+      ],
+      "shifts": [
+        0,
+        -80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.7790039491659793,
+      "region": 0
+    },
+    {
+      "rgb": [
+        50,
+        168,
+        133
+      ],
+      "shifts": [
+        -1,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.172734375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        63,
+        218,
+        53
+      ],
+      "shifts": [
+        80,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.21154395187003913,
+      "region": 0
+    },
+    {
+      "rgb": [
+        245,
+        225,
+        121
+      ],
+      "shifts": [
+        1,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8207421874999999,
+      "region": 0
+    },
+    {
+      "rgb": [
+        0,
+        225,
+        143
+      ],
+      "shifts": [
+        -255,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8833892528492459,
+      "region": 2
+    },
+    {
+      "rgb": [
+        24,
+        45,
+        21
+      ],
+      "shifts": [
+        255,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.0309375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        96,
+        41,
+        237
+      ],
+      "shifts": [
+        -1,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5447547714548544,
+      "region": 2
+    },
+    {
+      "rgb": [
+        200,
+        142,
+        100
+      ],
+      "shifts": [
+        -255,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.668671875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        244,
+        128,
+        41
+      ],
+      "shifts": [
+        80,
+        255,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.4674199846110458,
+      "region": 1
+    },
+    {
+      "rgb": [
+        111,
+        87,
+        170
+      ],
+      "shifts": [
+        -255,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8104687500000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        90,
+        199,
+        196
+      ],
+      "shifts": [
+        1,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.7163308444105551,
+      "region": 1
+    },
+    {
+      "rgb": [
+        223,
+        17,
+        67
+      ],
+      "shifts": [
+        0,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7537500000000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        63,
+        10,
+        14
+      ],
+      "shifts": [
+        0,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.3486402834060948,
+      "region": 1
+    },
+    {
+      "rgb": [
+        26,
+        31,
+        138
+      ],
+      "shifts": [
+        255,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3287109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        81,
+        20,
+        19
+      ],
+      "shifts": [
+        -1,
+        -255,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6442970059744283,
+      "region": 2
+    },
+    {
+      "rgb": [
+        154,
+        99,
+        146
+      ],
+      "shifts": [
+        255,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3287109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        152,
+        244,
+        19
+      ],
+      "shifts": [
+        0,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.04932306980117519,
+      "region": 2
+    },
+    {
+      "rgb": [
+        242,
+        167,
+        37
+      ],
+      "shifts": [
+        0,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.657421875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        83,
+        88,
+        215
+      ],
+      "shifts": [
+        80,
+        1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5348517455938012,
+      "region": 2
+    },
+    {
+      "rgb": [
+        11,
+        169,
+        201
+      ],
+      "shifts": [
+        0,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2591015625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        83,
+        95,
+        194
+      ],
+      "shifts": [
+        -1,
+        -255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.695925092214407,
+      "region": 2
+    },
+    {
+      "rgb": [
+        22,
+        183,
+        124
+      ],
+      "shifts": [
+        -255,
+        80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.89296875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        157,
+        247,
+        23
+      ],
+      "shifts": [
+        255,
+        255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9601066159938164,
+      "region": 1
+    },
+    {
+      "rgb": [
+        225,
+        7,
+        131
+      ],
+      "shifts": [
+        0,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.16886718750000002,
+      "region": 2
+    },
+    {
+      "rgb": [
+        166,
+        118,
+        8
+      ],
+      "shifts": [
+        -1,
+        1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9582043122694308,
+      "region": 1
+    },
+    {
+      "rgb": [
+        192,
+        59,
+        210
+      ],
+      "shifts": [
+        -80,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4934375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        235,
+        80,
+        73
+      ],
+      "shifts": [
+        -80,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6414735279737228,
+      "region": 0
+    },
+    {
+      "rgb": [
+        242,
+        11,
+        85
+      ],
+      "shifts": [
+        -1,
+        -1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.33039062500000005,
+      "region": 0
+    },
+    {
+      "rgb": [
+        177,
+        55,
+        231
+      ],
+      "shifts": [
+        80,
+        80,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.47111304302954843,
+      "region": 0
+    },
+    {
+      "rgb": [
+        14,
+        249,
+        221
+      ],
+      "shifts": [
+        -255,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.668671875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        109,
+        56,
+        157
+      ],
+      "shifts": [
+        1,
+        -80,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5617313418677125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        183,
+        179,
+        169
+      ],
+      "shifts": [
+        -1,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.219140625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        192,
+        231,
+        134
+      ],
+      "shifts": [
+        0,
+        0,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.20413036448128866,
+      "region": 2
+    },
+    {
+      "rgb": [
+        55,
+        243,
+        94
+      ],
+      "shifts": [
+        80,
+        0,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.616640625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        205,
+        4,
+        115
+      ],
+      "shifts": [
+        -255,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8443543601899214,
+      "region": 1
+    },
+    {
+      "rgb": [
+        37,
+        131,
+        254
+      ],
+      "shifts": [
+        0,
+        1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4473046875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        234,
+        225,
+        223
+      ],
+      "shifts": [
+        0,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8964801340506239,
+      "region": 0
+    },
+    {
+      "rgb": [
+        48,
+        248,
+        23
+      ],
+      "shifts": [
+        -1,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.42089843750000006,
+      "region": 1
+    },
+    {
+      "rgb": [
+        206,
+        90,
+        103
+      ],
+      "shifts": [
+        1,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5362929452572203,
+      "region": 0
+    },
+    {
+      "rgb": [
+        211,
+        50,
+        24
+      ],
+      "shifts": [
+        1,
+        -80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2384765625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        52,
+        185,
+        68
+      ],
+      "shifts": [
+        -1,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9614639290531134,
+      "region": 1
+    },
+    {
+      "rgb": [
+        110,
+        127,
+        151
+      ],
+      "shifts": [
+        -255,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8091796875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        127,
+        76,
+        223
+      ],
+      "shifts": [
+        80,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5838242233545743,
+      "region": 2
+    },
+    {
+      "rgb": [
+        110,
+        10,
+        232
+      ],
+      "shifts": [
+        0,
+        1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3390625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        93,
+        216,
+        118
+      ],
+      "shifts": [
+        80,
+        -255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5615105614204157,
+      "region": 0
+    },
+    {
+      "rgb": [
+        132,
+        181,
+        252
+      ],
+      "shifts": [
+        0,
+        -1,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7353515625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        171,
+        227,
+        109
+      ],
+      "shifts": [
+        -80,
+        -80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5432847475370719,
+      "region": 1
+    },
+    {
+      "rgb": [
+        244,
+        168,
+        23
+      ],
+      "shifts": [
+        255,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.31453125000000004,
+      "region": 0
+    },
+    {
+      "rgb": [
+        229,
+        237,
+        180
+      ],
+      "shifts": [
+        0,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.9107781948961449,
+      "region": 1
+    },
+    {
+      "rgb": [
+        37,
+        136,
+        240
+      ],
+      "shifts": [
+        80,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6408203125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        248,
+        93,
+        181
+      ],
+      "shifts": [
+        1,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5910838628706181,
+      "region": 0
+    },
+    {
+      "rgb": [
+        109,
+        104,
+        179
+      ],
+      "shifts": [
+        -255,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.807890625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        140,
+        205,
+        106
+      ],
+      "shifts": [
+        255,
+        80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.39329658765964975,
+      "region": 0
+    },
+    {
+      "rgb": [
+        183,
+        25,
+        104
+      ],
+      "shifts": [
+        80,
+        1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.238515625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        101,
+        18,
+        111
+      ],
+      "shifts": [
+        -255,
+        -1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8406833739898601,
+      "region": 1
+    },
+    {
+      "rgb": [
+        72,
+        228,
+        17
+      ],
+      "shifts": [
+        -80,
+        255,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.44179687500000003,
+      "region": 1
+    },
+    {
+      "rgb": [
+        41,
+        76,
+        114
+      ],
+      "shifts": [
+        -80,
+        80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8524956628434666,
+      "region": 1
+    },
+    {
+      "rgb": [
+        241,
+        6,
+        179
+      ],
+      "shifts": [
+        255,
+        255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.33667968750000005,
+      "region": 0
+    },
+    {
+      "rgb": [
+        181,
+        151,
+        178
+      ],
+      "shifts": [
+        0,
+        -80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5116019182226463,
+      "region": 0
+    },
+    {
+      "rgb": [
+        30,
+        204,
+        207
+      ],
+      "shifts": [
+        -1,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.334140625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        195,
+        66,
+        117
+      ],
+      "shifts": [
+        -255,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.9498763694582882,
+      "region": 2
+    },
+    {
+      "rgb": [
+        100,
+        121,
+        209
+      ],
+      "shifts": [
+        80,
+        -80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4527734375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        134,
+        14,
+        206
+      ],
+      "shifts": [
+        255,
+        -255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.559749316202287,
+      "region": 0
+    },
+    {
+      "rgb": [
+        32,
+        76,
+        25
+      ],
+      "shifts": [
+        255,
+        80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.04125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        97,
+        42,
+        37
+      ],
+      "shifts": [
+        0,
+        -255,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6541211248772654,
+      "region": 0
+    },
+    {
+      "rgb": [
+        30,
+        58,
+        208
+      ],
+      "shifts": [
+        0,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.734453125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        247,
+        84,
+        118
+      ],
+      "shifts": [
+        -80,
+        0,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5207518643657968,
+      "region": 2
+    },
+    {
+      "rgb": [
+        115,
+        155,
+        42
+      ],
+      "shifts": [
+        0,
+        -255,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3828515625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        34,
+        121,
+        209
+      ],
+      "shifts": [
+        -1,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9847911433386902,
+      "region": 1
+    },
+    {
+      "rgb": [
+        178,
+        126,
+        106
+      ],
+      "shifts": [
+        -80,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.43164062500000006,
+      "region": 1
+    },
+    {
+      "rgb": [
+        64,
+        4,
+        30
+      ],
+      "shifts": [
+        0,
+        1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.17388136280913985,
+      "region": 0
+    },
+    {
+      "rgb": [
+        11,
+        1,
+        194
+      ],
+      "shifts": [
+        255,
+        80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6850390625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        0,
+        117,
+        62
+      ],
+      "shifts": [
+        -255,
+        1,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.89368567949626,
+      "region": 2
+    },
+    {
+      "rgb": [
+        43,
+        125,
+        250
+      ],
+      "shifts": [
+        0,
+        -80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8833984375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        82,
+        218,
+        162
+      ],
+      "shifts": [
+        1,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.9109716914781407,
+      "region": 0
+    },
+    {
+      "rgb": [
+        115,
+        103,
+        167
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3971875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        155,
+        11,
+        167
+      ],
+      "shifts": [
+        80,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.20455548280027375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        219,
+        197,
+        136
+      ],
+      "shifts": [
+        -80,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6148046875000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        208,
+        66,
+        242
+      ],
+      "shifts": [
+        80,
+        -255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5972618241841563,
+      "region": 0
+    },
+    {
+      "rgb": [
+        221,
+        132,
+        38
+      ],
+      "shifts": [
+        1,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.51046875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        181,
+        66,
+        154
+      ],
+      "shifts": [
+        -1,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5418547655243672,
+      "region": 2
+    },
+    {
+      "rgb": [
+        220,
+        117,
+        101
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.46605468750000006,
+      "region": 0
+    },
+    {
+      "rgb": [
+        224,
+        171,
+        61
+      ],
+      "shifts": [
+        -80,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6387229191897533,
+      "region": 1
+    },
+    {
+      "rgb": [
+        178,
+        49,
+        222
+      ],
+      "shifts": [
+        -1,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9522656250000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        164,
+        10,
+        253
+      ],
+      "shifts": [
+        255,
+        -80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5368620660276744,
+      "region": 0
+    },
+    {
+      "rgb": [
+        11,
+        199,
+        86
+      ],
+      "shifts": [
+        -1,
+        1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.1148046875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        151,
+        204,
+        69
+      ],
+      "shifts": [
+        -80,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.689950338635568,
+      "region": 1
+    },
+    {
+      "rgb": [
+        153,
+        110,
+        139
+      ],
+      "shifts": [
+        80,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6256250000000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        240,
+        150,
+        171
+      ],
+      "shifts": [
+        1,
+        80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.36661937832606134,
+      "region": 2
+    },
+    {
+      "rgb": [
+        29,
+        9,
+        103
+      ],
+      "shifts": [
+        0,
+        0,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.18082031250000002,
+      "region": 2
+    },
+    {
+      "rgb": [
+        218,
+        188,
+        128
+      ],
+      "shifts": [
+        80,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6441604585710612,
+      "region": 1
+    },
+    {
+      "rgb": [
+        195,
+        6,
+        22
+      ],
+      "shifts": [
+        0,
+        1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.39214843750000006,
+      "region": 0
+    },
+    {
+      "rgb": [
+        158,
+        89,
+        129
+      ],
+      "shifts": [
+        0,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9690107590730211,
+      "region": 1
+    },
+    {
+      "rgb": [
+        177,
+        181,
+        162
+      ],
+      "shifts": [
+        0,
+        80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.47242187500000005,
+      "region": 1
+    },
+    {
+      "rgb": [
+        117,
+        53,
+        103
+      ],
+      "shifts": [
+        0,
+        255,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.2082899664018928,
+      "region": 1
+    },
+    {
+      "rgb": [
+        104,
+        226,
+        186
+      ],
+      "shifts": [
+        255,
+        1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5698046875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        252,
+        100,
+        49
+      ],
+      "shifts": [
+        -80,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5007512080899391,
+      "region": 0
+    },
+    {
+      "rgb": [
+        255,
+        128,
+        43
+      ],
+      "shifts": [
+        -80,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7242968750000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        8,
+        207,
+        212
+      ],
+      "shifts": [
+        -80,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8837039469032829,
+      "region": 2
+    },
+    {
+      "rgb": [
+        140,
+        10,
+        192
+      ],
+      "shifts": [
+        80,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5475000000000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        221,
+        68,
+        34
+      ],
+      "shifts": [
+        255,
+        80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.39329658765964975,
+      "region": 0
+    },
+    {
+      "rgb": [
+        18,
+        36,
+        33
+      ],
+      "shifts": [
+        255,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.023203125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        147,
+        108,
+        161
+      ],
+      "shifts": [
+        1,
+        -1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5166743499828745,
+      "region": 2
+    },
+    {
+      "rgb": [
+        135,
+        239,
+        82
+      ],
+      "shifts": [
+        -255,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6673828125000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        13,
+        96,
+        245
+      ],
+      "shifts": [
+        -1,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.4670701145698315,
+      "region": 2
+    },
+    {
+      "rgb": [
+        131,
+        110,
+        185
+      ],
+      "shifts": [
+        -80,
+        -1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5392187500000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        115,
+        226,
+        248
+      ],
+      "shifts": [
+        0,
+        1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8253660778485667,
+      "region": 2
+    },
+    {
+      "rgb": [
+        244,
+        123,
+        10
+      ],
+      "shifts": [
+        255,
+        0,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.31453125000000004,
+      "region": 0
+    },
+    {
+      "rgb": [
+        35,
+        125,
+        110
+      ],
+      "shifts": [
+        -1,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.4560502430656133,
+      "region": 1
+    },
+    {
+      "rgb": [
+        112,
+        195,
+        230
+      ],
+      "shifts": [
+        0,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9638671875000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        148,
+        84,
+        71
+      ],
+      "shifts": [
+        255,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.3371187917765098,
+      "region": 0
+    },
+    {
+      "rgb": [
+        24,
+        136,
+        232
+      ],
+      "shifts": [
+        -1,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.510625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        122,
+        195,
+        2
+      ],
+      "shifts": [
+        0,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6495756841052687,
+      "region": 1
+    },
+    {
+      "rgb": [
+        116,
+        48,
+        170
+      ],
+      "shifts": [
+        0,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.657421875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        145,
+        98,
+        71
+      ],
+      "shifts": [
+        255,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.33087681445616085,
+      "region": 0
+    },
+    {
+      "rgb": [
+        215,
+        94,
+        66
+      ],
+      "shifts": [
+        1,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.48574218750000003,
+      "region": 0
+    },
+    {
+      "rgb": [
+        128,
+        45,
+        8
+      ],
+      "shifts": [
+        255,
+        -80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.4619583381834876,
+      "region": 0
+    },
+    {
+      "rgb": [
+        56,
+        8,
+        95
+      ],
+      "shifts": [
+        1,
+        -255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6654296875000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        119,
+        239,
+        46
+      ],
+      "shifts": [
+        255,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.4432324062224409,
+      "region": 0
+    },
+    {
+      "rgb": [
+        17,
+        154,
+        241
+      ],
+      "shifts": [
+        1,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.20582031250000002,
+      "region": 1
+    },
+    {
+      "rgb": [
+        61,
+        161,
+        60
+      ],
+      "shifts": [
+        -1,
+        -255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.9655241798200993,
+      "region": 2
+    },
+    {
+      "rgb": [
+        72,
+        12,
+        79
+      ],
+      "shifts": [
+        80,
+        -80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.41121093750000004,
+      "region": 0
+    },
+    {
+      "rgb": [
+        181,
+        251,
+        169
+      ],
+      "shifts": [
+        80,
+        80,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8898960938126079,
+      "region": 1
+    },
+    {
+      "rgb": [
+        222,
+        165,
+        139
+      ],
+      "shifts": [
+        -1,
+        -80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5782421875000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        133,
+        92,
+        161
+      ],
+      "shifts": [
+        0,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.46941608828055476,
+      "region": 2
+    },
+    {
+      "rgb": [
+        14,
+        71,
+        227
+      ],
+      "shifts": [
+        0,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.657421875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        93,
+        225,
+        9
+      ],
+      "shifts": [
+        -1,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5241019707031367,
+      "region": 1
+    },
+    {
+      "rgb": [
+        100,
+        255,
+        239
+      ],
+      "shifts": [
+        0,
+        -1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5649609375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        29,
+        134,
+        76
+      ],
+      "shifts": [
+        0,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.4600092842467762,
+      "region": 1
+    },
+    {
+      "rgb": [
+        195,
+        114,
+        174
+      ],
+      "shifts": [
+        -80,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7057031250000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        137,
+        48,
+        171
+      ],
+      "shifts": [
+        80,
+        -80,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.492329915492553,
+      "region": 0
+    },
+    {
+      "rgb": [
+        170,
+        165,
+        170
+      ],
+      "shifts": [
+        -255,
+        -255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5478515625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        246,
+        43,
+        20
+      ],
+      "shifts": [
+        -1,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.652945382662194,
+      "region": 2
+    },
+    {
+      "rgb": [
+        203,
+        48,
+        233
+      ],
+      "shifts": [
+        80,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.52265625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        45,
+        240,
+        58
+      ],
+      "shifts": [
+        255,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.28926363232050156,
+      "region": 0
+    },
+    {
+      "rgb": [
+        168,
+        176,
+        187
+      ],
+      "shifts": [
+        -80,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.37886718750000004,
+      "region": 2
+    },
+    {
+      "rgb": [
+        38,
+        171,
+        132
+      ],
+      "shifts": [
+        -255,
+        -255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.370992543857988,
+      "region": 2
+    },
+    {
+      "rgb": [
+        217,
+        23,
+        231
+      ],
+      "shifts": [
+        0,
+        80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.75890625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        128,
+        192,
+        21
+      ],
+      "shifts": [
+        0,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6461912106768414,
+      "region": 1
+    },
+    {
+      "rgb": [
+        154,
+        158,
+        121
+      ],
+      "shifts": [
+        -255,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8658984375000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        172,
+        12,
+        166
+      ],
+      "shifts": [
+        -255,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8834286001682294,
+      "region": 2
+    },
+    {
+      "rgb": [
+        255,
+        231,
+        55
+      ],
+      "shifts": [
+        0,
+        80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5642578125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        21,
+        79,
+        167
+      ],
+      "shifts": [
+        0,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5733057658076722,
+      "region": 2
+    },
+    {
+      "rgb": [
+        89,
+        159,
+        24
+      ],
+      "shifts": [
+        -80,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.25109375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        108,
+        223,
+        40
+      ],
+      "shifts": [
+        0,
+        -80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.2561690713361167,
+      "region": 2
+    },
+    {
+      "rgb": [
+        138,
+        45,
+        23
+      ],
+      "shifts": [
+        -1,
+        -255,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7158984375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        5,
+        212,
+        185
+      ],
+      "shifts": [
+        80,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.7771463540524938,
+      "region": 0
+    },
+    {
+      "rgb": [
+        136,
+        104,
+        222
+      ],
+      "shifts": [
+        0,
+        255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.62484375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        127,
+        53,
+        99
+      ],
+      "shifts": [
+        0,
+        1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.36590093290113923,
+      "region": 0
+    },
+    {
+      "rgb": [
+        7,
+        74,
+        16
+      ],
+      "shifts": [
+        -255,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.359296875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        135,
+        83,
+        34
+      ],
+      "shifts": [
+        -80,
+        -1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.34978112202480416,
+      "region": 2
+    },
+    {
+      "rgb": [
+        92,
+        193,
+        129
+      ],
+      "shifts": [
+        80,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.704375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        186,
+        101,
+        120
+      ],
+      "shifts": [
+        1,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.3575959098071108,
+      "region": 1
+    },
+    {
+      "rgb": [
+        89,
+        183,
+        50
+      ],
+      "shifts": [
+        80,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5611328125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        253,
+        131,
+        192
+      ],
+      "shifts": [
+        255,
+        1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5555879979887209,
+      "region": 0
+    },
+    {
+      "rgb": [
+        61,
+        125,
+        246
+      ],
+      "shifts": [
+        255,
+        1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6471484375000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        28,
+        59,
+        195
+      ],
+      "shifts": [
+        255,
+        255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5864678920097701,
+      "region": 0
+    },
+    {
+      "rgb": [
+        112,
+        27,
+        184
+      ],
+      "shifts": [
+        0,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.035859375000000006,
+      "region": 1
+    },
+    {
+      "rgb": [
+        171,
+        52,
+        43
+      ],
+      "shifts": [
+        -80,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.48879791766807085,
+      "region": 1
+    },
+    {
+      "rgb": [
+        245,
+        115,
+        212
+      ],
+      "shifts": [
+        -255,
+        -1,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.610625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        201,
+        78,
+        154
+      ],
+      "shifts": [
+        0,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5392085751388107,
+      "region": 0
+    },
+    {
+      "rgb": [
+        54,
+        203,
+        139
+      ],
+      "shifts": [
+        0,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5170703125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        94,
+        84,
+        255
+      ],
+      "shifts": [
+        0,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6528325141466966,
+      "region": 2
+    },
+    {
+      "rgb": [
+        238,
+        165,
+        184
+      ],
+      "shifts": [
+        0,
+        -80,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6555859375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        45,
+        82,
+        111
+      ],
+      "shifts": [
+        -255,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8833892528492459,
+      "region": 2
+    },
+    {
+      "rgb": [
+        157,
+        171,
+        46
+      ],
+      "shifts": [
+        0,
+        -80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.48566406250000005,
+      "region": 0
+    },
+    {
+      "rgb": [
+        126,
+        0,
+        37
+      ],
+      "shifts": [
+        -255,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.9097620187040885,
+      "region": 2
+    },
+    {
+      "rgb": [
+        58,
+        140,
+        65
+      ],
+      "shifts": [
+        -255,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7421484375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        123,
+        150,
+        229
+      ],
+      "shifts": [
+        255,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.019153248755949995,
+      "region": 0
+    },
+    {
+      "rgb": [
+        4,
+        45,
+        186
+      ],
+      "shifts": [
+        -80,
+        -80,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.39363281250000004,
+      "region": 2
+    },
+    {
+      "rgb": [
+        215,
+        71,
+        234
+      ],
+      "shifts": [
+        -255,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8834286001682294,
+      "region": 2
+    },
+    {
+      "rgb": [
+        18,
+        59,
+        120
+      ],
+      "shifts": [
+        -1,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.25496093750000004,
+      "region": 2
+    },
+    {
+      "rgb": [
+        248,
+        80,
+        77
+      ],
+      "shifts": [
+        80,
+        -80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5451847024548062,
+      "region": 0
+    },
+    {
+      "rgb": [
+        240,
+        20,
+        251
+      ],
+      "shifts": [
+        255,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.309375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        242,
+        156,
+        93
+      ],
+      "shifts": [
+        255,
+        1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5698176349654829,
+      "region": 0
+    },
+    {
+      "rgb": [
+        199,
+        47,
+        201
+      ],
+      "shifts": [
+        -1,
+        255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5990625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        228,
+        183,
+        232
+      ],
+      "shifts": [
+        -255,
+        -80,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.9204505017164665,
+      "region": 2
+    },
+    {
+      "rgb": [
+        131,
+        28,
+        147
+      ],
+      "shifts": [
+        0,
+        -80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.49867187500000004,
+      "region": 0
+    },
+    {
+      "rgb": [
+        43,
+        254,
+        86
+      ],
+      "shifts": [
+        0,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8408234649395135,
+      "region": 1
+    },
+    {
+      "rgb": [
+        196,
+        146,
+        230
+      ],
+      "shifts": [
+        255,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3287109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        11,
+        79,
+        250
+      ],
+      "shifts": [
+        -1,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6177361491643957,
+      "region": 2
+    },
+    {
+      "rgb": [
+        91,
+        49,
+        100
+      ],
+      "shifts": [
+        0,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7225,
+      "region": 0
+    },
+    {
+      "rgb": [
+        236,
+        33,
+        186
+      ],
+      "shifts": [
+        80,
+        -255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5727207233658669,
+      "region": 0
+    },
+    {
+      "rgb": [
+        190,
+        226,
+        145
+      ],
+      "shifts": [
+        -80,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6275390625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        147,
+        161,
+        83
+      ],
+      "shifts": [
+        255,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.559749316202287,
+      "region": 0
+    },
+    {
+      "rgb": [
+        78,
+        233,
+        185
+      ],
+      "shifts": [
+        255,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.10054687500000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        44,
+        91,
+        72
+      ],
+      "shifts": [
+        1,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.3506058158531388,
+      "region": 1
+    },
+    {
+      "rgb": [
+        46,
+        85,
+        198
+      ],
+      "shifts": [
+        -1,
+        -80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.21675781250000004,
+      "region": 2
+    },
+    {
+      "rgb": [
+        99,
+        147,
+        7
+      ],
+      "shifts": [
+        0,
+        -1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5315084146452329,
+      "region": 1
+    },
+    {
+      "rgb": [
+        162,
+        195,
+        135
+      ],
+      "shifts": [
+        80,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.74234375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        127,
+        9,
+        149
+      ],
+      "shifts": [
+        255,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.29342495053406753,
+      "region": 0
+    },
+    {
+      "rgb": [
+        153,
+        161,
+        194
+      ],
+      "shifts": [
+        1,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6624218749999999,
+      "region": 2
+    },
+    {
+      "rgb": [
+        147,
+        177,
+        38
+      ],
+      "shifts": [
+        0,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5936380579175168,
+      "region": 1
+    },
+    {
+      "rgb": [
+        126,
+        2,
+        86
+      ],
+      "shifts": [
+        0,
+        -255,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6600781250000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        13,
+        86,
+        114
+      ],
+      "shifts": [
+        0,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9669375607693558,
+      "region": 1
+    },
+    {
+      "rgb": [
+        121,
+        47,
+        61
+      ],
+      "shifts": [
+        -255,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.926484375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        149,
+        189,
+        159
+      ],
+      "shifts": [
+        80,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6767084029584565,
+      "region": 0
+    },
+    {
+      "rgb": [
+        217,
+        121,
+        43
+      ],
+      "shifts": [
+        -255,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.668671875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        155,
+        142,
+        67
+      ],
+      "shifts": [
+        -80,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.510881577686283,
+      "region": 1
+    },
+    {
+      "rgb": [
+        47,
+        2,
+        13
+      ],
+      "shifts": [
+        -1,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.1849609375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        60,
+        213,
+        31
+      ],
+      "shifts": [
+        -255,
+        -80,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.916335485107339,
+      "region": 2
+    },
+    {
+      "rgb": [
+        253,
+        123,
+        99
+      ],
+      "shifts": [
+        -255,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.993515625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        125,
+        45,
+        155
+      ],
+      "shifts": [
+        -1,
+        -1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.38118411586792095,
+      "region": 2
+    },
+    {
+      "rgb": [
+        132,
+        156,
+        40
+      ],
+      "shifts": [
+        -80,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.21953125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        202,
+        127,
+        217
+      ],
+      "shifts": [
+        0,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8208748272005686,
+      "region": 2
+    },
+    {
+      "rgb": [
+        235,
+        227,
+        232
+      ],
+      "shifts": [
+        -255,
+        1,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9948046875000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        151,
+        179,
+        165
+      ],
+      "shifts": [
+        0,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7245665858956489,
+      "region": 2
+    },
+    {
+      "rgb": [
+        47,
+        193,
+        52
+      ],
+      "shifts": [
+        1,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.278984375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        192,
+        214,
+        53
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.9615546288465885,
+      "region": 1
+    },
+    {
+      "rgb": [
+        253,
+        197,
+        246
+      ],
+      "shifts": [
+        -255,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8903906250000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        252,
+        207,
+        218
+      ],
+      "shifts": [
+        1,
+        1,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.8539502523308218,
+      "region": 0
+    },
+    {
+      "rgb": [
+        195,
+        252,
+        215
+      ],
+      "shifts": [
+        80,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.782734375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        9,
+        238,
+        86
+      ],
+      "shifts": [
+        255,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.04784576410959807,
+      "region": 0
+    },
+    {
+      "rgb": [
+        166,
+        152,
+        101
+      ],
+      "shifts": [
+        1,
+        -80,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4398046875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        79,
+        7,
+        244
+      ],
+      "shifts": [
+        -80,
+        -1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9295383115425768,
+      "region": 1
+    },
+    {
+      "rgb": [
+        175,
+        244,
+        87
+      ],
+      "shifts": [
+        -1,
+        80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5573828125000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        124,
+        157,
+        240
+      ],
+      "shifts": [
+        80,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.7182899643657595,
+      "region": 2
+    },
+    {
+      "rgb": [
+        159,
+        35,
+        46
+      ],
+      "shifts": [
+        80,
+        -255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.60078125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        62,
+        165,
+        112
+      ],
+      "shifts": [
+        0,
+        80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8932303564342289,
+      "region": 1
+    },
+    {
+      "rgb": [
+        227,
+        96,
+        204
+      ],
+      "shifts": [
+        255,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2926171875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        92,
+        131,
+        192
+      ],
+      "shifts": [
+        -255,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8970812871578568,
+      "region": 2
+    },
+    {
+      "rgb": [
+        101,
+        97,
+        165
+      ],
+      "shifts": [
+        -80,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3698828125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        37,
+        69,
+        11
+      ],
+      "shifts": [
+        1,
+        0,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.295040962037581,
+      "region": 2
+    },
+    {
+      "rgb": [
+        183,
+        53,
+        114
+      ],
+      "shifts": [
+        0,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4519140625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        255,
+        148,
+        119
+      ],
+      "shifts": [
+        -255,
+        -255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5928576288504647,
+      "region": 2
+    },
+    {
+      "rgb": [
+        157,
+        245,
+        172
+      ],
+      "shifts": [
+        -255,
+        80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6673828125000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        83,
+        69,
+        179
+      ],
+      "shifts": [
+        0,
+        -255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.6424415819013328,
+      "region": 0
+    },
+    {
+      "rgb": [
+        178,
+        43,
+        83
+      ],
+      "shifts": [
+        0,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5959375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        70,
+        110,
+        152
+      ],
+      "shifts": [
+        -80,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.7003995423226712,
+      "region": 2
+    },
+    {
+      "rgb": [
+        211,
+        221,
+        211
+      ],
+      "shifts": [
+        -255,
+        -80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.83625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        143,
+        19,
+        193
+      ],
+      "shifts": [
+        -80,
+        1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.3258173352266323,
+      "region": 2
+    },
+    {
+      "rgb": [
+        241,
+        188,
+        247
+      ],
+      "shifts": [
+        0,
+        -255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.907109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        2,
+        39,
+        104
+      ],
+      "shifts": [
+        0,
+        -255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5722143782974699,
+      "region": 0
+    },
+    {
+      "rgb": [
+        81,
+        191,
+        138
+      ],
+      "shifts": [
+        0,
+        -1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.43152343750000005,
+      "region": 1
+    },
+    {
+      "rgb": [
+        249,
+        27,
+        130
+      ],
+      "shifts": [
+        0,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5741381167506798,
+      "region": 0
+    },
+    {
+      "rgb": [
+        194,
+        59,
+        50
+      ],
+      "shifts": [
+        80,
+        80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3284375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        235,
+        148,
+        161
+      ],
+      "shifts": [
+        -80,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8208868992311217,
+      "region": 1
+    },
+    {
+      "rgb": [
+        88,
+        55,
+        254
+      ],
+      "shifts": [
+        -80,
+        1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.44660156250000005,
+      "region": 2
+    },
+    {
+      "rgb": [
+        248,
+        43,
+        124
+      ],
+      "shifts": [
+        0,
+        1,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5636353900898969,
+      "region": 0
+    },
+    {
+      "rgb": [
+        106,
+        181,
+        14
+      ],
+      "shifts": [
+        0,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.39640625000000007,
+      "region": 1
+    },
+    {
+      "rgb": [
+        122,
+        109,
+        41
+      ],
+      "shifts": [
+        -255,
+        -80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.89368567949626,
+      "region": 2
+    },
+    {
+      "rgb": [
+        206,
+        196,
+        167
+      ],
+      "shifts": [
+        -1,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.738515625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        56,
+        157,
+        72
+      ],
+      "shifts": [
+        1,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.7873026223903388,
+      "region": 0
+    },
+    {
+      "rgb": [
+        169,
+        8,
+        198
+      ],
+      "shifts": [
+        1,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.48628906250000004,
+      "region": 2
+    },
+    {
+      "rgb": [
+        113,
+        1,
+        196
+      ],
+      "shifts": [
+        0,
+        1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.37408910357925973,
+      "region": 2
+    },
+    {
+      "rgb": [
+        170,
+        204,
+        253
+      ],
+      "shifts": [
+        1,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6112500000000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        118,
+        89,
+        106
+      ],
+      "shifts": [
+        80,
+        -255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5972618241841563,
+      "region": 0
+    },
+    {
+      "rgb": [
+        204,
+        118,
+        238
+      ],
+      "shifts": [
+        255,
+        -80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3287109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        244,
+        198,
+        146
+      ],
+      "shifts": [
+        80,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6464535953673526,
+      "region": 0
+    },
+    {
+      "rgb": [
+        182,
+        116,
+        47
+      ],
+      "shifts": [
+        80,
+        80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.388671875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        78,
+        230,
+        132
+      ],
+      "shifts": [
+        -255,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8833892528492459,
+      "region": 2
+    },
+    {
+      "rgb": [
+        100,
+        252,
+        193
+      ],
+      "shifts": [
+        0,
+        80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6092578125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        83,
+        159,
+        31
+      ],
+      "shifts": [
+        -80,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.79056142673671,
+      "region": 1
+    },
+    {
+      "rgb": [
+        253,
+        144,
+        173
+      ],
+      "shifts": [
+        0,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7377734375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        184,
+        252,
+        38
+      ],
+      "shifts": [
+        -1,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.9917957347252847,
+      "region": 2
+    },
+    {
+      "rgb": [
+        121,
+        92,
+        193
+      ],
+      "shifts": [
+        -80,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.423828125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        66,
+        48,
+        31
+      ],
+      "shifts": [
+        80,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.36966014706698036,
+      "region": 0
+    },
+    {
+      "rgb": [
+        20,
+        64,
+        192
+      ],
+      "shifts": [
+        80,
+        -1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.460078125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        161,
+        242,
+        214
+      ],
+      "shifts": [
+        -255,
+        -1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.865264854972401,
+      "region": 1
+    },
+    {
+      "rgb": [
+        30,
+        111,
+        173
+      ],
+      "shifts": [
+        -255,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6673828125000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        161,
+        254,
+        238
+      ],
+      "shifts": [
+        80,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.796647897341381,
+      "region": 0
+    },
+    {
+      "rgb": [
+        184,
+        60,
+        130
+      ],
+      "shifts": [
+        255,
+        -255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3287109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        221,
+        74,
+        221
+      ],
+      "shifts": [
+        255,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.4890069065716662,
+      "region": 0
+    },
+    {
+      "rgb": [
+        57,
+        125,
+        0
+      ],
+      "shifts": [
+        1,
+        -80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.34390624999999997,
+      "region": 0
+    },
+    {
+      "rgb": [
+        252,
+        243,
+        23
+      ],
+      "shifts": [
+        -1,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.9594593827036081,
+      "region": 1
+    },
+    {
+      "rgb": [
+        44,
+        118,
+        204
+      ],
+      "shifts": [
+        1,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6561328125000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        193,
+        207,
+        111
+      ],
+      "shifts": [
+        80,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.7700114435942217,
+      "region": 0
+    },
+    {
+      "rgb": [
+        195,
+        59,
+        32
+      ],
+      "shifts": [
+        0,
+        255,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.07835937500000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        142,
+        111,
+        140
+      ],
+      "shifts": [
+        80,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6161923021644811,
+      "region": 0
+    },
+    {
+      "rgb": [
+        136,
+        12,
+        185
+      ],
+      "shifts": [
+        255,
+        80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6734375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        93,
+        202,
+        55
+      ],
+      "shifts": [
+        -80,
+        -255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8012302871227447,
+      "region": 2
+    },
+    {
+      "rgb": [
+        45,
+        119,
+        34
+      ],
+      "shifts": [
+        -1,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.25859375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        212,
+        134,
+        152
+      ],
+      "shifts": [
+        -255,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.9626903269952926,
+      "region": 2
+    },
+    {
+      "rgb": [
+        176,
+        108,
+        94
+      ],
+      "shifts": [
+        -255,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8942578125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        108,
+        214,
+        77
+      ],
+      "shifts": [
+        -80,
+        1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.35756537744364447,
+      "region": 2
+    },
+    {
+      "rgb": [
+        222,
+        59,
+        72
+      ],
+      "shifts": [
+        80,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.18148437500000003,
+      "region": 0
+    },
+    {
+      "rgb": [
+        35,
+        196,
+        249
+      ],
+      "shifts": [
+        -1,
+        -80,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.3840419793718771,
+      "region": 2
+    },
+    {
+      "rgb": [
+        140,
+        107,
+        227
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5120703125000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        12,
+        18,
+        131
+      ],
+      "shifts": [
+        1,
+        -1,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.13212577568487713,
+      "region": 2
+    },
+    {
+      "rgb": [
+        74,
+        34,
+        127
+      ],
+      "shifts": [
+        80,
+        1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.40742187500000004,
+      "region": 0
+    },
+    {
+      "rgb": [
+        100,
+        32,
+        71
+      ],
+      "shifts": [
+        255,
+        -80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.1956339725152682,
+      "region": 0
+    },
+    {
+      "rgb": [
+        172,
+        161,
+        137
+      ],
+      "shifts": [
+        -1,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8699609375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        42,
+        52,
+        205
+      ],
+      "shifts": [
+        80,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.7806932803535751,
+      "region": 0
+    },
+    {
+      "rgb": [
+        74,
+        131,
+        63
+      ],
+      "shifts": [
+        1,
+        80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.565546875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        235,
+        162,
+        137
+      ],
+      "shifts": [
+        0,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5470233694277236,
+      "region": 1
+    },
+    {
+      "rgb": [
+        76,
+        3,
+        213
+      ],
+      "shifts": [
+        -1,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.27718750000000003,
+      "region": 2
+    },
+    {
+      "rgb": [
+        184,
+        101,
+        239
+      ],
+      "shifts": [
+        0,
+        -255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7045335118696555,
+      "region": 0
+    },
+    {
+      "rgb": [
+        192,
+        204,
+        129
+      ],
+      "shifts": [
+        0,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.657421875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        146,
+        147,
+        178
+      ],
+      "shifts": [
+        1,
+        -1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.972866912783422,
+      "region": 0
+    },
+    {
+      "rgb": [
+        175,
+        249,
+        130
+      ],
+      "shifts": [
+        1,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.33199218750000004,
+      "region": 1
+    },
+    {
+      "rgb": [
+        115,
+        108,
+        177
+      ],
+      "shifts": [
+        255,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.26845704125267195,
+      "region": 0
+    },
+    {
+      "rgb": [
+        173,
+        27,
+        112
+      ],
+      "shifts": [
+        255,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2230078125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        147,
+        93,
+        94
+      ],
+      "shifts": [
+        255,
+        255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9601066159938164,
+      "region": 1
+    },
+    {
+      "rgb": [
+        50,
+        117,
+        199
+      ],
+      "shifts": [
+        80,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.258515625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        240,
+        70,
+        164
+      ],
+      "shifts": [
+        -1,
+        -255,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6710867013598214,
+      "region": 2
+    },
+    {
+      "rgb": [
+        33,
+        192,
+        166
+      ],
+      "shifts": [
+        0,
+        255,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.338671875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        52,
+        85,
+        57
+      ],
+      "shifts": [
+        -80,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5825964893526311,
+      "region": 1
+    },
+    {
+      "rgb": [
+        22,
+        171,
+        84
+      ],
+      "shifts": [
+        0,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8845312500000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        110,
+        156,
+        85
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5674238349261884,
+      "region": 1
+    },
+    {
+      "rgb": [
+        157,
+        172,
+        22
+      ],
+      "shifts": [
+        0,
+        0,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.45789062500000005,
+      "region": 1
+    },
+    {
+      "rgb": [
+        228,
+        21,
+        56
+      ],
+      "shifts": [
+        -1,
+        80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.3037530008955316,
+      "region": 1
+    },
+    {
+      "rgb": [
+        3,
+        24,
+        100
+      ],
+      "shifts": [
+        -255,
+        -80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.774375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        102,
+        148,
+        118
+      ],
+      "shifts": [
+        1,
+        1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9673269231566345,
+      "region": 1
+    },
+    {
+      "rgb": [
+        188,
+        189,
+        232
+      ],
+      "shifts": [
+        -80,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.690625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        254,
+        27,
+        48
+      ],
+      "shifts": [
+        0,
+        0,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.08553410475900645,
+      "region": 2
+    },
+    {
+      "rgb": [
+        127,
+        83,
+        141
+      ],
+      "shifts": [
+        1,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.18562499999999998,
+      "region": 2
+    },
+    {
+      "rgb": [
+        23,
+        74,
+        117
+      ],
+      "shifts": [
+        -80,
+        0,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5746465668642032,
+      "region": 2
+    },
+    {
+      "rgb": [
+        65,
+        96,
+        210
+      ],
+      "shifts": [
+        1,
+        -80,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3757421875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        159,
+        160,
+        54
+      ],
+      "shifts": [
+        -80,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5634242686502974,
+      "region": 1
+    },
+    {
+      "rgb": [
+        140,
+        86,
+        151
+      ],
+      "shifts": [
+        1,
+        1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.595078125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        78,
+        230,
+        228
+      ],
+      "shifts": [
+        -80,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8733961144433022,
+      "region": 1
+    },
+    {
+      "rgb": [
+        173,
+        112,
+        215
+      ],
+      "shifts": [
+        -255,
+        1,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9948046875000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        117,
+        181,
+        120
+      ],
+      "shifts": [
+        0,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9677288259906457,
+      "region": 1
+    },
+    {
+      "rgb": [
+        188,
+        204,
+        89
+      ],
+      "shifts": [
+        0,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.41015625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        242,
+        101,
+        60
+      ],
+      "shifts": [
+        0,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6336408999847727,
+      "region": 0
+    },
+    {
+      "rgb": [
+        28,
+        221,
+        129
+      ],
+      "shifts": [
+        1,
+        1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.39539062500000005,
+      "region": 1
+    },
+    {
+      "rgb": [
+        30,
+        184,
+        184
+      ],
+      "shifts": [
+        0,
+        -1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6503776717770268,
+      "region": 2
+    },
+    {
+      "rgb": [
+        235,
+        36,
+        126
+      ],
+      "shifts": [
+        -1,
+        -255,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7039453125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        27,
+        207,
+        168
+      ],
+      "shifts": [
+        0,
+        -80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.3962410425267641,
+      "region": 2
+    },
+    {
+      "rgb": [
+        18,
+        146,
+        102
+      ],
+      "shifts": [
+        0,
+        80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.45613281250000004,
+      "region": 1
+    },
+    {
+      "rgb": [
+        242,
+        220,
+        81
+      ],
+      "shifts": [
+        0,
+        -255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.5671937515025471,
+      "region": 0
+    },
+    {
+      "rgb": [
+        137,
+        164,
+        52
+      ],
+      "shifts": [
+        0,
+        -80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.45832031250000005,
+      "region": 0
+    },
+    {
+      "rgb": [
+        198,
+        205,
+        40
+      ],
+      "shifts": [
+        80,
+        -80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.46347748554427914,
+      "region": 0
+    },
+    {
+      "rgb": [
+        189,
+        247,
+        17
+      ],
+      "shifts": [
+        80,
+        -80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.45488281250000007,
+      "region": 0
+    },
+    {
+      "rgb": [
+        90,
+        78,
+        75
+      ],
+      "shifts": [
+        0,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.49173570332281963,
+      "region": 0
+    },
+    {
+      "rgb": [
+        199,
+        4,
+        20
+      ],
+      "shifts": [
+        80,
+        -80,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.353203125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        219,
+        21,
+        255
+      ],
+      "shifts": [
+        80,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.529363677019372,
+      "region": 0
+    },
+    {
+      "rgb": [
+        219,
+        127,
+        129
+      ],
+      "shifts": [
+        0,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.168671875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        233,
+        93,
+        246
+      ],
+      "shifts": [
+        255,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5139748158530618,
+      "region": 0
+    },
+    {
+      "rgb": [
+        57,
+        217,
+        206
+      ],
+      "shifts": [
+        0,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.945625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        219,
+        93,
+        34
+      ],
+      "shifts": [
+        0,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5618810123837532,
+      "region": 0
+    },
+    {
+      "rgb": [
+        11,
+        242,
+        211
+      ],
+      "shifts": [
+        0,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.978828125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        62,
+        44,
+        49
+      ],
+      "shifts": [
+        255,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.324634837135812,
+      "region": 0
+    },
+    {
+      "rgb": [
+        117,
+        190,
+        149
+      ],
+      "shifts": [
+        -255,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.818203125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        198,
+        228,
+        103
+      ],
+      "shifts": [
+        -1,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6437313536816381,
+      "region": 0
+    },
+    {
+      "rgb": [
+        218,
+        174,
+        229
+      ],
+      "shifts": [
+        0,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2977734375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        46,
+        183,
+        115
+      ],
+      "shifts": [
+        -1,
+        -1,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6160878291740222,
+      "region": 1
+    },
+    {
+      "rgb": [
+        26,
+        66,
+        244
+      ],
+      "shifts": [
+        255,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3287109375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        188,
+        157,
+        195
+      ],
+      "shifts": [
+        1,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.2900255226873846,
+      "region": 2
+    },
+    {
+      "rgb": [
+        98,
+        7,
+        122
+      ],
+      "shifts": [
+        1,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6641015625000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        70,
+        215,
+        234
+      ],
+      "shifts": [
+        0,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5481797184092045,
+      "region": 2
+    },
+    {
+      "rgb": [
+        27,
+        151,
+        117
+      ],
+      "shifts": [
+        1,
+        80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.258359375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        4,
+        107,
+        88
+      ],
+      "shifts": [
+        255,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.034127209529797795,
+      "region": 0
+    },
+    {
+      "rgb": [
+        148,
+        44,
+        89
+      ],
+      "shifts": [
+        -1,
+        -1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.464453125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        227,
+        219,
+        110
+      ],
+      "shifts": [
+        -1,
+        80,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7791799660762889,
+      "region": 1
+    },
+    {
+      "rgb": [
+        176,
+        200,
+        97
+      ],
+      "shifts": [
+        0,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6175390625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        188,
+        187,
+        164
+      ],
+      "shifts": [
+        1,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.7414576372911327,
+      "region": 0
+    },
+    {
+      "rgb": [
+        97,
+        168,
+        33
+      ],
+      "shifts": [
+        0,
+        -255,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8805468750000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        19,
+        226,
+        67
+      ],
+      "shifts": [
+        0,
+        80,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.7459127069841747,
+      "region": 1
+    },
+    {
+      "rgb": [
+        75,
+        16,
+        201
+      ],
+      "shifts": [
+        1,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6561328125000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        251,
+        24,
+        12
+      ],
+      "shifts": [
+        -255,
+        -80,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.17682896345179597,
+      "region": 2
+    },
+    {
+      "rgb": [
+        170,
+        104,
+        47
+      ],
+      "shifts": [
+        0,
+        255,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.138125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        25,
+        249,
+        229
+      ],
+      "shifts": [
+        0,
+        -255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.985539103603275,
+      "region": 0
+    },
+    {
+      "rgb": [
+        106,
+        48,
+        152
+      ],
+      "shifts": [
+        0,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.19593750000000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        48,
+        105,
+        219
+      ],
+      "shifts": [
+        -255,
+        -1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.8833892528492459,
+      "region": 2
+    },
+    {
+      "rgb": [
+        45,
+        58,
+        58
+      ],
+      "shifts": [
+        80,
+        -1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5209765625,
+      "region": 0
+    },
+    {
+      "rgb": [
+        185,
+        242,
+        181
+      ],
+      "shifts": [
+        -255,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.9013877087313545,
+      "region": 2
+    },
+    {
+      "rgb": [
+        47,
+        163,
+        61
+      ],
+      "shifts": [
+        80,
+        -255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.554296875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        189,
+        28,
+        77
+      ],
+      "shifts": [
+        1,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.13116581882697517,
+      "region": 1
+    },
+    {
+      "rgb": [
+        134,
+        184,
+        41
+      ],
+      "shifts": [
+        -255,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9432421875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        33,
+        160,
+        163
+      ],
+      "shifts": [
+        0,
+        80,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.3599425926498728,
+      "region": 2
+    },
+    {
+      "rgb": [
+        94,
+        141,
+        187
+      ],
+      "shifts": [
+        1,
+        80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6583203125000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        162,
+        138,
+        10
+      ],
+      "shifts": [
+        80,
+        -1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6735791229156847,
+      "region": 0
+    },
+    {
+      "rgb": [
+        236,
+        45,
+        7
+      ],
+      "shifts": [
+        -80,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.39749999999999996,
+      "region": 0
+    },
+    {
+      "rgb": [
+        96,
+        76,
+        220
+      ],
+      "shifts": [
+        -1,
+        1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.44676066175337664,
+      "region": 2
+    },
+    {
+      "rgb": [
+        33,
+        81,
+        147
+      ],
+      "shifts": [
+        -1,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.33832031250000005,
+      "region": 2
+    },
+    {
+      "rgb": [
+        158,
+        203,
+        162
+      ],
+      "shifts": [
+        -80,
+        80,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.850577987591698,
+      "region": 1
+    },
+    {
+      "rgb": [
+        152,
+        210,
+        66
+      ],
+      "shifts": [
+        0,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.08765624999999999,
+      "region": 2
+    },
+    {
+      "rgb": [
+        136,
+        187,
+        105
+      ],
+      "shifts": [
+        0,
+        0,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7046953135615287,
+      "region": 1
+    },
+    {
+      "rgb": [
+        53,
+        205,
+        172
+      ],
+      "shifts": [
+        -80,
+        1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6287109375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        110,
+        191,
+        14
+      ],
+      "shifts": [
+        1,
+        -1,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6656923838032734,
+      "region": 1
+    },
+    {
+      "rgb": [
+        208,
+        229,
+        95
+      ],
+      "shifts": [
+        -255,
+        0,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9355078125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        238,
+        178,
+        213
+      ],
+      "shifts": [
+        80,
+        80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9696176923207896,
+      "region": 1
+    },
+    {
+      "rgb": [
+        203,
+        165,
+        11
+      ],
+      "shifts": [
+        1,
+        -80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5726953125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        166,
+        199,
+        232
+      ],
+      "shifts": [
+        80,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8526847289762183,
+      "region": 0
+    },
+    {
+      "rgb": [
+        71,
+        224,
+        61
+      ],
+      "shifts": [
+        0,
+        -80,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.2848828125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        143,
+        34,
+        172
+      ],
+      "shifts": [
+        -80,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.4667081457598657,
+      "region": 2
+    },
+    {
+      "rgb": [
+        93,
+        62,
+        218
+      ],
+      "shifts": [
+        1,
+        -80,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6353515625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        7,
+        9,
+        167
+      ],
+      "shifts": [
+        255,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.0430890215613228,
+      "region": 0
+    },
+    {
+      "rgb": [
+        44,
+        170,
+        90
+      ],
+      "shifts": [
+        -1,
+        -80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6758593750000002,
+      "region": 0
+    },
+    {
+      "rgb": [
+        32,
+        13,
+        0
+      ],
+      "shifts": [
+        0,
+        255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.0839841304291108,
+      "region": 1
+    },
+    {
+      "rgb": [
+        24,
+        19,
+        44
+      ],
+      "shifts": [
+        0,
+        -80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.42226562500000003,
+      "region": 2
+    },
+    {
+      "rgb": [
+        35,
+        173,
+        159
+      ],
+      "shifts": [
+        0,
+        0,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6502685642240202,
+      "region": 2
+    },
+    {
+      "rgb": [
+        40,
+        16,
+        198
+      ],
+      "shifts": [
+        80,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6077734375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        17,
+        32,
+        156
+      ],
+      "shifts": [
+        80,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.230621470155765,
+      "region": 0
+    },
+    {
+      "rgb": [
+        21,
+        245,
+        233
+      ],
+      "shifts": [
+        1,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9651171875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        160,
+        113,
+        69
+      ],
+      "shifts": [
+        255,
+        0,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.36208670105790536,
+      "region": 0
+    },
+    {
+      "rgb": [
+        168,
+        77,
+        134
+      ],
+      "shifts": [
+        -255,
+        -1,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5100781249999999,
+      "region": 1
+    },
+    {
+      "rgb": [
+        110,
+        139,
+        193
+      ],
+      "shifts": [
+        1,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.568571670342228,
+      "region": 2
+    },
+    {
+      "rgb": [
+        63,
+        23,
+        33
+      ],
+      "shifts": [
+        -1,
+        0,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.15171875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        14,
+        236,
+        55
+      ],
+      "shifts": [
+        1,
+        0,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.0961179450650359,
+      "region": 2
+    },
+    {
+      "rgb": [
+        64,
+        233,
+        145
+      ],
+      "shifts": [
+        0,
+        80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3932421875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        201,
+        53,
+        203
+      ],
+      "shifts": [
+        -80,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.568656635821739,
+      "region": 2
+    },
+    {
+      "rgb": [
+        148,
+        124,
+        81
+      ],
+      "shifts": [
+        0,
+        1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3580859375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        174,
+        216,
+        138
+      ],
+      "shifts": [
+        1,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7859751463588026,
+      "region": 1
+    },
+    {
+      "rgb": [
+        166,
+        69,
+        206
+      ],
+      "shifts": [
+        0,
+        -255,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7490625000000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        97,
+        198,
+        216
+      ],
+      "shifts": [
+        255,
+        1,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.557668657095504,
+      "region": 0
+    },
+    {
+      "rgb": [
+        200,
+        136,
+        134
+      ],
+      "shifts": [
+        -1,
+        1,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        234,
+        106,
+        79
+      ],
+      "shifts": [
+        0,
+        255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.37299519906582884,
+      "region": 1
+    },
+    {
+      "rgb": [
+        41,
+        152,
+        34
+      ],
+      "shifts": [
+        255,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.052851562500000004,
+      "region": 0
+    },
+    {
+      "rgb": [
+        92,
+        167,
+        211
+      ],
+      "shifts": [
+        80,
+        255,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.5814953189885301,
+      "region": 1
+    },
+    {
+      "rgb": [
+        245,
+        128,
+        79
+      ],
+      "shifts": [
+        80,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.49871093750000006,
+      "region": 0
+    },
+    {
+      "rgb": [
+        118,
+        61,
+        149
+      ],
+      "shifts": [
+        -1,
+        -255,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6640404825446445,
+      "region": 2
+    },
+    {
+      "rgb": [
+        211,
+        19,
+        73
+      ],
+      "shifts": [
+        1,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.09796875000000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        57,
+        104,
+        102
+      ],
+      "shifts": [
+        80,
+        255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8534365924380909,
+      "region": 1
+    },
+    {
+      "rgb": [
+        85,
+        179,
+        89
+      ],
+      "shifts": [
+        80,
+        1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6696093750000001,
+      "region": 1
+    },
+    {
+      "rgb": [
+        247,
+        82,
+        65
+      ],
+      "shifts": [
+        0,
+        0,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.7450200413193081,
+      "region": 0
+    },
+    {
+      "rgb": [
+        200,
+        168,
+        20
+      ],
+      "shifts": [
+        -255,
+        0,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9251953125,
+      "region": 2
+    },
+    {
+      "rgb": [
+        236,
+        213,
+        197
+      ],
+      "shifts": [
+        -80,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9172646810989794,
+      "region": 1
+    },
+    {
+      "rgb": [
+        177,
+        116,
+        18
+      ],
+      "shifts": [
+        80,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5611328125,
+      "region": 0
+    },
+    {
+      "rgb": [
+        139,
+        143,
+        232
+      ],
+      "shifts": [
+        255,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.15194013127282596,
+      "region": 0
+    },
+    {
+      "rgb": [
+        115,
+        179,
+        245
+      ],
+      "shifts": [
+        -80,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6115625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        134,
+        48,
+        170
+      ],
+      "shifts": [
+        -255,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.9134205880383011,
+      "region": 2
+    },
+    {
+      "rgb": [
+        251,
+        179,
+        7
+      ],
+      "shifts": [
+        -255,
+        -1,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.668671875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        198,
+        196,
+        92
+      ],
+      "shifts": [
+        80,
+        255,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6681858948007426,
+      "region": 1
+    },
+    {
+      "rgb": [
+        226,
+        250,
+        13
+      ],
+      "shifts": [
+        0,
+        80,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5642578125,
+      "region": 1
+    },
+    {
+      "rgb": [
+        77,
+        103,
+        153
+      ],
+      "shifts": [
+        -255,
+        -255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.23033186372225803,
+      "region": 2
+    },
+    {
+      "rgb": [
+        217,
+        182,
+        20
+      ],
+      "shifts": [
+        0,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5485546875,
+      "region": 0
+    },
+    {
+      "rgb": [
+        76,
+        193,
+        113
+      ],
+      "shifts": [
+        0,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9668105425313953,
+      "region": 1
+    },
+    {
+      "rgb": [
+        11,
+        242,
+        239
+      ],
+      "shifts": [
+        -80,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.43496093750000003,
+      "region": 2
+    },
+    {
+      "rgb": [
+        227,
+        35,
+        162
+      ],
+      "shifts": [
+        -255,
+        255,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8833892528492459,
+      "region": 2
+    },
+    {
+      "rgb": [
+        103,
+        174,
+        202
+      ],
+      "shifts": [
+        80,
+        255,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7021875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        203,
+        41,
+        97
+      ],
+      "shifts": [
+        0,
+        -255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.6424415819013328,
+      "region": 0
+    },
+    {
+      "rgb": [
+        210,
+        29,
+        110
+      ],
+      "shifts": [
+        -80,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7060546875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        88,
+        6,
+        230
+      ],
+      "shifts": [
+        -80,
+        0,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.9273473398932818,
+      "region": 1
+    },
+    {
+      "rgb": [
+        79,
+        111,
+        52
+      ],
+      "shifts": [
+        -80,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4194140625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        8,
+        145,
+        206
+      ],
+      "shifts": [
+        -80,
+        -80,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5535341896612709,
+      "region": 2
+    },
+    {
+      "rgb": [
+        12,
+        158,
+        229
+      ],
+      "shifts": [
+        1,
+        -1,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.9586328125000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        246,
+        168,
+        67
+      ],
+      "shifts": [
+        -1,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.7418888977888717,
+      "region": 0
+    },
+    {
+      "rgb": [
+        65,
+        69,
+        241
+      ],
+      "shifts": [
+        0,
+        1,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.487421875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        246,
+        252,
+        207
+      ],
+      "shifts": [
+        0,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8877049704557411,
+      "region": 1
+    },
+    {
+      "rgb": [
+        222,
+        212,
+        1
+      ],
+      "shifts": [
+        80,
+        -255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.729609375,
+      "region": 0
+    },
+    {
+      "rgb": [
+        3,
+        33,
+        162
+      ],
+      "shifts": [
+        0,
+        80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8963537069316074,
+      "region": 1
+    },
+    {
+      "rgb": [
+        24,
+        71,
+        80
+      ],
+      "shifts": [
+        0,
+        80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.33589843750000004,
+      "region": 1
+    },
+    {
+      "rgb": [
+        251,
+        91,
+        206
+      ],
+      "shifts": [
+        -80,
+        1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.44879801825346594,
+      "region": 2
+    },
+    {
+      "rgb": [
+        23,
+        124,
+        16
+      ],
+      "shifts": [
+        0,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.21234375000000003,
+      "region": 1
+    },
+    {
+      "rgb": [
+        20,
+        154,
+        226
+      ],
+      "shifts": [
+        80,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.37183304137131107,
+      "region": 2
+    },
+    {
+      "rgb": [
+        93,
+        25,
+        243
+      ],
+      "shifts": [
+        1,
+        -80,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.8717578125000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        243,
+        162,
+        91
+      ],
+      "shifts": [
+        0,
+        -80,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.7751022430557127,
+      "region": 0
+    },
+    {
+      "rgb": [
+        49,
+        60,
+        135
+      ],
+      "shifts": [
+        -80,
+        1,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5288671875000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        185,
+        111,
+        55
+      ],
+      "shifts": [
+        -80,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.28205835023557585,
+      "region": 0
+    },
+    {
+      "rgb": [
+        62,
+        215,
+        35
+      ],
+      "shifts": [
+        -80,
+        80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.4869140625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        226,
+        167,
+        94
+      ],
+      "shifts": [
+        255,
+        1,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.499410202105581,
+      "region": 0
+    },
+    {
+      "rgb": [
+        66,
+        247,
+        156
+      ],
+      "shifts": [
+        -255,
+        0,
+        -255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.539765625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        177,
+        220,
+        253
+      ],
+      "shifts": [
+        0,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8458982545460975,
+      "region": 2
+    },
+    {
+      "rgb": [
+        248,
+        43,
+        133
+      ],
+      "shifts": [
+        0,
+        -255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7145312500000001,
+      "region": 0
+    },
+    {
+      "rgb": [
+        69,
+        251,
+        187
+      ],
+      "shifts": [
+        -80,
+        80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.8599391387236731,
+      "region": 1
+    },
+    {
+      "rgb": [
+        138,
+        82,
+        133
+      ],
+      "shifts": [
+        -255,
+        0,
+        255
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6673828125000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        91,
+        239,
+        188
+      ],
+      "shifts": [
+        80,
+        0,
+        -1
+      ],
+      "model": "perceptual",
+      "brightness": 0.8682968094270466,
+      "region": 1
+    },
+    {
+      "rgb": [
+        32,
+        247,
+        11
+      ],
+      "shifts": [
+        80,
+        -80,
+        1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.381640625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        254,
+        208,
+        28
+      ],
+      "shifts": [
+        -255,
+        255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.8833892528492459,
+      "region": 2
+    },
+    {
+      "rgb": [
+        10,
+        18,
+        133
+      ],
+      "shifts": [
+        80,
+        0,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.41449218750000005,
+      "region": 2
+    },
+    {
+      "rgb": [
+        46,
+        174,
+        79
+      ],
+      "shifts": [
+        255,
+        -1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.1248915628846474,
+      "region": 0
+    },
+    {
+      "rgb": [
+        58,
+        93,
+        207
+      ],
+      "shifts": [
+        -255,
+        -1,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.7421484375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        119,
+        56,
+        26
+      ],
+      "shifts": [
+        -255,
+        -255,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.5637608644072882,
+      "region": 2
+    },
+    {
+      "rgb": [
+        60,
+        213,
+        146
+      ],
+      "shifts": [
+        1,
+        -1,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.6515234375000001,
+      "region": 2
+    },
+    {
+      "rgb": [
+        182,
+        190,
+        155
+      ],
+      "shifts": [
+        -80,
+        1,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.6851676610607039,
+      "region": 1
+    },
+    {
+      "rgb": [
+        10,
+        210,
+        223
+      ],
+      "shifts": [
+        1,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.5779296875,
+      "region": 2
+    },
+    {
+      "rgb": [
+        17,
+        113,
+        42
+      ],
+      "shifts": [
+        0,
+        80,
+        1
+      ],
+      "model": "perceptual",
+      "brightness": 0.6461784871426653,
+      "region": 1
+    },
+    {
+      "rgb": [
+        189,
+        50,
+        200
+      ],
+      "shifts": [
+        -80,
+        -1,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.462109375,
+      "region": 2
+    },
+    {
+      "rgb": [
+        85,
+        155,
+        155
+      ],
+      "shifts": [
+        -1,
+        -255,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.6407228368012128,
+      "region": 2
+    },
+    {
+      "rgb": [
+        28,
+        219,
+        108
+      ],
+      "shifts": [
+        1,
+        0,
+        -80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3643359375,
+      "region": 1
+    },
+    {
+      "rgb": [
+        101,
+        101,
+        127
+      ],
+      "shifts": [
+        -255,
+        -80,
+        -80
+      ],
+      "model": "perceptual",
+      "brightness": 0.8999920848163995,
+      "region": 2
+    },
+    {
+      "rgb": [
+        161,
+        15,
+        188
+      ],
+      "shifts": [
+        0,
+        255,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.019921875000000002,
+      "region": 1
+    },
+    {
+      "rgb": [
+        125,
+        74,
+        139
+      ],
+      "shifts": [
+        -1,
+        -80,
+        0
+      ],
+      "model": "perceptual",
+      "brightness": 0.5740454908443697,
+      "region": 2
+    },
+    {
+      "rgb": [
+        91,
+        234,
+        144
+      ],
+      "shifts": [
+        -1,
+        80,
+        80
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.509296875,
+      "region": 1
+    },
+    {
+      "rgb": [
+        178,
+        194,
+        210
+      ],
+      "shifts": [
+        -1,
+        -1,
+        255
+      ],
+      "model": "perceptual",
+      "brightness": 0.3103153877210065,
+      "region": 2
+    },
+    {
+      "rgb": [
+        5,
+        162,
+        216
+      ],
+      "shifts": [
+        0,
+        -80,
+        0
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.3937890625,
+      "region": 2
+    },
+    {
+      "rgb": [
+        181,
+        167,
+        93
+      ],
+      "shifts": [
+        -80,
+        1,
+        80
+      ],
+      "model": "perceptual",
+      "brightness": 0.6276962814902036,
+      "region": 2
+    },
+    {
+      "rgb": [
+        109,
+        148,
+        233
+      ],
+      "shifts": [
+        1,
+        255,
+        -1
+      ],
+      "model": "rgb-weights",
+      "brightness": 0.1978515625,
+      "region": 1
+    },
+    {
+      "rgb": [
+        21,
+        154,
+        68
+      ],
+      "shifts": [
+        255,
+        -255,
+        -255
+      ],
+      "model": "perceptual",
+      "brightness": 0.559749316202287,
+      "region": 0
+    }
+  ]
+}

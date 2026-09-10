@@ -80,8 +80,8 @@ export function FilamentConstraints({
       <summary>Required spools &amp; stack ends</summary>
       <p className="field-help">
         Required spools count toward the filament budget. Stack ends constrain
-        Color Match and Color Pop stack planning; Guided includes these spools
-        as references.
+        All filament stack workflows; Guided includes these spools as
+        references.
       </p>
       {(["baseFilament", "highlightFilament"] as const).map((key, i) => (
         <label key={key}>
@@ -281,6 +281,12 @@ export function ComparisonsDialog({
                   ? `${c.boundaryStep.toFixed(3)} mm`
                   : "—"}
               </dd>
+              <dt>Estimated solid volume</dt>
+              <dd>
+                {c.options.mode === "stack" && c.volumeMm3 != null
+                  ? `${(c.volumeMm3 / 1000).toFixed(2)} cm³`
+                  : "—"}
+              </dd>
             </dl>
             <button
               className="button secondary"
@@ -294,8 +300,8 @@ export function ComparisonsDialog({
       </div>
       {!items.length && !saved.length && !busy && (
         <p>
-          No comparisons yet. Save the current result, or find alternatives in
-          Color Match or Color Pop stack planning.
+          No comparisons yet. Save the current result, or find alternatives in a
+          filament stack workflow.
         </p>
       )}
     </StudioDialog>

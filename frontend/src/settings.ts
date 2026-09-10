@@ -1,14 +1,64 @@
-import { defaultColorPop, type Options, type Filter } from "./types.ts";
+import {
+  defaultColorPop,
+  defaultHeightMap,
+  type HeightMode,
+  type Options,
+  type Filter,
+} from "./types.ts";
 
-export function colorPopWorkflow(options: Options, enabled: boolean): Options {
+export function heightWorkflow(options: Options, mode: HeightMode): Options {
+  return normalizeWorkflowExport({
+    ...options,
+    mode: "stack",
+    colorPop: { ...options.colorPop, enabled: false },
+    heightMap: {
+      ...structuredClone(defaultHeightMap),
+      ...options.heightMap,
+      mode,
+    },
+    hueforge: {
+      ...options.hueforge,
+      opticalModel:
+        options.hueforge.opticalModel === "legacy-exponential"
+          ? "hueforge-0.9.4.3-frontlit-v1"
+          : options.hueforge.opticalModel,
+    },
+  });
+}
+
+// All desktop stack workflows export their planned heights through HueForge
+// Color Match. Older luminance-mode choices must not survive a workflow change.
+export function normalizeWorkflowExport(options: Options): Options {
   return {
     ...options,
+    heightMap: { ...defaultHeightMap, ...options.heightMap, mode: "" },
+    hueforge:
+      options.mode === "stack" && options.hueforge.meshMode
+        ? { ...options.hueforge, meshMode: "color-match" }
+        : options.hueforge,
+  };
+}
+
+export function colorPopWorkflow(options: Options, enabled: boolean): Options {
+  return normalizeWorkflowExport({
+    ...options,
     mode: enabled && options.mode === "guided" ? "standard" : options.mode,
+    heightMap: {
+      ...structuredClone(defaultHeightMap),
+      ...options.heightMap,
+      mode: "",
+    },
     hueforge: enabled
-      ? { ...options.hueforge, opticalModel: "hueforge-0.9.4.3-frontlit-v1" }
+      ? {
+          ...options.hueforge,
+          opticalModel:
+            options.hueforge.opticalModel === "legacy-exponential"
+              ? "hueforge-0.9.4.3-frontlit-v1"
+              : options.hueforge.opticalModel,
+        }
       : options.hueforge,
     colorPop: { ...defaultColorPop, ...options.colorPop, enabled },
-  };
+  });
 }
 
 export function normalizeFilter(filter: Filter): Filter {
@@ -30,7 +80,10 @@ export function applyAutoDepth(options: Options, enabled: boolean): Options {
     hueforge: {
       ...h,
       autoDepth: enabled,
-      opticalModel: enabled ? "hueforge-0.9.4.3-frontlit-v1" : h.opticalModel,
+      opticalModel:
+        enabled && h.opticalModel === "legacy-exponential"
+          ? "hueforge-0.9.4.3-frontlit-v1"
+          : h.opticalModel,
       maxDepth: enabled ? h.maxDepth : Number(printable.toFixed(8)),
     },
   };
@@ -113,11 +166,16 @@ export function changeProcessingMode(
   options: Options,
   mode: Options["mode"],
 ): Options {
-  return {
+  return normalizeWorkflowExport({
     ...options,
     mode,
+    heightMap: {
+      ...structuredClone(defaultHeightMap),
+      ...options.heightMap,
+      mode: "",
+    },
     colorPop: { ...options.colorPop, enabled: false },
-  };
+  });
 }
 
 // Built-in palette presets describe only a color budget.
@@ -134,6 +192,13 @@ export function applySavedPreset(
   const applied: Options = {
     ...structuredClone(preset),
     mode: keepWorkflow ? options.mode : preset.mode,
+    heightMap: {
+      ...structuredClone(defaultHeightMap),
+      ...preset.heightMap,
+      mode: keepWorkflow
+        ? (options.heightMap?.mode ?? "")
+        : (preset.heightMap?.mode ?? ""),
+    },
     colorPop: {
       ...(keepWorkflow && !preset.colorPop?.enabled
         ? options.colorPop
@@ -145,7 +210,11 @@ export function applySavedPreset(
   };
   // A saved legacy optical profile cannot switch an active Color Pop stack
   // away from the model its separate height bands require.
-  if (applied.colorPop.enabled)
+  if (
+    (applied.colorPop.enabled ||
+      (applied.heightMap?.mode && applied.heightMap.mode !== "color-match")) &&
+    applied.hueforge.opticalModel === "legacy-exponential"
+  )
     applied.hueforge.opticalModel = "hueforge-0.9.4.3-frontlit-v1";
-  return applied;
+  return normalizeWorkflowExport(applied);
 }

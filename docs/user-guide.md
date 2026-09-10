@@ -1,9 +1,19 @@
 # ColorNinja Studio user guide
 
+Version 1.0 focuses on **Color Match and Color Pop** for stack planning.
+In Color Match, generate a preview and drag the suggested source color groups
+in **Tune → Color order**, first (bottom) to last (top). **Order strength** controls
+how strongly the planner favors that arrangement. Every edit recalculates, even
+with Auto preview off. Arrow buttons support keyboard and touch. **Reset order**
+returns to automatic color matching. See [color order](color-order.md) for details.
+The new channel workflows are paused; older channel settings reopen in Color
+Match, and saved channel previews must be regenerated. Backlit remains available
+under Layers. Simple reducer and Filament Guide are unchanged.
+
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For the public Windows beta download and installation steps, see the
+For the Windows 1.0 download and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.
@@ -17,7 +27,7 @@ The compiled application and CLI need no Python or Node.js installation.
 Open `build/bin/ColorNinja-Studio.exe`, or extract a portable archive from
 `build/releases` and open `ColorNinja.exe` inside it. The GUI requires Windows
 x64 and Microsoft Edge WebView2 Runtime. The CLI does not require WebView2.
-These local builds are unsigned.
+The Windows 1.0 executables are unsigned.
 
 1. Choose **File → Open image**, drop an image into the window, or try the built-in artwork under **File → Recent images**.
 2. Start with **Simple reducer**, choose the maximum colors, and select
@@ -148,12 +158,15 @@ still constrain the search. Automatic depth starts off and is saved with project
 presets, and processing settings. Turning it off snaps the depth down to a valid
 manual layer height.
 
-The planner compares complete stacks ending at different heights and selects
-the thinnest candidate within 1% of the best weighted color score found. This
-is a bounded beam search, not a proof of a globally optimal print. Color priority
-and detail settings affect that score. Deeper ceilings increase planning time;
-no extra thickness is added merely to fill the ceiling. The result reports the
-chosen depth, printable ceiling, and number of depths compared.
+The planner compares complete stacks ending at different heights and tests
+shortening interior runs after refinement. Every removal rebuilds later blends
+and rechecks color and appearance constraints; low TD alone does not justify
+removing a layer. It selects the thinnest candidate within the depth allowance
+(1% by default) of the best score found, including any enabled boundary and layer
+preference terms. This is a bounded search, not a proof of a globally optimal
+print. Color priority and detail settings affect that score. Deeper ceilings
+increase planning time. The result reports the chosen depth, printable ceiling,
+and number of eligible depths compared.
 
 Choose **Visualize stack** in the output dock's heading to open the
 interactive **Stack map**. Its horizontal tracks show physical filament runs,
@@ -162,8 +175,8 @@ Click a cell or use **Inspect layer** to see its height, filament/material/TD,
 predicted color, and actual visible-image coverage. A striped mesh cell is
 excluded as an image surface target; the physical layer can still print beneath
 higher surfaces. Repeated uses of the same spool have separate run numbers.
-For Combo, Color Aware, and Color Pop, the view explains that HueForge rebuilds
-heights and there is no separate exported mesh core. Stale previews are labeled.
+Desktop HFP exports use HueForge Color Match to retain the planned heights,
+including ColorNinja's Color Pop bands. Stale previews are labeled.
 
 The mesh targets use the same band construction as HFP export. HFP reserves one
 unused layer of import headroom, which can make its depth control exceed the
@@ -221,8 +234,9 @@ and stack schedule. For layer N above zero, height is first-layer height plus
 
 Color Match also supports **Allow filament returns**, with a separate run limit
 while the filament budget counts unique spools. Open **Export** and select
-**HueForge project (.hfp)** to configure mesh mode/core, width, and detail.
-Start with **Color Match** and **Tuned image colors (recommended)**, then refresh from the
+**HueForge project (.hfp)** to configure the mesh core, width, and detail.
+The mesh mode is automatically Color Match. Start with
+**Tuned image colors (recommended)**, then refresh from the
 dialog if the preview is stale before exporting. The project
 embeds the reduced image, physical Color Core, and virtual Mesh Core. See
 [the HFP guide](hueforge-project.md) for the tested import workflow and limits.

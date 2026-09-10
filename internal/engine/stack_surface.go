@@ -23,7 +23,7 @@ type StackSurface struct {
 }
 
 func stackBoundaries(ctx context.Context, src *image.NRGBA, palette []PaletteEntry, o Options) ([]stackBoundary, error) {
-	if !o.HueForge.ReduceShowThrough || o.Mode != "stack" {
+	if (!o.HueForge.ReduceShowThrough && !o.layerOptimization()) || o.Mode != "stack" {
 		return nil, nil
 	}
 	// Scan every pixel, retaining fixed memory independently of image area.
@@ -161,17 +161,20 @@ func stackSurface(s stackState, selected []RGB, layers []int, target []Vec, o Op
 				count++
 			}
 		}
+		// Score integrated color deviation through the vertical interval.
+		// An average lets extra opaque endpoint-colored layers dilute the
+		// offending bands, rewarding padding without improving appearance.
+		integratedDetour := detour * o.HueForge.LayerHeight
 		if count > 0 {
-			detour /= float64(count)
+			stats.RMSColorDetour += edge.weight * detour / float64(count)
 		}
-		stats.RMSColorDetour += edge.weight * detour
 		// One mm of boundary relief costs four working-space color units.
 		// Detours have a smaller influence so exact color fidelity still matters.
 		scale := edge.geometryScale
 		if scale == 0 {
 			scale = 1
 		}
-		stats.Penalty += edge.weight * (16*jump*jump*scale + .1*detour)
+		stats.Penalty += edge.weight * (16*jump*jump*scale + .1*integratedDetour)
 	}
 	stats.RMSColorDetour = math.Sqrt(stats.RMSColorDetour)
 	return stats

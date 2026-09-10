@@ -53,7 +53,7 @@ func (c ColorPopOptions) validate(o Options) error {
 	if o.Mode == "guided" {
 		return fmt.Errorf("choose Prepare image or Plan filament stack for Color Pop")
 	}
-	if o.Mode == "stack" && !o.HueForge.frontlit() {
+	if o.Mode == "stack" && !o.HueForge.compatibleOptics() {
 		return fmt.Errorf("Color Pop print planning requires the HueForge Front Lit model")
 	}
 	return nil
@@ -203,14 +203,23 @@ func processColorPop(ctx context.Context, src *image.NRGBA, o Options, lib *Libr
 	}
 	var r *Result
 	if o.Mode == "stack" {
-		r, err = planColorPop(ctx, prepared, mask, info, o, lib, progress)
+		r, err = chooseHeightDepth(ctx, o, progress, func(trial Options, reporter Reporter) (*Result, error) {
+			trialInfo := *info
+			result, e := planColorPop(ctx, prepared, mask, &trialInfo, trial, lib, reporter)
+			if e == nil {
+				result.ColorPop = &trialInfo
+			}
+			return result, e
+		})
 	} else {
 		r, err = reduceColorPop(ctx, prepared, mask, info, o, progress)
 	}
 	if err != nil {
 		return nil, err
 	}
-	r.ColorPop = info
+	if r.ColorPop == nil {
+		r.ColorPop = info
+	}
 	r.UniqueColors, err = CountUniqueColors(ctx, r.Image)
 	if err != nil {
 		return nil, err

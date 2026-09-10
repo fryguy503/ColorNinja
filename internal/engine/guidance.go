@@ -54,7 +54,7 @@ func guidanceCandidatesUncached(ctx context.Context, indices []int, lib Library,
 	for _, id := range indices {
 		v := baseOptics(lib.Filaments[id], o)
 		add(v.RGB(o), "filament", []int{id}, 0)
-		if o.frontlit() {
+		if o.compatibleOptics() {
 			for layer := 1; layer <= o.TransitionLayers(); layer++ {
 				add(v.step(lib.Filaments[id], o, false), "single-filament-run", []int{id}, layer)
 			}
@@ -77,7 +77,7 @@ func guidanceCandidatesUncached(ctx context.Context, indices []int, lib Library,
 	return out, nil
 }
 func candidateScore(ctx context.Context, candidates []guidanceCandidate, target []Vec, weights []float64, o Options) (float64, error) {
-	if o.HueForge.frontlit() {
+	if o.HueForge.compatibleOptics() {
 		records := guidedRecords(candidates, target, weights, o)
 		vectors := make([]Vec, len(records))
 		for i, r := range records {
@@ -169,7 +169,7 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 	// A useful pair can have two individually poor solid colors. Evaluate
 	// pairs together before the greedy additions, using the actual guided
 	// output (strength, byte rounding, and palette cap included).
-	if o.HueForge.frontlit() && o.Colors >= 2 && o.GuidanceStrength > 0 {
+	if o.HueForge.compatibleOptics() && o.Colors >= 2 && o.GuidanceStrength > 0 {
 		for i := range lib.Filaments {
 			for j := i + 1; j < len(lib.Filaments); j++ {
 				v, e := score([]int{i, j})
@@ -278,8 +278,8 @@ func guide(ctx context.Context, palette []PaletteEntry, lib Library, o Options, 
 	positions := map[int]int{}
 	plan := &GuidancePlan{Model: "inventory-guided-pairwise-td-hues-v1", Options: o.HueForge, Strength: o.GuidanceStrength, Requested: o.Colors, Eligible: len(lib.Filaments), RMS: rms, LibrarySHA256: lib.SHA256}
 	plan.OptimizationScore, plan.OptimizationMetric = rms, optimizationMetric(o, false)
-	if o.HueForge.frontlit() {
-		plan.Model = FrontlitModel + "-pairwise-guide"
+	if o.HueForge.compatibleOptics() {
+		plan.Model = o.HueForge.OpticalModel + "-pairwise-guide"
 	}
 	for _, id := range selected {
 		if used[id] || contains(required, id) {

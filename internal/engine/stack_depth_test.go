@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -33,6 +34,45 @@ func TestAutoDepthHardCeilingAndOldSettings(t *testing.T) {
 	}
 	if err := json.Unmarshal([]byte(`{"layerHeight":0.08,"baseDepth":0.48,"maxDepth":2.24}`), &restored.HueForge); err != nil || restored.HueForge.AutoDepth {
 		t.Fatal("old settings enabled automatic depth", err)
+	}
+}
+
+func TestAutoDepthTrimsInteriorOpaquePaddingAndPreservesLaterBlends(t *testing.T) {
+	o := DefaultOptions()
+	o.Mode, o.Colors = "stack", 3
+	o.HueForge.BaseDepth = .16
+	o.HueForge.MaxDepth = o.HueForge.Height(15)
+	o.HueForge.AutoDepth = true
+	lib := Library{Filaments: []Filament{{Name: "Base", RGB: RGB{}, TD: .01}, {Name: "Opaque blue", RGB: RGB{20, 37, 56}, TD: .3}, {Name: "Translucent white", RGB: RGB{239, 240, 241}, TD: 6.3}}}
+	initial := rebuildStack([]int{0, 1, 2}, []int{1, 6, 8}, lib, o.HueForge)
+	palette := []PaletteEntry{}
+	for _, rgb := range initial.rgbs {
+		palette = append(palette, entry(rgb, 1./float64(len(initial.rgbs)), 8))
+	}
+	target, weights := targets(palette, o)
+	ctx := context.WithValue(context.Background(), stackColorLimitKey{}, 1e-8)
+	ctx = context.WithValue(ctx, stackConstraintsKey{}, stackConstraints{required: []int{0, 1, 2}, top: 2})
+	initial.score, _ = stateScore(ctx, initial, target, weights, o)
+	depths := depthCandidates{}
+	if err := depths.thin(ctx, initial, lib, target, weights, o); err != nil {
+		t.Fatal(err)
+	}
+	best, _ := depths.choose()
+	if !reflect.DeepEqual(best.runs, []int{1, 1, 8}) || len(depths) < 6 {
+		t.Fatalf("interior padding retained or useful white blends removed: %v depths=%d", best.runs, len(depths))
+	}
+	before, _, _ := uniqueStack(initial)
+	after, _, _ := uniqueStack(best)
+	if !reflect.DeepEqual(before, after) {
+		t.Fatal("removing opaque padding changed reachable colors")
+	}
+	if !reflect.DeepEqual(initial.runs, []int{1, 6, 8}) {
+		t.Fatal("thinning mutated the original candidate")
+	}
+	canceled, cancel := context.WithCancel(ctx)
+	cancel()
+	if err := depths.thin(canceled, initial, lib, target, weights, o); err != context.Canceled {
+		t.Fatal("lost cancellation", err)
 	}
 }
 

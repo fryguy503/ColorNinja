@@ -33,6 +33,7 @@ import { Updates } from "./Updates";
 import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
 import { ColorPopPanel } from "./ColorPop";
+import { ColorOrderPanel } from "./ColorOrder";
 import {
   ProtectedColors,
   FilamentConstraints,
@@ -49,6 +50,7 @@ import {
   applyDisplayedColorBudget,
   applySavedPreset,
   normalizeFilter,
+  normalizeWorkflowExport,
   changeProcessingMode,
   applySmoothing,
   smoothingPreset,
@@ -59,6 +61,7 @@ import {
   defaults,
   emptyFilter,
   defaultPreferences,
+  defaultHeightMap,
   type Preferences,
   type Options,
   type Source,
@@ -724,6 +727,7 @@ function App() {
     return () => clearTimeout(t);
   }, [toast]);
   const update = (next: Options) => {
+    next = normalizeWorkflowExport(next);
     setOptions(next);
     setDirty(true);
     setHistory((prev) =>
@@ -771,7 +775,7 @@ function App() {
   const comparePlans = async (excluded?: string) => {
     if (!excluded && options.mode !== "stack") {
       notify(
-        "Choose Color Match or Color Pop stack planning to find printable alternatives.",
+        "Choose a filament stack workflow to find printable alternatives.",
       );
       return;
     }
@@ -1219,7 +1223,10 @@ function App() {
       "Best for HueForge's Color Match workflow. Uses your filament colors and TD; review the plan in HueForge.",
     ],
   } as const;
-  const activeWorkflow = options.colorPop.enabled ? "color-pop" : options.mode;
+  const fixedHeightWorkflow = options.colorPop.enabled;
+  const activeWorkflow = (
+    options.colorPop.enabled ? "color-pop" : options.mode
+  ) as keyof typeof modeInfo;
   const selected =
     preview?.result.guidance?.selectedFilaments ??
     preview?.result.stack?.runs.map((r) => r.filament) ??
@@ -1259,7 +1266,7 @@ function App() {
             <option value="standard">Simple reducer</option>
             <option value="color-pop">Color Pop</option>
             <option value="guided">Filament Guide</option>
-            <option value="stack">Color Match · experimental</option>
+            <option value="stack">Color Match</option>
           </select>
         </label>
         <button
@@ -1676,11 +1683,11 @@ function App() {
 
   const layersContent = (
     <>
-      {options.colorPop.enabled && (
+      {fixedHeightWorkflow && (
         <>
           <p className="field-help">
-            Color Pop uses a fixed thickness and separate height bands.
-            Filaments can return to rebuild shadows in the upper region.
+            Image heights stay within their assigned bands. Filaments can return
+            to rebuild shadows or colors later in the stack.
           </p>
           <Numeric
             label="Maximum filament runs"
@@ -1691,7 +1698,7 @@ function App() {
           />
         </>
       )}
-      {options.mode === "stack" && !options.colorPop.enabled && (
+      {options.mode === "stack" && (
         <label className="select-field">
           Search effort
           <select
@@ -1710,7 +1717,7 @@ function App() {
           </small>
         </label>
       )}
-      {options.mode === "stack" && !options.colorPop.enabled && (
+      {options.mode === "stack" && !fixedHeightWorkflow && (
         <>
           <label className="check-field">
             <input
@@ -1726,17 +1733,91 @@ function App() {
             accuracy for cleaner boundaries. Refresh and compare in HueForge;
             this is an estimate, not a mesh preview.
           </p>
-          {options.hueforge.reduceShowThrough && (
-            <Numeric
-              label="Allowed color-score increase"
-              value={options.hueforge.surfaceColorTolerance ?? 0}
-              min={0}
-              max={50}
-              step={1}
-              suffix="%"
-              onChange={(v) => changeHF("surfaceColorTolerance", v)}
+          <label className="check-field">
+            <input
+              type="checkbox"
+              checked={!!options.hueforge.layerPreference}
+              onChange={(e) =>
+                update({
+                  ...options,
+                  hueforge: {
+                    ...options.hueforge,
+                    layerPreference: e.target.checked ? "auto" : "",
+                    colorOrder: "",
+                    optimizeMaterial: false,
+                    surfaceColorTolerance: e.target.checked
+                      ? Math.max(5, options.hueforge.surfaceColorTolerance ?? 5)
+                      : options.hueforge.surfaceColorTolerance,
+                  },
+                })
+              }
             />
+            Optimize layer order
+          </label>
+          <p className="field-help">
+            Analyze color families and their regions to favor compact accents
+            above surrounding colors. Balance layer placement with color
+            accuracy and smooth transitions; shared shades stay grouped.
+            Enabling uses a 5% minimum color-score allowance, adjustable in
+            Advanced.
+          </p>
+          {options.hueforge.layerPreference &&
+            !dirty &&
+            !busy &&
+            preview?.options.hueforge.layerPreference ===
+              options.hueforge.layerPreference &&
+            preview.result.stack?.layerPreference && (
+              <p className="field-help" role="status">
+                {preview.result.stack.layerPreference.message}
+                {preview.result.stack.layerPreference.family && (
+                  <>
+                    {" "}
+                    Mean height: preferred colors{" "}
+                    {preview.result.stack.layerPreference.preferredMeanHeightMm.toFixed(
+                      2,
+                    )}{" "}
+                    mm; dominant colors{" "}
+                    {preview.result.stack.layerPreference.referenceMeanHeightMm.toFixed(
+                      2,
+                    )}{" "}
+                    mm.
+                  </>
+                )}
+              </p>
+            )}
+          {options.hueforge.highlightFilament && (
+            <label className="check-field">
+              <input
+                type="checkbox"
+                checked={options.hueforge.highlightOnlyAtTop ?? false}
+                onChange={(e) =>
+                  changeHF("highlightOnlyAtTop", e.target.checked)
+                }
+              />
+              Use the highlight filament only in the final run
+            </label>
           )}
+          {advanced &&
+            (options.hueforge.reduceShowThrough ||
+              options.hueforge.layerPreference) && (
+              <Numeric
+                label="Allowed color-score increase"
+                value={options.hueforge.surfaceColorTolerance ?? 0}
+                min={0}
+                max={50}
+                step={1}
+                suffix="%"
+                onChange={(v) => changeHF("surfaceColorTolerance", v)}
+              />
+            )}
+          {options.hueforge.layerPreference &&
+            (options.hueforge.surfaceColorTolerance ?? 0) === 0 && (
+              <p className="field-help">
+                At 0%, layer preferences can only use stacks that match or
+                improve the color score. Try 5% if the preferred colors remain
+                too low.
+              </p>
+            )}
           {advanced && (
             <Numeric
               label="Automatic depth tolerance"
@@ -1773,8 +1854,75 @@ function App() {
           )}
         </>
       )}
+      {options.mode === "stack" && fixedHeightWorkflow && (
+        <>
+          <label className="check-field">
+            <input
+              type="checkbox"
+              checked={options.hueforge.reduceShowThrough ?? false}
+              onChange={(e) => changeHF("reduceShowThrough", e.target.checked)}
+            />
+            Reduce layer show-through
+          </label>
+          <p className="field-help">
+            Fit cleaner intermediate colors at boundaries while preserving the
+            image’s assigned heights and bands.
+          </p>
+          {options.hueforge.highlightFilament && (
+            <label className="check-field">
+              <input
+                type="checkbox"
+                checked={options.hueforge.highlightOnlyAtTop ?? false}
+                onChange={(e) =>
+                  changeHF("highlightOnlyAtTop", e.target.checked)
+                }
+              />
+              Use the highlight filament only in the final run
+            </label>
+          )}
+          {advanced && (
+            <>
+              {options.hueforge.reduceShowThrough && (
+                <Numeric
+                  label="Allowed color-score increase"
+                  value={options.hueforge.surfaceColorTolerance ?? 5}
+                  min={0}
+                  max={50}
+                  suffix="%"
+                  onChange={(v) => changeHF("surfaceColorTolerance", v)}
+                />
+              )}
+              <Numeric
+                label="Automatic depth tolerance"
+                value={options.hueforge.depthTolerance ?? 1}
+                min={0}
+                max={50}
+                step={0.1}
+                suffix="%"
+                onChange={(v) => changeHF("depthTolerance", v)}
+              />
+            </>
+          )}
+        </>
+      )}
+      {options.hueforge.opticalModel === "hueforge-0.9.4.3-backlit-v1" && (
+        <>
+          <Numeric
+            label="Backlit TD scale"
+            value={options.hueforge.tdScale}
+            min={0.01}
+            max={3}
+            step={0.01}
+            onChange={(v) => changeHF("tdScale", v)}
+          />
+          <p className="field-help">
+            HueForge’s default light intensity uses 1.20. Match this setting and
+            your light source when comparing a Backlit print.
+          </p>
+        </>
+      )}
       <label className="select-field">
-        Front Lit model
+        Optical model
         <select
           value={options.hueforge.opticalModel}
           onChange={(e) =>
@@ -1788,6 +1936,12 @@ function App() {
                     : (options.hueforge.autoDepth ?? false),
                 ).hueforge,
                 opticalModel: e.target.value as HueForgeOptions["opticalModel"],
+                tdScale:
+                  e.target.value === "hueforge-0.9.4.3-backlit-v1" &&
+                  options.hueforge.opticalModel !==
+                    "hueforge-0.9.4.3-backlit-v1"
+                    ? 1.2
+                    : options.hueforge.tdScale,
               },
             })
           }
@@ -1795,15 +1949,13 @@ function App() {
           <option value="hueforge-0.9.4.3-frontlit-v1">
             HueForge Front Lit
           </option>
-          <option
-            value="legacy-exponential"
-            disabled={options.colorPop.enabled}
-          >
+          <option value="hueforge-0.9.4.3-backlit-v1">HueForge Backlit</option>
+          <option value="legacy-exponential" disabled={fixedHeightWorkflow}>
             Legacy approximation
           </option>
         </select>
       </label>
-      {options.hueforge.opticalModel === "hueforge-0.9.4.3-frontlit-v1" && (
+      {options.hueforge.opticalModel !== "legacy-exponential" && (
         <label className="select-field">
           Lighting
           <select
@@ -1853,7 +2005,7 @@ function App() {
         suffix="mm"
         onChange={(v) => changeHF("baseDepth", v)}
       />
-      {options.mode === "stack" && !options.colorPop.enabled && (
+      {options.mode === "stack" && (
         <>
           <label className="check-field">
             <input
@@ -1869,9 +2021,7 @@ function App() {
       )}
       <Numeric
         label={
-          options.mode === "stack" &&
-          options.hueforge.autoDepth &&
-          !options.colorPop.enabled
+          options.mode === "stack" && options.hueforge.autoDepth
             ? "Hard maximum depth"
             : "Maximum total depth"
         }
@@ -1955,7 +2105,7 @@ function App() {
         max={256}
         onChange={(v) => changeHF("analysisColors", v)}
       />
-      {options.hueforge.opticalModel !== "hueforge-0.9.4.3-frontlit-v1" && (
+      {options.hueforge.opticalModel === "legacy-exponential" && (
         <>
           <Numeric
             label="TD scale"
@@ -1988,84 +2138,57 @@ function App() {
 
   const hfpContent = (
     <>
-      {options.colorPop.enabled ? (
+      {fixedHeightWorkflow ||
+      options.hueforge.opticalModel === "hueforge-0.9.4.3-backlit-v1" ? (
         <p className="field-help">
-          Color Pop exports the planned height bands and physical filament stack
-          using Color Match. Keep the exported mesh mode to retain this
-          separation and preview.
+          Exports the planned height bands and physical filament stack using
+          HueForge Color Match to preserve this preview.
         </p>
       ) : (
         <>
+          <p className="field-help">
+            Exports in Color Match to preserve the preview's planned colors and
+            layer heights.
+          </p>
           <label className="select-field">
-            Mesh mode
+            Mesh core
             <select
-              value={options.hueforge.meshMode || "color-match"}
+              value={
+                !options.hueforge.meshCore ||
+                options.hueforge.meshCore === "planned-colors"
+                  ? "compact-blends"
+                  : options.hueforge.meshCore
+              }
               onChange={(e) =>
                 changeHF(
-                  "meshMode",
-                  e.target.value as HueForgeOptions["meshMode"],
+                  "meshCore",
+                  e.target.value as HueForgeOptions["meshCore"],
                 )
               }
             >
-              <option value="color-match">Color Match</option>
-              <option value="combo">Combo</option>
-              <option value="color-aware">Color Aware</option>
-              <option value="color-pop">Color Pop</option>
+              <option value="compact-blends">
+                Tuned image colors (recommended)
+              </option>
+              <option value="filament-blends">Use filament blends</option>
+              <option value="legacy-flat">Flat image colors (legacy)</option>
             </select>
           </label>
-          {!options.hueforge.meshMode ||
-          options.hueforge.meshMode === "color-match" ? (
-            <>
-              <label className="select-field">
-                Mesh core
-                <select
-                  value={
-                    !options.hueforge.meshCore ||
-                    options.hueforge.meshCore === "planned-colors"
-                      ? "compact-blends"
-                      : options.hueforge.meshCore
-                  }
-                  onChange={(e) =>
-                    changeHF(
-                      "meshCore",
-                      e.target.value as HueForgeOptions["meshCore"],
-                    )
-                  }
-                >
-                  <option value="compact-blends">
-                    Tuned image colors (recommended)
-                  </option>
-                  <option value="filament-blends">Use filament blends</option>
-                  <option value="legacy-flat">
-                    Flat image colors (legacy)
-                  </option>
-                </select>
-              </label>
-              <p className="field-help">
-                Tuned image colors fits Mesh Core TDs for blending while
-                retaining the planned heights. It removes unnecessary disables
-                and uses fewer IMAGE entries where possible. These TDs control
-                virtual image colors; your real filament TDs in the Color Core
-                stay unchanged.
-              </p>
-              {options.hueforge.meshCore === "legacy-flat" && (
-                <p className="field-help">
-                  Legacy export uses opaque 0.01 TD image colors and disables
-                  unused heights. Select Tuned image colors to enable blending.
-                </p>
-              )}
-              {options.hueforge.meshCore === "filament-blends" && (
-                <p className="field-help">
-                  Filament blends copies the physical print schedule into both
-                  cores and restricts matching to the selected heights.
-                </p>
-              )}
-            </>
-          ) : (
+          <p className="field-help">
+            Tuned image colors fits Mesh Core TDs for blending while retaining
+            the planned heights. It removes unnecessary disables and uses fewer
+            IMAGE entries where possible. These TDs control virtual image
+            colors; your real filament TDs in the Color Core stay unchanged.
+          </p>
+          {options.hueforge.meshCore === "legacy-flat" && (
             <p className="field-help">
-              HueForge will rebuild heights in this mode. Its mesh and colors
-              can differ from this preview. Use Color Match to retain the
-              planned color-to-layer assignments.
+              Legacy export uses opaque 0.01 TD image colors and disables unused
+              heights. Select Tuned image colors to enable blending.
+            </p>
+          )}
+          {options.hueforge.meshCore === "filament-blends" && (
+            <p className="field-help">
+              Filament blends copies the physical print schedule into both cores
+              and restricts matching to the selected heights.
             </p>
           )}
         </>
@@ -2680,6 +2803,15 @@ function App() {
                               </span>
                             </div>
                           </div>
+                          {preview.result.surfaceView?.volumeMm3 != null && (
+                            <p className="field-help">
+                              Estimated solid volume:{" "}
+                              {(
+                                preview.result.surfaceView.volumeMm3 / 1000
+                              ).toFixed(2)}{" "}
+                              cm³. Excludes purge and slicer adjustments.
+                            </p>
+                          )}
                           {preview.result.stack.depthSelection && (
                             <p className="field-help">
                               Auto depth ·{" "}
@@ -2710,10 +2842,10 @@ function App() {
                           <p>
                             {preview.options.mode === "guided"
                               ? "Filament colors and pairwise hues guide this image. Open the PNG in HueForge to create the final layer plan."
-                              : preview.options.hueforge.opticalModel ===
-                                  "hueforge-0.9.4.3-frontlit-v1"
-                                ? "Front Lit layer colors follow the validated HueForge model. Match your lighting, filament measurements, and swap heights before printing."
-                                : "This stack uses the legacy optical approximation. Choose HueForge Front Lit for the validated layer-color model."}
+                              : preview.options.hueforge.opticalModel !==
+                                  "legacy-exponential"
+                                ? "Layer colors follow the selected HueForge optical model. Match your lighting, filament measurements, and swap heights before printing."
+                                : "This stack uses the legacy optical approximation. Choose a HueForge optical model for validated layer-color calculations."}
                           </p>
                         </div>
                       )}
@@ -2756,6 +2888,10 @@ function App() {
                   const n = copy(defaults);
                   n.mode = options.mode;
                   n.colorPop.enabled = options.colorPop.enabled;
+                  n.heightMap = {
+                    ...structuredClone(defaultHeightMap),
+                    mode: "",
+                  };
                   n.colors = 8;
                   update(n);
                 }}
@@ -2793,6 +2929,24 @@ function App() {
           )}
           <div className="controls-scroll">
             <div hidden={tab !== "adjust"}>
+              {options.mode === "stack" && !options.colorPop.enabled && (
+                <ColorOrderPanel
+                  options={options}
+                  report={
+                    preview?.revision === source?.revision &&
+                    preview?.options.mode === "stack" &&
+                    !preview.options.colorPop.enabled
+                      ? preview.result.stack?.colorOrder
+                      : undefined
+                  }
+                  stale={dirty || busy}
+                  disabled={loading}
+                  recalculate={(next) => {
+                    update(next);
+                    setRerun((n) => n + 1);
+                  }}
+                />
+              )}
               {options.colorPop.enabled && (
                 <ColorPopPanel
                   options={options}

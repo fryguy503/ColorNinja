@@ -1,5 +1,51 @@
 # Validation scope
 
+## Release candidate 1
+
+The new native-reference corpus contains 656 Standard/Combo/Max/Scaled Max
+brightness cases, 512 Color Aware shifted-channel brightness cases, and 300
+Backlit stacks across three lighting presets. The Backlit tests compare floating
+channels and require exact rounded RGB bytes through the planner's stack rebuild.
+The corpus records the installed executable hash and contains numeric inputs
+and outputs only.
+
+The extracted candidate ran all seven stack workflows under Front Lit and
+Backlit on the 1,254 × 1,254 poppy demo. All 14 HFPs passed native filament JSON
+parsing, inclusive run expansion, physical blending, and HueForge's original
+Color Match shader: **zero RGB-byte differences and zero height mismatches over
+22,015,224 visible pixels**. Local evidence is under
+`artifacts/release-verification/c26d43c7b4f34d169cf361d06232c4ba`.
+This counts repeated evaluations of one artwork, not 22 million independent
+images or physical measurements.
+
+Go regressions cover five brightness/region workflows preserving a full-height
+one-pixel stripe despite a 64-pixel analysis setting, six band orders, ignored
+and empty channels, transparency, nonzero image origins, cancellation during
+planning, constraints during refinement, depth selection, cache equivalence,
+and portable project/profile/export/rerender round trips in both light models.
+The browser suite exercises the compiled app's real backend, all new workflow
+controls, Backlit, persistence, undo, stale-export guards, Escape, and three
+viewport widths. Full native Windows file-picker, clean-user, and physical-print
+acceptance remains open.
+
+On the local Ryzen 9 7950X, one-shot 512 × 384 synthetic gradient benchmarks
+took 97–104 ms for the five new height workflows and 311 ms for Color Pop, using
+4.5–4.6 MB and 22.4 MB of cumulative Go allocation respectively, excluding input
+creation. These are measurements of this small fixture, not performance limits
+or peak working-set measurements. Reproduce with:
+
+```powershell
+. ./scripts/env.ps1
+go test ./internal/engine -run '^$' -bench BenchmarkHeightWorkflow -benchmem
+```
+
+The maintained release checks are `scripts/build.ps1`, `scripts/audit.ps1`,
+`scripts/verify-ui.cjs`, and `scripts/verify-release.ps1`. Their Windows CI
+definition is `.github/workflows/verify.yml`; hosted CI must still run after
+these changes are pushed. Local npm audit and govulncheck found no known
+vulnerabilities. Signing support is implemented but requires an actual publisher
+certificate to exercise. See [production readiness](production-readiness.md).
+
 The build script records test results and tool versions in `BUILD-INFO.json`;
 the structured Go log is saved to `artifacts/go-tests.jsonl`. It requires Go
 tests, `go vet`, frontend state regression tests, TypeScript checking,

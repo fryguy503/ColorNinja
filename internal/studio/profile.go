@@ -45,6 +45,7 @@ func (s *Studio) SaveProfile(path, name string, req Request, overwrite bool) err
 	if err := req.Options.Validate(); err != nil {
 		return err
 	}
+	req.Options = workflowOptions(req.Options)
 	s.mu.RLock()
 	source, projectPath := s.source, s.projectPath
 	s.mu.RUnlock()
@@ -76,6 +77,7 @@ func LoadProfile(path string) (SettingsProfile, error) {
 	if err = p.Options.Validate(); err != nil {
 		return p, err
 	}
+	p.Options = workflowOptions(p.Options)
 	return p, nil
 }
 
@@ -93,6 +95,14 @@ func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool, 
 	if r == nil || req.ID != id || req.Revision != revision || source.Revision != revision {
 		return fmt.Errorf("generate a current preview before exporting")
 	}
+	// Defend exports from an already-cached old result as well as fresh input.
+	// Reframe only the frozen export copy; retain exact pixels and LayerMap.
+	req.Options = workflowOptions(req.Options)
+	if r.Stack != nil && r.Stack.Options.MeshMode != "" && r.Stack.Options.MeshMode != "color-match" {
+		req.Options.HueForge.MeshMode = "color-match"
+		r = engine.ReframeResult(r, req.Options)
+	}
+	export.result, export.resultRequest = r, req
 	if kind != "project" {
 		if err := engine.DistinctPaths(path, projectPath); err != nil {
 			return err

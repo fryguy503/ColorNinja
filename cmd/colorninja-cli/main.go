@@ -32,6 +32,23 @@ func run() error {
 	f.IntVar(&colors, "colors", 0, "color budget per population, or maximum filament anchors")
 	f.BoolVar(&o.TotalColors, "total-colors", false, "use --colors as a total limit including neutrals in standard mode")
 	f.BoolVar(&o.ColorPop.Enabled, "color-pop", false, "prepare Color Pop regions; combine with --hueforge-stack for a separated print plan")
+	f.StringVar(&o.HeightMap.Mode, "height-mode", "", "reserved: channel workflows are temporarily disabled")
+	f.StringVar(&o.HueForge.ColorOrder, "color-order", "", "preferred source color groups, bottom to top (comma-separated black, gray, white, red, yellow, green, cyan, blue, purple)")
+	f.Float64Var(&o.HueForge.ColorOrderWeight, "color-order-weight", 50, "Color Match order preference strength, 0 to 100")
+	f.StringVar(&o.HeightMap.StandardModel, "height-brightness-model", "", "rgb-weights (default) or perceptual")
+	f.Float64Var(&o.HeightMap.Mixing, "height-mixing", o.HeightMap.Mixing, "Combo: 100 is Standard, 0 is Max Channel")
+	f.BoolVar(&o.HeightMap.FullRange, "height-full-range", o.HeightMap.FullRange, "stretch each occupied brightness band to its available height")
+	f.Float64Var(&o.HeightMap.Brightness, "height-brightness", 0, "brightness offset, -100 to 100")
+	f.Float64Var(&o.HeightMap.Gamma, "height-gamma", o.HeightMap.Gamma, "brightness exponent, 0.1 to 5")
+	f.BoolVar(&o.HeightMap.Invert, "height-invert", false, "invert brightness within each height band")
+	f.StringVar(&o.HeightMap.ChannelOrder, "height-channel-order", o.HeightMap.ChannelOrder, "Color Aware bands from bottom to top: rgb, rbg, grb, gbr, brg, bgr")
+	f.IntVar(&o.HeightMap.GapLayers, "height-gap-layers", o.HeightMap.GapLayers, "unused layers between Color Aware bands, 0 to 8")
+	for c, name := range []string{"red", "green", "blue"} {
+		f.IntVar(&o.HeightMap.ChannelShift[c], "height-"+name+"-shift", 0, "Color Aware channel shift, -255 to 255")
+		f.Float64Var(&o.HeightMap.BandWeights[c], "height-"+name+"-weight", 1, "Color Aware relative band height, greater than 0 to 100")
+		f.BoolVar(&o.HeightMap.Ignore[c], "height-ignore-"+name, false, "ignore this channel in Color Aware classification")
+		f.BoolVar(&o.HeightMap.InvertBands[c], "height-invert-"+name, false, "invert brightness within this Color Aware band")
+	}
 	f.StringVar(&o.ColorPop.Selection, "color-pop-selection", o.ColorPop.Selection, "existing or selected")
 	f.StringVar(&o.ColorPop.Colors, "color-pop-colors", "", "comma-separated #RRGGBB hues to keep with selected mode")
 	f.Float64Var(&o.ColorPop.HueTolerance, "color-pop-hue-range", o.ColorPop.HueTolerance, "hue tolerance in degrees")
@@ -63,7 +80,7 @@ func run() error {
 	f.BoolVar(&avoidSilkMetallic, "hueforge-avoid-silk-metallic", false, "exclude silk, metallic, pearl, Elixir, and Starlight finishes by material, name, or tags")
 	f.BoolVar(&stack, "hueforge-stack", false, "plan one filament stack for Color Match; combine with --color-pop for separate height bands")
 	f.StringVar(&layerMap, "hueforge-height-map", "", "write 16-bit layer-index PNG (stack mode)")
-	f.StringVar(&hfp, "hueforge-project", "", "write a self-contained .hfp project (Front Lit stack mode)")
+	f.StringVar(&hfp, "hueforge-project", "", "write a self-contained .hfp project (HueForge optical model in stack mode)")
 	f.IntVar(&o.HueForge.MaxRuns, "hueforge-max-runs", 0, "maximum contiguous filament runs, allowing returns; 0 keeps one run per filament")
 	f.StringVar(&o.HueForge.MeshMode, "hueforge-mesh-mode", "color-match", "HFP mesh mode: color-match, combo, color-aware, color-pop (other modes rebuild heights in HueForge)")
 	f.StringVar(&o.HueForge.MeshCore, "hueforge-mesh-core", o.HueForge.MeshCore, "HFP Color Match mesh core: compact-blends (tuned TDs), filament-blends, or legacy-flat (0.01 TD); planned-colors upgrades to compact-blends")
@@ -79,21 +96,24 @@ func run() error {
 	f.StringVar(&o.HueForge.RequiredFilaments, "hueforge-require", "", "comma-separated stable filament keys from a report or library view")
 	f.StringVar(&o.HueForge.BaseFilament, "hueforge-base-filament", "", "stable key of the required stack foundation")
 	f.StringVar(&o.HueForge.HighlightFilament, "hueforge-highlight-filament", "", "stable key of the required final stack filament")
+	f.BoolVar(&o.HueForge.HighlightOnlyAtTop, "hueforge-highlight-only-at-top", false, "keep the required highlight filament out of earlier runs while allowing other returns")
 	f.Float64Var(&o.HueForge.SurfaceColorTolerance, "hueforge-surface-color-tolerance", o.HueForge.SurfaceColorTolerance, "maximum percent increase in working color score when reducing boundaries")
 	f.Float64Var(&o.HueForge.DepthTolerance, "hueforge-depth-tolerance", o.HueForge.DepthTolerance, "automatic-depth score tolerance percent; 0 retains the legacy 1 percent")
 	f.Float64Var(&o.HueForge.LayerHeight, "hueforge-layer-height", o.HueForge.LayerHeight, "layer height in mm")
 	f.Float64Var(&o.HueForge.FirstLayerHeight, "hueforge-first-layer-height", o.HueForge.FirstLayerHeight, "first layer height in mm (0 uses regular height)")
-	f.StringVar(&o.HueForge.OpticalModel, "hueforge-optical-model", o.HueForge.OpticalModel, "hueforge-0.9.4.3-frontlit-v1 or legacy-exponential")
+	f.StringVar(&o.HueForge.OpticalModel, "hueforge-optical-model", o.HueForge.OpticalModel, "hueforge-0.9.4.3-frontlit-v1, hueforge-0.9.4.3-backlit-v1, or legacy-exponential")
 	f.StringVar(&o.HueForge.LightPreset, "hueforge-light", o.HueForge.LightPreset, "hueforge-default, neutral-white, or warm-white")
 	f.Float64Var(&o.HueForge.BaseDepth, "hueforge-base-depth", o.HueForge.BaseDepth, "base depth in mm")
 	f.Float64Var(&o.HueForge.MaxDepth, "hueforge-max-depth", o.HueForge.MaxDepth, "maximum total depth in mm")
-	f.BoolVar(&o.HueForge.AutoDepth, "hueforge-auto-depth", false, "choose the thinnest Front Lit stack within 1% of the best color score found, below --hueforge-max-depth")
+	f.BoolVar(&o.HueForge.AutoDepth, "hueforge-auto-depth", false, "choose the thinnest stack within the depth tolerance of the best score found, below --hueforge-max-depth")
 	f.BoolVar(&o.HueForge.ReduceShowThrough, "hueforge-reduce-show-through", false, "favor smaller height jumps and fewer unrelated intermediate colors at image boundaries (stack mode)")
+	f.BoolVar(&o.HueForge.OptimizeMaterial, "hueforge-optimize-material", false, "favor less estimated solid material within the color-score allowance (Color Match stack mode)")
+	f.StringVar(&o.HueForge.LayerPreference, "hueforge-layer-preference", "", "raise source color family: auto, red, yellow, green, cyan, blue, or purple (Color Match)")
 	f.IntVar(&o.HueForge.AnalysisColors, "hueforge-analysis-colors", o.HueForge.AnalysisColors, "analysis colors per population")
 	f.IntVar(&o.HueForge.MaxPerceivedColors, "hueforge-max-perceived-colors", o.HueForge.MaxPerceivedColors, "maximum output colors")
 	f.IntVar(&o.HueForge.BeamWidth, "hueforge-beam-width", o.HueForge.BeamWidth, "stack search beam width")
 	f.Float64Var(&o.HueForge.TDTransmission, "hueforge-td-transmission", o.HueForge.TDTransmission, "transmission at one scaled TD")
-	f.Float64Var(&o.HueForge.TDScale, "hueforge-td-scale", o.HueForge.TDScale, "front-lit TD scale")
+	f.Float64Var(&o.HueForge.TDScale, "hueforge-td-scale", o.HueForge.TDScale, "Backlit/legacy TD scale; Backlit defaults to 1.20, ignored by Front Lit")
 	f.Float64Var(&o.HueForge.BaseTransmissionLimit, "hueforge-base-transmission-limit", o.HueForge.BaseTransmissionLimit, "maximum base transmission")
 	f.BoolVar(&force, "force", false, "replace existing outputs")
 	f.BoolVar(&quiet, "quiet", false, "suppress summary")
@@ -124,15 +144,26 @@ func run() error {
 		return fmt.Errorf("input image is required")
 	}
 	o.MinClusterFraction = minimum / 100
+	if o.HueForge.OpticalModel == engine.BacklitModel {
+		explicitScale := false
+		f.Visit(func(v *flag.Flag) {
+			if v.Name == "hueforge-td-scale" {
+				explicitScale = true
+			}
+		})
+		if !explicitScale {
+			o.HueForge.TDScale = 1.2
+		}
+	}
 	if full {
 		o.AnalysisMaxPixels = 0
 	}
 	if library != "" {
 		o.Mode = "guided"
-		if stack {
+		if stack || o.HeightMap.Mode != "" {
 			o.Mode = "stack"
 		}
-	} else if stack || layerMap != "" || includeUnowned || allowSecondary || avoidSilkMetallic || len(materials) > 0 {
+	} else if stack || o.HeightMap.Mode != "" || layerMap != "" || includeUnowned || allowSecondary || avoidSilkMetallic || len(materials) > 0 {
 		return fmt.Errorf("filament options require --hueforge-library")
 	}
 	if colors == 0 {
@@ -169,11 +200,14 @@ func run() error {
 	if layerMap != "" && o.Mode != "stack" {
 		return fmt.Errorf("height map requires explicit --hueforge-stack")
 	}
-	if hfp != "" && (o.Mode != "stack" || o.HueForge.OpticalModel != engine.FrontlitModel) {
-		return fmt.Errorf("HFP export requires Front Lit stack mode")
+	if hfp != "" && (o.Mode != "stack" || !o.HueForge.SupportsHFP()) {
+		return fmt.Errorf("HFP export requires a HueForge optical model in stack mode")
 	}
 	if hfp != "" && !strings.EqualFold(filepath.Ext(hfp), ".hfp") {
 		return fmt.Errorf("HueForge project must end in .hfp")
+	}
+	if o.HeightMap.Mode != "" && o.HeightMap.Mode != "color-match" {
+		return fmt.Errorf("channel workflows are temporarily disabled; use Color Match (--hueforge-stack) or Color Pop (--color-pop)")
 	}
 	if e := o.Validate(); e != nil {
 		return e

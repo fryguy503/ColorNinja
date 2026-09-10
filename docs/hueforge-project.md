@@ -1,5 +1,12 @@
 # HueForge projects and filament returns
 
+Version 1.0 supports Color Match and Color Pop with Front Lit or Backlit
+physical colors. Channel workflows are temporarily disabled. The HFP mesh uses
+Color Match to preserve the planned heights, including heights chosen with the
+[weighted color-order preference](color-order.md). Backlit and Color Pop retain
+distinct virtual RGB keys for repeated colors at different heights. Backlit also
+sets the visualizer and light intensity to match the selected optical model.
+
 Color Match exports self-contained `.hfp` projects for HueForge 0.9.4.3 using
 Front Lit and Filament Painting. The project embeds the reduced image, real
 filament identities and TD, swap positions, dimensions, layer geometry, lighting,
@@ -49,13 +56,20 @@ lookup. Export width and mesh detail scale the height penalty. **Visualize stack
 adds height-boundary and intermediate-color overlays, an approximate surface,
 and coverage; its display grid is capped and can miss fine features. Full-pixel
 step statistics are separate from the sampled display. Check the actual HueForge
-mesh and material lighting. Other mesh modes rebuild heights. `stack.surface`
+mesh and material lighting. `stack.surface`
 records palette-boundary metrics; `surfaceView` records actual mapped-image
 statistics. Neither is a measured show-through percentage.
 
 CLI: add `--hueforge-reduce-show-through` to the stack export command below.
 
 ## The two cores
+
+For measured color-order, relief, and material comparisons, see
+[Layer-order optimization](print-optimization.md). Layers offers automatic
+**Optimize layer order** and, with a required highlight selected,
+**Use the highlight filament only in the final run**. Evaluate appearance and
+assigned heights alongside volume; an earlier run can otherwise capture the
+image colors even when the same spool also appears at the top.
 
 The **Color Core** contains the actual optimized print schedule, including repeated
 filament identities. Names, brands, materials, RGB, and TD travel with the project.
@@ -81,9 +95,16 @@ Already exported HFP files need to be exported again and reopened in HueForge.
 0.01 TD bands and disables unused heights; this is no longer the default.
 
 **Use filament blends** instead uses the physical schedule as the Mesh Core and
-HueForge's Oklab matcher. **Combo**, **Color Aware**, and **Color Pop** are also
-available export modes. HueForge recomputes their heights, so they do not promise
-the same result as ColorNinja's Color Match plan.
+HueForge's Oklab matcher. Desktop HFP exports always use HueForge **Color Match**;
+the separate mesh-mode selector has been removed. This also applies to
+ColorNinja's **Color Pop** workflow, whose planned color/grayscale bands are
+preserved using Color Match. Old desktop settings, presets, profiles, and projects
+with another mesh mode are corrected automatically. Reopening a saved project
+preserves its rendered pixels, filament runs, and assigned heights.
+
+**Combo**, **Color Aware**, and HueForge **Color Pop** remain explicit low-level
+CLI options for compatibility. HueForge recomputes their heights, so these do not
+promise the same result as ColorNinja's plan.
 
 Changing export settings marks the preview stale; refresh before exporting.
 HFP requires the current Front Lit model, at most 998 planned layers, and first

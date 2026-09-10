@@ -24,22 +24,24 @@ type LayerColor struct {
 	Fraction    float64 `json:"analysisFraction"`
 }
 type StackPlan struct {
-	OptimizationScore  float64         `json:"optimizationScore"`
-	OptimizationMetric string          `json:"optimizationMetric"`
-	Model              string          `json:"model"`
-	SearchMethod       string          `json:"searchMethod"`
-	Options            HueForgeOptions `json:"options"`
-	Requested          int             `json:"requestedFilaments"`
-	UniqueFilaments    int             `json:"uniqueFilaments"`
-	Eligible           int             `json:"eligibleFilaments"`
-	EligibleBases      int             `json:"eligibleBases"`
-	PlannedDepth       float64         `json:"plannedDepth"`
-	Runs               []StackRun      `json:"runs"`
-	LayerColors        []LayerColor    `json:"layerColors"`
-	RMS                float64         `json:"weightedRmsDeltaE76"`
-	LibrarySHA256      string          `json:"librarySHA256"`
-	DepthSelection     *DepthSelection `json:"depthSelection,omitempty"`
-	Surface            *StackSurface   `json:"surface,omitempty"`
+	OptimizationScore  float64                `json:"optimizationScore"`
+	OptimizationMetric string                 `json:"optimizationMetric"`
+	Model              string                 `json:"model"`
+	SearchMethod       string                 `json:"searchMethod"`
+	Options            HueForgeOptions        `json:"options"`
+	Requested          int                    `json:"requestedFilaments"`
+	UniqueFilaments    int                    `json:"uniqueFilaments"`
+	Eligible           int                    `json:"eligibleFilaments"`
+	EligibleBases      int                    `json:"eligibleBases"`
+	PlannedDepth       float64                `json:"plannedDepth"`
+	Runs               []StackRun             `json:"runs"`
+	LayerColors        []LayerColor           `json:"layerColors"`
+	RMS                float64                `json:"weightedRmsDeltaE76"`
+	LibrarySHA256      string                 `json:"librarySHA256"`
+	DepthSelection     *DepthSelection        `json:"depthSelection,omitempty"`
+	Surface            *StackSurface          `json:"surface,omitempty"`
+	ColorOrder         *ColorOrderReport      `json:"colorOrder,omitempty"`
+	LayerPreference    *LayerPreferenceReport `json:"layerPreference,omitempty"`
 }
 type stackState struct {
 	indices, runs     []int
@@ -84,8 +86,24 @@ func stateScore(ctx context.Context, s stackState, target []Vec, weights []float
 	if e != nil {
 		return 0, e
 	}
+	barrier, searching := 0., ctx.Value(layerSearchBarrierKey{}) == true
 	if limit, ok := ctx.Value(stackColorLimitKey{}).(float64); ok && v > limit {
-		return math.Inf(1), e
+		if !searching {
+			return math.Inf(1), e
+		}
+		barrier = 1024 * (v - limit) * (v - limit)
+	}
+	if o.layerOptimization() {
+		selected := make([]RGB, len(ids))
+		for i, id := range ids {
+			selected[i] = colors[id]
+		}
+		if excess := layerColorExcess(ctx, selected, target, o); excess > 0 {
+			if !searching {
+				return math.Inf(1), nil
+			}
+			barrier += 1024 * excess
+		}
 	}
 	if e = chooseStackHeights(ctx, s, colors, layers, nil, ids, target, o, boundaries); e != nil {
 		return 0, e
@@ -93,13 +111,12 @@ func stateScore(ctx context.Context, s stackState, target []Vec, weights []float
 	if !enforceHeightConstraints(ctx, s, colors, layers, nil, ids, target, o, boundaries) {
 		return math.Inf(1), nil
 	}
-	if len(boundaries) > 0 {
+	if len(boundaries) > 0 || o.materialOptimization() || o.layerOptimization() {
 		selected, heights := make([]RGB, len(ids)), make([]int, len(ids))
 		for i, id := range ids {
 			selected[i], heights[i] = colors[id], layers[id]
 		}
-		surface := stackSurface(s, selected, heights, target, o, boundaries)
-		v = math.Sqrt(v*v + surface.Penalty)
+		v = math.Sqrt(v*v + barrier + stackGeometryPenalty(ctx, s, selected, heights, target, o, boundaries))
 	}
 	return v, e
 }
@@ -110,12 +127,24 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	}
 	ctx = context.WithValue(ctx, stackConstraintsKey{}, stackConstraints{required, requiredTop})
 	target, weights := targets(palette, o)
+	ctx = context.WithValue(ctx, stackAreaKey{}, paletteAreas(palette))
+	families := make([]string, len(palette))
+	for i, p := range palette {
+		families[i] = layerColorFamily(p.RGB)
+	}
+	ctx = context.WithValue(ctx, layerFamiliesKey{}, families)
+	ctx = context.WithValue(ctx, colorOrderKey{}, orderSource(palette))
+	pref := imageLayerPreference(ctx, palette, o)
+	ctx = context.WithValue(ctx, layerPreferenceKey{}, pref)
 	h := o.HueForge
 	var colorBaseline *stackState
-	if len(boundaries) > 0 {
+	if len(boundaries) > 0 || o.materialOptimization() || o.layerOptimization() {
 		plain := o
 		plain.HueForge.ReduceShowThrough = false
-		_, plan, err := planStack(ctx, palette, lib, plain, progress)
+		plain.HueForge.OptimizeMaterial = false
+		plain.HueForge.LayerPreference = ""
+		plain.HueForge.ColorOrder = ""
+		baselinePalette, plan, err := planStack(ctx, palette, lib, plain, progress)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -135,6 +164,17 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 			return nil, nil, err
 		}
 		ctx = context.WithValue(ctx, stackColorLimitKey{}, colorScore*(1+h.SurfaceColorTolerance/100)+1e-8)
+		if o.layerOptimization() {
+			colors := make([]RGB, len(baselinePalette))
+			for i, c := range baselinePalette {
+				colors[i] = c.RGB
+			}
+			limits := layerFamilyErrors(colors, target, paletteAreas(palette), families, o)
+			for f, v := range limits {
+				limits[f] = v*(1+h.SurfaceColorTolerance/100) + 1
+			}
+			ctx = context.WithValue(ctx, layerColorLimitsKey{}, limits)
+		}
 		baseline.score, err = stateScore(ctx, baseline, target, weights, o, boundaries...)
 		if err != nil {
 			return nil, nil, err
@@ -147,7 +187,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 			continue
 		}
 		t := math.Pow(h.TDTransmission, h.BaseDepth/(f.TD*h.TDScale))
-		if h.frontlit() || t <= h.BaseTransmissionLimit+1e-12 {
+		if h.compatibleOptics() || t <= h.BaseTransmissionLimit+1e-12 {
 			bases = append(bases, i)
 		}
 	}
@@ -169,7 +209,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		sort.SliceStable(out, func(i, j int) bool { return stateLess(out[i], out[j]) })
 		// Every base gets to demonstrate a useful two-filament blend before
 		// pruning. A poor solid match can be the best blending substrate.
-		if h.frontlit() {
+		if h.compatibleOptics() {
 			return out
 		}
 		return out[:min(h.BeamWidth, len(out))]
@@ -177,6 +217,49 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	terminals := []stackState{}
 	if colorBaseline != nil {
 		terminals = append(terminals, *colorBaseline)
+	}
+	if o.layerOptimization() {
+		seeds, err := preferenceSeeds(ctx, palette, lib, o, progress)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, seed := range seeds {
+			ids, runs := []int{}, []int{}
+			for _, run := range seed.Runs {
+				for i, f := range lib.Filaments {
+					if FilamentKey(f) == FilamentKey(run.Filament) {
+						ids, runs = append(ids, i), append(runs, run.Layers)
+						break
+					}
+				}
+			}
+			candidate := rebuildStack(ids, runs, lib, h)
+			candidate.score, err = stateScore(ctx, candidate, target, weights, o, boundaries...)
+			if err != nil {
+				return nil, nil, err
+			}
+			if !finite(candidate.score) {
+				// Refine a near-miss order using a steep color barrier. It may
+				// enter the feasible set after adjusting its blend thicknesses.
+				// Never admit the relaxed score into the final candidate set.
+				searchCtx := context.WithValue(ctx, layerSearchBarrierKey{}, true)
+				candidate.score, err = stateScore(searchCtx, candidate, target, weights, o, boundaries...)
+				if err != nil {
+					return nil, nil, err
+				}
+				candidate, err = refineStack(searchCtx, candidate, lib, bases, target, weights, o, progress, boundaries...)
+				if err != nil {
+					return nil, nil, err
+				}
+				candidate.score, err = stateScore(ctx, candidate, target, weights, o, boundaries...)
+				if err != nil {
+					return nil, nil, err
+				}
+			}
+			if finite(candidate.score) {
+				terminals = append(terminals, candidate)
+			}
+		}
 	}
 	depths := depthCandidates{}
 	maximum := min(o.Colors, len(lib.Filaments), h.TransitionLayers()+1)
@@ -202,7 +285,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 						return nil, nil, err
 					}
 				}
-				if h.frontlit() {
+				if h.compatibleOptics() {
 					for run := 1; run <= h.TransitionLayers(); run++ {
 						rgb := beam[i].current.step(lib.Filaments[beam[i].indices[0]], h, false)
 						beam[i].rgbs = append(beam[i].rgbs, rgb)
@@ -238,11 +321,17 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 			remaining := size - position
 			expanded := []stackState{}
 			for _, s := range beam {
+				if h.HighlightOnlyAtTop && requiredTop >= 0 && contains(s.indices, requiredTop) {
+					continue
+				}
 				maxRun := h.TransitionLayers() - s.used - remaining
 				if maxRun < 1 {
 					continue
 				}
 				for i, f := range lib.Filaments {
+					if h.HighlightOnlyAtTop && !final && i == requiredTop {
+						continue
+					}
 					if final && requiredTop >= 0 && i != requiredTop {
 						continue
 					}
@@ -331,7 +420,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	if !finite(best.score) {
 		return nil, nil, fmt.Errorf("no stack fits the required base and highlight")
 	}
-	if h.frontlit() || o.PreserveDetails || len(boundaries) > 0 {
+	if h.compatibleOptics() || o.PreserveDetails || len(boundaries) > 0 {
 		count := 3
 		if h.SearchEffort == "refine" {
 			count = 8
@@ -348,15 +437,19 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	}
 	var depthSelection *DepthSelection
 	if h.AutoDepth {
-		depths.record(best)
+		if err := depths.thin(ctx, best, lib, target, weights, o, boundaries...); err != nil {
+			return nil, nil, err
+		}
 		best, _ = depths.choose(h.DepthTolerance)
-		if h.frontlit() || o.PreserveDetails || len(boundaries) > 0 {
+		if h.compatibleOptics() || o.PreserveDetails || len(boundaries) > 0 {
 			var err error
 			best, err = refineStack(ctx, best, lib, bases, target, weights, o, progress, boundaries...)
 			if err != nil {
 				return nil, nil, err
 			}
-			depths.record(best)
+			if err = depths.thin(ctx, best, lib, target, weights, o, boundaries...); err != nil {
+				return nil, nil, err
+			}
 		}
 		var bestScore float64
 		best, bestScore = depths.choose(h.DepthTolerance)
@@ -366,6 +459,12 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		}
 		if len(boundaries) > 0 {
 			metric += " with boundary penalty"
+		}
+		if o.materialOptimization() {
+			metric += " with material penalty"
+		}
+		if o.layerOptimization() {
+			metric += " with source-color layer preference"
 		}
 		tolerance := h.DepthTolerance
 		if tolerance == 0 {
@@ -418,10 +517,28 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		rms = paletteRMS76(actual, palette, o)
 	}
 	plan := &StackPlan{Model: "independent-frontlit-scaled-td-linear-srgb-v1", SearchMethod: "deterministic-multisize-beam-with-capped-terminal-rerank", Options: h, Requested: o.Colors, Eligible: len(lib.Filaments), EligibleBases: len(bases), PlannedDepth: h.Height(planned), RMS: rms, LibrarySHA256: lib.SHA256}
+	plan.ColorOrder = colorOrderReport(palette, out, o)
 	plan.DepthSelection = depthSelection
 	plan.OptimizationScore = best.score
 	plan.OptimizationMetric = optimizationMetric(o, len(boundaries) > 0)
-	if h.ReduceShowThrough {
+	if o.materialOptimization() {
+		plan.SearchMethod += "-area-weighted-material-penalty"
+	}
+	if o.customColorOrder() {
+		plan.SearchMethod += "-weighted-color-order"
+	}
+	if o.layerOptimization() && !o.customColorOrder() {
+		plan.SearchMethod += "-source-color-layer-preference"
+		plan.LayerPreference = &LayerPreferenceReport{Message: "No clear compact accent found. Optimizing related shades and transitions without assuming a foreground color."}
+		if pref != nil {
+			selected, heights := make([]RGB, len(out)), make([]int, len(out))
+			for i, p := range out {
+				selected[i], heights[i] = p.RGB, p.StackLayer
+			}
+			_, plan.LayerPreference = preferencePenalty(pref, preferenceHeights(selected, heights, target, o), o)
+		}
+	}
+	if len(boundaries) > 0 {
 		selected, heights := make([]RGB, len(out)), make([]int, len(out))
 		for i, p := range out {
 			selected[i], heights[i] = p.RGB, p.StackLayer
@@ -433,11 +550,11 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	if h.AutoDepth {
 		plan.SearchMethod += "-automatic-depth-frontier"
 	}
-	if h.frontlit() {
-		plan.Model = FrontlitModel
+	if h.compatibleOptics() {
+		plan.Model = h.OpticalModel
 		plan.SearchMethod += "-all-base-pair-expansion"
 	}
-	if h.frontlit() || o.PreserveDetails || len(boundaries) > 0 {
+	if h.compatibleOptics() || o.PreserveDetails || len(boundaries) > 0 {
 		plan.SearchMethod += "-diverse-complete-stack-refinement"
 		if h.SearchEffort == "refine" {
 			plan.SearchMethod += "-structural-moves"
@@ -459,16 +576,15 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	if h.MaxRuns > 0 {
 		plan.SearchMethod += "-reusable-filaments"
 	}
-	base := newFrontlit(h.light())
+	base := newOptics(lib.Filaments[best.indices[0]], h)
 	for layer := 1; layer <= h.BaseLayers(); layer++ {
 		rgb := lib.Filaments[best.indices[0]].RGB
-		if h.frontlit() {
+		if h.compatibleOptics() {
 			height := h.LayerHeight
 			if layer == 1 {
 				height = h.FirstHeight()
 			}
-			base.step(lib.Filaments[best.indices[0]], height, layer == 1)
-			rgb = base.RGB()
+			rgb = base.layer(lib.Filaments[best.indices[0]], height, h, layer == 1)
 		}
 		plan.LayerColors = append(plan.LayerColors, LayerColor{layer, h.Height(layer), rgb, 1, fractions[layer]})
 	}

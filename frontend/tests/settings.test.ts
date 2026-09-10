@@ -4,9 +4,11 @@ import { defaults, type Options } from "../src/types.ts";
 import {
   applyColorBudget,
   colorPopWorkflow,
+  heightWorkflow,
   applyAutoDepth,
   applySavedPreset,
   normalizeFilter,
+  normalizeWorkflowExport,
   changeProcessingMode,
   applySmoothing,
   smoothingPreset,
@@ -14,6 +16,34 @@ import {
   displayedColorBudget,
   applyDisplayedColorBudget,
 } from "../src/settings.ts";
+
+test("paused channel modes normalize to Color Match and preserve Backlit", () => {
+  const base=structuredClone(defaults);base.hueforge.opticalModel="hueforge-0.9.4.3-backlit-v1";base.hueforge.tdScale=1.2;base.colorPop.enabled=true;
+  for(const mode of ["standard","combo","max-channel","scaled-max-channel","color-aware"] as const) {
+    const value=heightWorkflow(base,mode);
+    assert.equal(value.mode,"stack");assert.equal(value.heightMap?.mode,"");assert.equal(value.colorPop.enabled,false);
+    assert.equal(applyAutoDepth(value,true).hueforge.opticalModel,base.hueforge.opticalModel);
+    assert.equal(colorPopWorkflow(value,true).hueforge.opticalModel,base.hueforge.opticalModel);
+    assert.equal(colorPopWorkflow(value,true).heightMap?.mode,"");
+    const preset=applySavedPreset(value,defaults);assert.equal(preset.heightMap?.mode,"");
+    assert.equal(changeProcessingMode(value,"standard").heightMap?.mode,"");
+    assert.equal(base.colorPop.enabled,true);
+  }
+});
+
+test("stack workflow changes and old presets cannot restore a height-rebuilding mesh mode", () => {
+  for (const meshMode of ["color-pop", "combo", "color-aware"] as const) {
+    const old = structuredClone(defaults); old.hueforge.meshMode = meshMode;
+    const stack = changeProcessingMode(old, "stack");
+    assert.equal(stack.hueforge.meshMode, "color-match");
+    assert.equal(old.hueforge.meshMode, meshMode);
+    assert.equal(applySavedPreset(stack, old).hueforge.meshMode, "color-match");
+    assert.equal(colorPopWorkflow(stack, true).hueforge.meshMode, "color-match");
+    const restored = normalizeWorkflowExport({...old, mode: "stack"});
+    assert.equal(restored.hueforge.meshMode, "color-match");
+    assert.deepEqual(restored.hueforge, {...old.hueforge, meshMode:"color-match"});
+  }
+});
 
 test("Color Pop keeps existing tuning, preserves selection across ordinary presets, and stays opt-in", () => {
   const original = structuredClone(defaults); original.mode = "guided"; original.colors = 12;

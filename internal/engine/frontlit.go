@@ -105,31 +105,46 @@ func (s *frontlitState) step(f Filament, height float64, newRun bool) {
 // Optical state shared by guidance, beam expansion, rebuilding, and exports.
 type opticalState struct {
 	front   frontlitState
+	back    backlitState
 	current Vec
 }
 
-func baseOptics(f Filament, h HueForgeOptions) opticalState {
-	s := opticalState{front: newFrontlit(h.light()), current: LinearRGB(f.RGB)}
-	if h.frontlit() {
-		for i := 1; i <= h.BaseLayers(); i++ {
-			height := h.LayerHeight
-			if i == 1 {
-				height = h.FirstHeight()
-			}
-			s.front.step(f, height, i == 1)
-		}
-	}
-	return s
+func newOptics(f Filament, h HueForgeOptions) opticalState {
+	return opticalState{front: newFrontlit(h.light()), back: newBacklit(h), current: LinearRGB(f.RGB)}
 }
-func (s *opticalState) step(f Filament, h HueForgeOptions, newRun bool) RGB {
+func (s *opticalState) layer(f Filament, height float64, h HueForgeOptions, newRun bool) RGB {
+	if h.backlit() {
+		s.back.step(f, height, h)
+		return s.back.RGB()
+	}
 	if h.frontlit() {
-		s.front.step(f, h.LayerHeight, newRun)
+		s.front.step(f, height, newRun)
 		return s.front.RGB()
 	}
 	s.current = blend(s.current, f, h)
 	return FromLinear(s.current)
 }
+
+func baseOptics(f Filament, h HueForgeOptions) opticalState {
+	s := newOptics(f, h)
+	if h.compatibleOptics() {
+		for i := 1; i <= h.BaseLayers(); i++ {
+			height := h.LayerHeight
+			if i == 1 {
+				height = h.FirstHeight()
+			}
+			s.layer(f, height, h, i == 1)
+		}
+	}
+	return s
+}
+func (s *opticalState) step(f Filament, h HueForgeOptions, newRun bool) RGB {
+	return s.layer(f, h.LayerHeight, h, newRun)
+}
 func (s opticalState) RGB(h HueForgeOptions) RGB {
+	if h.backlit() {
+		return s.back.RGB()
+	}
 	if h.frontlit() {
 		return s.front.RGB()
 	}

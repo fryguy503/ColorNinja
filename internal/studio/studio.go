@@ -128,6 +128,10 @@ func New(ctx context.Context, configPath string) *Studio {
 	} else if !os.IsNotExist(e) {
 		s.warning = "Saved settings could not be opened: " + e.Error()
 	}
+	s.settings.Options = workflowOptions(s.settings.Options)
+	for i := range s.settings.Presets {
+		s.settings.Presets[i].Options = workflowOptions(s.settings.Presets[i].Options)
+	}
 	if s.settings.LibraryPath == "" {
 		candidate := filepath.Join(os.Getenv("APPDATA"), "HueForge", "Filaments", "personal_library.json")
 		if _, e := os.Stat(candidate); e == nil {
@@ -299,6 +303,7 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 	if e := req.Options.Validate(); e != nil {
 		return nil, e
 	}
+	req.Options = workflowOptions(req.Options)
 	s.mu.Lock()
 	if req.Revision != s.revision || s.image == nil {
 		s.mu.Unlock()
@@ -395,6 +400,7 @@ func (s *Studio) SavePreset(name string, o engine.Options) ([]Preset, error) {
 	if e := o.Validate(); e != nil {
 		return nil, e
 	}
+	o = workflowOptions(o)
 	s.mu.Lock()
 	p := append([]Preset{}, s.settings.Presets...)
 	found := false
@@ -483,7 +489,7 @@ func (s *Studio) openLegacyProject(path string) (Snapshot, error) {
 		return Snapshot{}, e
 	}
 	s.mu.Lock()
-	s.settings.Options = d.Options
+	s.settings.Options = workflowOptions(d.Options)
 	s.projectPath = path
 	s.settings.LibraryPath = d.LibraryPath
 	s.settings.Filter = d.Filter

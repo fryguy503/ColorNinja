@@ -2,7 +2,9 @@ package engine
 
 import (
 	"context"
+	"fmt"
 	"math"
+	"sort"
 )
 
 const autoDepthTolerance = .01
@@ -70,6 +72,57 @@ func (c depthCandidates) consider(ctx context.Context, s stackState, target []Ve
 		c.record(s)
 	}
 	return err
+}
+
+// Refined complete orders need their own depth search: shortening only the
+// prefix beam's final run cannot remove padding in an interior opaque run.
+// Rebuild and rescore all downstream blends; low TD alone is not sufficient.
+func (c depthCandidates) thin(ctx context.Context, initial stackState, lib Library, target []Vec, weights []float64, o Options, boundaries ...stackBoundary) error {
+	c.record(initial)
+	beam := []stackState{initial}
+	trials := 0
+	for len(beam) > 0 {
+		next := []stackState{}
+		seen := map[string]bool{}
+		for _, s := range beam {
+			for pos, n := range s.runs {
+				minimum := 1
+				if pos == 0 {
+					minimum = o.HueForge.BaseLayers()
+				}
+				if n <= minimum {
+					continue
+				}
+				if err := ctx.Err(); err != nil {
+					return err
+				}
+				runs := append([]int(nil), s.runs...)
+				runs[pos]--
+				key := fmt.Sprint(runs)
+				if seen[key] {
+					continue
+				}
+				seen[key] = true
+				trials++
+				if trials > 4096 {
+					return nil
+				}
+				candidate := rebuildStack(s.indices, runs, lib, o.HueForge)
+				var err error
+				candidate.score, err = stateScore(ctx, candidate, target, weights, o, boundaries...)
+				if err != nil {
+					return err
+				}
+				if finite(candidate.score) {
+					c.record(candidate)
+					next = append(next, candidate)
+				}
+			}
+		}
+		sort.SliceStable(next, func(i, j int) bool { return depthStateLess(next[i], next[j]) })
+		beam = next[:min(3, len(next))]
+	}
+	return ctx.Err()
 }
 
 func (c depthCandidates) choose(tolerances ...float64) (stackState, float64) {
