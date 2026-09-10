@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([string]$GuiName = 'ColorNinja-Studio.exe', [string]$SigningCertificateThumbprint = '', [string]$SignToolPath = 'signtool.exe')
+param([string]$GuiName = 'ColorNinja-Studio.exe', [string]$SigningCertificateThumbprint = '', [string]$SignToolPath = 'signtool.exe', [switch]$RequireCleanSource)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path $PSScriptRoot -Parent
 if ([IO.Path]::GetFileName($GuiName) -ne $GuiName -or $GuiName -notmatch '\.exe$') { throw 'GuiName must be a filename ending in .exe.' }
@@ -50,6 +50,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Could not identify the source commit.' }
         $sourceStatus = & git status --porcelain
         if ($LASTEXITCODE -ne 0) { throw 'Could not identify the source working-tree state.' }
+        if ($RequireCleanSource -and $sourceStatus) { throw "Release requires clean source: $($sourceStatus -join '; ')" }
         $buildInfo.sourceCommit = $sourceCommit
         $buildInfo.sourceDirty = [bool]$sourceStatus
         $sourceFiles = & git -c core.quotepath=false ls-files --cached --others --exclude-standard
@@ -61,6 +62,8 @@ try {
         })
         $manifest | ConvertTo-Json -Depth 3 | Set-Content -LiteralPath 'build/bin/SOURCE-MANIFEST.json' -Encoding utf8
         $buildInfo.sourceManifestSHA256 = (Get-FileHash -LiteralPath 'build/bin/SOURCE-MANIFEST.json' -Algorithm SHA256).Hash.ToLowerInvariant()
+    } elseif ($RequireCleanSource) {
+        throw 'A clean-source release build requires a Git checkout.'
     }
     $buildInfo.guiSHA256 = (Get-FileHash -LiteralPath (Join-Path 'build\bin' $GuiName) -Algorithm SHA256).Hash.ToLowerInvariant()
     $buildInfo.cliSHA256 = (Get-FileHash -LiteralPath 'build\bin\colorninja-cli.exe' -Algorithm SHA256).Hash.ToLowerInvariant()

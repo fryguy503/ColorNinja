@@ -27,7 +27,7 @@ jobs:
       - name: Install pinned build dependencies
         run: ./scripts/bootstrap.ps1
       - name: Build and test
-        run: ./scripts/build.ps1
+        run: ./scripts/build.ps1 -RequireCleanSource
       - name: Audit runtime dependencies
         run: ./scripts/audit.ps1
       - name: Browser acceptance against compiled application
