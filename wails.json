@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.0.2",
+    "productVersion": "1.0.3",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.0.2 - Automatic HueForge library discovery on macOS"
+    "comments": "1.0.3 - Adaptive parallel processing and comparison pane swapping"
   }
 }

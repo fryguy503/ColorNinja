@@ -91,8 +91,13 @@ func priorityCluster(ctx context.Context, pts []point, o Options, budget int) ([
 		if err := ctx.Err(); err != nil {
 			return nil, nil, err
 		}
-		anchorNeutralCenters(pts, centers, o)
-		_, _, masses = assign(weighted, centers)
+		if err := anchorNeutralCenters(ctx, pts, centers, o); err != nil {
+			return nil, nil, err
+		}
+		_, _, masses, err = assign(ctx, weighted, centers)
+		if err != nil {
+			return nil, nil, err
+		}
 		a, b, nearest := -1, -1, separation*separation
 		for i := range centers {
 			for j := i + 1; j < len(centers); j++ {
@@ -115,15 +120,18 @@ func priorityCluster(ctx context.Context, pts []point, o Options, budget int) ([
 		}
 	}
 	// Actual alpha-weighted pixel area, not importance, is returned to reports.
-	_, _, masses = assign(pts, centers)
-	return centers, masses, nil
+	_, _, masses, err = assign(ctx, pts, centers)
+	return centers, masses, err
 }
 
 // A mostly neutral shape should not inherit a color cast from a small vivid
 // region that received a larger selection weight. Recenter such a cluster on
 // its neutral source pixels, using their actual alpha-weighted area.
-func anchorNeutralCenters(pts []point, centers []Vec, o Options) {
-	labels, _, masses := assign(pts, centers)
+func anchorNeutralCenters(ctx context.Context, pts []point, centers []Vec, o Options) error {
+	labels, _, masses, err := assign(ctx, pts, centers)
+	if err != nil {
+		return err
+	}
 	neutral := make([]float64, len(centers))
 	sums := make([]Vec, len(centers))
 	for i, p := range pts {
@@ -143,4 +151,5 @@ func anchorNeutralCenters(pts []point, centers []Vec, o Options) {
 			}
 		}
 	}
+	return ctx.Err()
 }

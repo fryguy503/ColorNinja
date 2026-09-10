@@ -30,7 +30,7 @@ full-resolution working copy, independently of `preserveDetails`. Both passes us
 unchanged source CIELAB values as the guide (range sigma from
 `smoothingColorSigma`, with zero retaining the original 5 Delta E76; spatial
 sigma from `preblurSigma`, truncated at two spatial sigmas). Original alpha is
-preserved; transparent neighbors contribute no RGB. Eight workers at most use
+preserved; transparent neighbors contribute no RGB. Adaptive workers use
 8192-pixel tiles with halos, bounding float scratch space even for long, thin
 images. Zero smoothing returns the original source directly.
 
@@ -59,7 +59,7 @@ not saturation. Filament selection uses importance weights separately from real
 source fractions and original-pixel fidelity metrics. See
 [palette priority](palette-priority.md) for the method and limits.
 
-Every original-resolution pixel is mapped without dithering. Up to eight row
+Every original-resolution pixel is mapped without dithering. Bounded row
 workers use deterministic metric reduction. Current processing matches smoothed
 pixels in Oklab with either preservation setting; when preserving details,
 guided/stack modes map through analyzed source color groups so
@@ -81,6 +81,26 @@ are not culled a second time by output area fraction. Only
 improvements to the capped output objective are accepted. Each output color
 corresponds to a layer in that stack; smoothing introduces no off-palette colors.
 This is a bounded local search, not a guarantee of the globally optimal stack.
+
+CPU work shares the policy in `parallel.go`: at most 16 workers, no more than
+`GOMAXPROCS` (reserving one logical CPU when more than four are available),
+further limited by task count, estimated useful work,
+and a 32 MiB budget for estimated worker scratch. The scratch budget does not
+include the source/output images and is not a process memory limit. Deep stacks
+and wide beams reduce concurrency. Small clustering/search jobs run directly
+on the caller without starting a pool. Smoothing and mapping retain bounded
+scanline workers and now use the same adaptive capacity policy.
+
+Clustering assigns disjoint point ranges in parallel, then sums weights and
+centroids in the original order. Color Match partitions beam expansion into
+contiguous ranges with private bounded candidate pools and depth frontiers;
+merging their top candidates preserves the original schedule tie-breaks.
+Independent complete-stack refinements run in parallel with private visited
+caches. Layer thinning scores batches of at most 16 independent removals before
+merging in source order. Scoring context values remain read-only, progress
+callbacks stay serialized, and every pool joins all workers before returning,
+including on cancellation. Guidance's shared optical memo is never mutated
+from these workers. See [processing performance](performance.md).
 
 `frontlit.go` models cumulative CMY runs for Front Lit color prediction,
 including its darkening correction, lightness lookup, lighting substrate, and

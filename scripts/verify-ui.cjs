@@ -44,6 +44,43 @@ const errors = [], checks = [], renders = [];
   };
   await ready();
   await page.getByRole('checkbox', { name: 'Auto preview', exact: true }).uncheck();
+  const comparisonTabs = page.getByRole('group', { name: 'Preview comparison', exact: true });
+  await comparisonTabs.getByRole('button', { name: 'Side by side', exact: true }).click();
+  await page.getByRole('button', { name: '1:1', exact: true }).click();
+  const panes = page.locator('.comparison-pane');
+  const paneOrder = () => panes.evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label')));
+  const paneState = () => panes.evaluateAll(nodes => nodes.map(node => ({
+    label: node.getAttribute('aria-label'),
+    heading: node.querySelector('strong').textContent,
+    src: node.querySelector('img').src,
+    alt: node.querySelector('img').alt,
+    style: node.querySelector('.image-frame').getAttribute('style'),
+  })).sort((a, b) => a.label.localeCompare(b.label)));
+  assert.deepEqual(await paneOrder(), ['Original image panel', 'Processed image panel']);
+  const canvas = await page.locator('.comparison-pane-body').first().boundingBox();
+  await page.mouse.move(canvas.x + 100, canvas.y + 100);
+  await page.mouse.down();
+  await page.mouse.move(canvas.x + 125, canvas.y + 115, { steps: 3 });
+  await page.mouse.up();
+  const beforeSwap = await paneState();
+  const renderCount = renders.length;
+  const swap = page.getByRole('button', { name: 'Swap original and result panes', exact: true });
+  assert.equal(await swap.getAttribute('aria-pressed'), 'false');
+  await swap.click();
+  assert.deepEqual(await paneOrder(), ['Processed image panel', 'Original image panel']);
+  assert.deepEqual(await paneState(), beforeSwap, 'Swapping changed images, labels, zoom or pan');
+  assert.equal(await swap.getAttribute('aria-pressed'), 'true');
+  await page.screenshot({ path: path.join(output, 'panes-swapped.png'), fullPage: true });
+  await swap.focus();
+  await page.keyboard.press('Enter');
+  assert.deepEqual(await paneOrder(), ['Original image panel', 'Processed image panel']);
+  assert.deepEqual(await paneState(), beforeSwap);
+  assert.equal(await swap.getAttribute('aria-pressed'), 'false');
+  assert.equal(renders.length, renderCount, 'Pane swapping reran image processing');
+  await comparisonTabs.getByRole('button', { name: 'Compare', exact: true }).click();
+  assert.equal(await swap.count(), 0);
+  await page.getByRole('button', { name: 'Fit image to window', exact: true }).click();
+  checks.push('Side-by-side pane swapping preserves images, zoom/pan and processing; keyboard restores order');
   const workflow = page.getByRole('combobox', {name:'Processing mode'});
   assert.deepEqual(await workflow.locator('option').evaluateAll(nodes=>nodes.map(n=>n.value)), ['standard','color-pop','guided','stack']);
   checks.push('Only established workflows are available; new channel modes are paused');

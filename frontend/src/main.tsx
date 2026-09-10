@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import {
   Aperture,
   ArrowDownToLine,
+  ArrowLeftRight,
   ArrowUpRight,
   Check,
   ChevronDown,
@@ -108,11 +109,13 @@ function IconButton({
   title,
   onClick,
   disabled = false,
+  pressed,
   children,
 }: {
   title: string;
   onClick: () => void;
   disabled?: boolean;
+  pressed?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -121,6 +124,7 @@ function IconButton({
       className="icon-button"
       title={title}
       aria-label={title}
+      aria-pressed={pressed}
       onClick={onClick}
       disabled={disabled}
     >
@@ -274,6 +278,7 @@ function Viewer({
     if (!colorPop && view === "selection") setView("reduced");
   }, [colorPop, view]);
   const sideBySide = view === "side-by-side";
+  const [panesSwapped, setPanesSwapped] = useState(false);
   const [split, setSplit] = useState(50);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -395,6 +400,15 @@ function Viewer({
           >
             1:1
           </button>
+          {sideBySide && (
+            <IconButton
+              title="Swap original and result panes"
+              pressed={panesSwapped}
+              onClick={() => setPanesSwapped((swapped) => !swapped)}
+            >
+              <ArrowLeftRight size={15} />
+            </IconButton>
+          )}
           <IconButton title="Image information" onClick={onInspect}>
             <Info size={15} />
           </IconButton>
@@ -464,55 +478,60 @@ function Viewer({
       >
         {source && sideBySide ? (
           <div className="side-by-side-view">
-            <section
-              className="comparison-pane"
-              aria-label="Original image panel"
-            >
-              <div className="comparison-pane-heading">
-                <strong>Original</strong>
-                <ColorCount count={source.uniqueColors} />
-              </div>
-              <div className="comparison-pane-body" ref={comparisonViewport}>
-                <div className="image-frame checker" style={frameStyle}>
-                  <img
-                    draggable={false}
-                    alt="Original image"
-                    src={source.url}
-                  />
+            {(panesSwapped
+              ? ["result", "original"]
+              : ["original", "result"]
+            ).map((pane) => (
+              <section
+                key={pane}
+                className="comparison-pane"
+                aria-label={
+                  pane === "original"
+                    ? "Original image panel"
+                    : "Processed image panel"
+                }
+              >
+                <div className="comparison-pane-heading">
+                  <strong>
+                    {pane === "original"
+                      ? "Original"
+                      : preview && dirty
+                        ? "Previous result"
+                        : "Result"}
+                  </strong>
+                  {pane === "original" ? (
+                    <ColorCount count={source.uniqueColors} />
+                  ) : preview ? (
+                    <ColorCount count={preview.result.uniqueColors} />
+                  ) : (
+                    <span>Awaiting preview</span>
+                  )}
                 </div>
-              </div>
-            </section>
-            <section
-              className="comparison-pane"
-              aria-label="Processed image panel"
-            >
-              <div className="comparison-pane-heading">
-                <strong title={preview && dirty ? "Previous result" : "Result"}>
-                  {preview && dirty ? "Previous result" : "Result"}
-                </strong>
-                {preview ? (
-                  <ColorCount count={preview.result.uniqueColors} />
-                ) : (
-                  <span>Awaiting preview</span>
-                )}
-              </div>
-              <div className="comparison-pane-body">
-                {preview ? (
-                  <div className="image-frame checker" style={frameStyle}>
-                    <img
-                      draggable={false}
-                      alt="Processed image"
-                      src={preview.url}
-                    />
-                  </div>
-                ) : (
-                  <div className="comparison-placeholder">
-                    <Aperture size={24} />
-                    <span>Generate a preview to compare</span>
-                  </div>
-                )}
-              </div>
-            </section>
+                <div
+                  className="comparison-pane-body"
+                  ref={pane === "original" ? comparisonViewport : undefined}
+                >
+                  {pane === "original" || preview ? (
+                    <div className="image-frame checker" style={frameStyle}>
+                      <img
+                        draggable={false}
+                        alt={
+                          pane === "original"
+                            ? "Original image"
+                            : "Processed image"
+                        }
+                        src={pane === "original" ? source.url : preview?.url}
+                      />
+                    </div>
+                  ) : (
+                    <div className="comparison-placeholder">
+                      <Aperture size={24} />
+                      <span>Generate a preview to compare</span>
+                    </div>
+                  )}
+                </div>
+              </section>
+            ))}
           </div>
         ) : source ? (
           <div className="image-frame checker" style={frameStyle}>

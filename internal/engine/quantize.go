@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"math"
-	"runtime"
 	"sort"
 	"sync"
 )
@@ -260,23 +259,42 @@ func discoverPrepared(ctx context.Context, src *image.NRGBA, o Options, progress
 	}
 	return protectPalette(result, o), size, nil
 }
-func assign(pts []point, centers []Vec) ([]int, []float64, []float64) {
+func assign(ctx context.Context, pts []point, centers []Vec) ([]int, []float64, []float64, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, nil, nil, err
+	}
 	labels := make([]int, len(pts))
 	dist := make([]float64, len(pts))
 	masses := make([]float64, len(centers))
-	for i, p := range pts {
-		best := math.Inf(1)
-		for j, c := range centers {
-			d := distance(p.lab, c)
-			if d < best {
-				best = d
-				labels[i] = j
+	workers := processingWorkers(len(pts), int64(len(pts))*int64(len(centers)), 32768, 0)
+	err := parallelRanges(ctx, len(pts), workers, func(ctx context.Context, slot, lo, hi int) error {
+		for i := lo; i < hi; i++ {
+			if i%1024 == 0 {
+				if err := ctx.Err(); err != nil {
+					return err
+				}
 			}
+			best := math.Inf(1)
+			for j, c := range centers {
+				d := distance(pts[i].lab, c)
+				if d < best {
+					best = d
+					labels[i] = j
+				}
+			}
+			dist[i] = best
 		}
-		dist[i] = best
+		return nil
+	})
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	// Preserve the exact serial summation order, including weighted centroids
+	// in refine. Worker-local floating-point sums would change borderline ties.
+	for i, p := range pts {
 		masses[labels[i]] += p.mass
 	}
-	return labels, dist, masses
+	return labels, dist, masses, ctx.Err()
 }
 func refine(ctx context.Context, pts []point, centers []Vec, iterations int) ([]Vec, []float64, error) {
 	var previous []int
@@ -284,7 +302,10 @@ func refine(ctx context.Context, pts []point, centers []Vec, iterations int) ([]
 		if err := ctx.Err(); err != nil {
 			return nil, nil, err
 		}
-		labels, dist, masses := assign(pts, centers)
+		labels, dist, masses, err := assign(ctx, pts, centers)
+		if err != nil {
+			return nil, nil, err
+		}
 		updated := make([]Vec, len(centers))
 		for i, p := range pts {
 			for c := 0; c < 3; c++ {
@@ -327,8 +348,8 @@ func refine(ctx context.Context, pts []point, centers []Vec, iterations int) ([]
 			break
 		}
 	}
-	_, _, masses := assign(pts, centers)
-	return centers, masses, nil
+	_, _, masses, err := assign(ctx, pts, centers)
+	return centers, masses, err
 }
 func cluster(ctx context.Context, pts []point, o Options) ([]Vec, []float64, error) {
 	if len(pts) == 0 {
@@ -387,7 +408,10 @@ func cluster(ctx context.Context, pts []point, o Options) ([]Vec, []float64, err
 	for len(centers) > 1 {
 		protected := make([]bool, len(centers))
 		if o.PreserveDetails {
-			labels, _, _ := assign(pts, centers)
+			labels, _, _, err := assign(ctx, pts, centers)
+			if err != nil {
+				return nil, nil, err
+			}
 			for i, p := range pts {
 				if p.detail {
 					protected[labels[i]] = true
@@ -584,7 +608,7 @@ func mapImage(ctx context.Context, src, mappingSource *image.NRGBA, palette, ana
 		layerMap = make([]uint16, w*h)
 	}
 	jobs := make(chan int)
-	done := make(chan int, min(8, runtime.GOMAXPROCS(0)))
+	done := make(chan int, processingWorkers(h, int64(w)*int64(h)*int64(max(1, len(labs))), 32768, int64(len(palette))*8))
 	var wg sync.WaitGroup
 	for worker := 0; worker < cap(done); worker++ {
 		wg.Add(1)

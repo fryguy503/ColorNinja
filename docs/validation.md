@@ -1,5 +1,19 @@
 # Validation scope
 
+## Version 1.0.3 parallel processing and pane swapping
+
+Processing regressions compare complete results at CPU limits 1, 2, 4, 8, and
+32, including pixels, alpha, layer maps, quality reports, geometry, and cached
+results. Seven fixtures match their pre-parallelization outputs exactly. Tests
+also cover exact weighted-cluster arithmetic, worker/scratch limits,
+cancellation, joining workers, and serialized progress. Engine and studio race
+checks passed on Windows. Benchmark scope and memory limits are documented in
+[performance](performance.md).
+
+Browser acceptance verifies that swapping Side by side panes moves the correct
+images and labels, preserves linked zoom/pan, supports keyboard activation, and
+does not rerun processing. Native-platform package gates continue to apply.
+
 ## Version 1.0.2 library discovery
 
 Synthetic libraries exercise the Windows roaming directory and the macOS

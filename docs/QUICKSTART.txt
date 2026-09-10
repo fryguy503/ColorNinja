@@ -1,4 +1,8 @@
-ColorNinja Studio 1.0.2 - Windows, Linux, and macOS
+ColorNinja Studio 1.0.3 - Windows, Linux, and macOS
+
+Processing automatically uses multiple CPU cores, with bounded workers and
+working-memory estimates. See docs/performance.md for measurements and limits.
+In Side by side view, use the two-arrow button beside 1:1 to swap the panes.
 
 Layer planning now explores larger layer transfers and alternative thickness
 arrangements. Enabled surface/material/order optimization can also compare
@@ -33,7 +37,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.0.2.md for this release's notes.
+docs/releases/v1.0.3.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.

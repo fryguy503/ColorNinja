@@ -1,5 +1,8 @@
 # ColorNinja Studio user guide
 
+Version 1.0.3 adds adaptive parallel processing and a Side by side pane-swap
+button. See [release notes](releases/v1.0.3.md) and [performance](performance.md).
+
 Version 1.0 focuses on **Color Match and Color Pop** for stack planning.
 In Color Match, generate a preview and drag the suggested source color groups
 in **Tune → Color order**, first (bottom) to last (top). **Order strength** controls
@@ -13,7 +16,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.0.2 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.0.3 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.
@@ -49,6 +52,8 @@ No additional setting is enabled automatically; see the [release notes](releases
 4. Use **Compare** for a sliding divider or **Side by side** for separate
    Original and Result panes. Scroll to zoom, drag to pan, and use Fit or 1:1
    to inspect details. Both side-by-side panes share zoom and pan.
+   Use the two-arrow **Swap original and result panes** button beside **1:1**
+   to reverse their positions; click it again to restore the original order.
 5. **Export** opens a dialog for PNG, palette reports, portable projects, and,
    in stack mode, layer maps and HueForge projects. PNG keeps original dimensions.
 

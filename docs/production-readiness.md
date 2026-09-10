@@ -1,5 +1,11 @@
 # Release validation and remaining acceptance
 
+Version 1.0.3 adds adaptive parallel processing and comparison pane swapping.
+Checks cover deterministic results across CPU limits, bounded workers and
+working-memory estimates, cancellation, race detection, and browser pane
+behavior. See [1.0.3 notes](releases/v1.0.3.md) and [performance](performance.md).
+Minimum-spec physical-machine endurance remains open.
+
 Version 1.0.2 adds automatic discovery of the HueForge library in its macOS
 container on Intel and Apple Silicon. Regression tests cover both platform
 layouts, first launch, relaunch, saved selections, and missing files or user

@@ -248,6 +248,10 @@ button:disabled {
   border-radius: 6px;
   color: var(--muted);
 }
+.icon-button[aria-pressed="true"] {
+  background: var(--raised);
+  color: var(--accent);
+}
 .redesigned-studio .studio-layout,
 .redesigned-studio .studio-layout.palette-hidden {
   display: grid;

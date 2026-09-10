@@ -281,87 +281,15 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 			continue
 		}
 		for position := 2; position <= size; position++ {
-			final := position == size
-			remaining := size - position
-			expanded := []stackState{}
-			for _, s := range beam {
-				if h.HighlightOnlyAtTop && requiredTop >= 0 && contains(s.indices, requiredTop) {
-					continue
-				}
-				maxRun := h.TransitionLayers() - s.used - remaining
-				if maxRun < 1 {
-					continue
-				}
-				for i, f := range lib.Filaments {
-					if h.HighlightOnlyAtTop && !final && i == requiredTop {
-						continue
-					}
-					if final && requiredTop >= 0 && i != requiredTop {
-						continue
-					}
-					if e := ctx.Err(); e != nil {
-						return nil, nil, e
-					}
-					if !validStackOrder(append(append([]int{}, s.indices...), i), o) {
-						continue
-					}
-					missing := 0
-					for _, id := range required {
-						if id != i && !contains(s.indices, id) {
-							missing++
-						}
-					}
-					if missing > remaining {
-						continue
-					}
-					current := s.current
-					rgbs := []RGB{}
-					layers, positions := []int{}, []int{}
-					distances := append([]float64{}, s.distances...)
-					for run := 1; run <= maxRun; run++ {
-						rgb := current.step(f, h, run == 1)
-						rgbs = append(rgbs, rgb)
-						layers = append(layers, h.BaseLayers()+s.used+run)
-						positions = append(positions, position)
-						lab := o.colorVector(rgb)
-						for j, t := range target {
-							distances[j] = math.Min(distances[j], distance(t, lab))
-						}
-						if final && run != maxRun && !h.AutoDepth {
-							continue
-						}
-						state := stackState{indices: append(append([]int{}, s.indices...), i), runs: append(append([]int{}, s.runs...), run), used: s.used + run, current: current, rgbs: append(append([]RGB{}, s.rgbs...), rgbs...), layers: append(append([]int{}, s.layers...), layers...), positions: append(append([]int{}, s.positions...), positions...), distances: append([]float64{}, distances...), score: dot(weights, distances)}
-						if final && h.AutoDepth && run != maxRun {
-							if err := depths.consider(ctx, state, target, weights, o, boundaries...); err != nil {
-								return nil, nil, err
-							}
-							continue
-						}
-						if final {
-							v, e := stateScore(ctx, state, target, weights, o, boundaries...)
-							if e != nil {
-								return nil, nil, e
-							}
-							state.score = v
-							if h.AutoDepth {
-								depths.record(state)
-							}
-						}
-						expanded = append(expanded, state)
-						// Keep a bounded pool without changing the deterministic top-k ordering.
-						if len(expanded) > max(1024, h.BeamWidth*4) {
-							sort.SliceStable(expanded, func(a, b int) bool { return stateLess(expanded[a], expanded[b]) })
-							expanded = expanded[:h.BeamWidth]
-						}
-					}
-				}
+			expanded, err := expandStackBeam(ctx, beam, lib, o, position, size, target, weights, depths, required, requiredTop, boundaries)
+			if err != nil {
+				return nil, nil, err
 			}
 			if len(expanded) == 0 {
 				beam = nil
 				break
 			}
-			sort.SliceStable(expanded, func(i, j int) bool { return stateLess(expanded[i], expanded[j]) })
-			beam = expanded[:min(len(expanded), h.BeamWidth)]
+			beam = expanded
 		}
 		if len(beam) > 0 {
 			terminals = append(terminals, diverseStacks(beam, 4)...)
@@ -389,11 +317,11 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		if h.SearchEffort == "refine" {
 			count = 8
 		}
-		for _, candidate := range diverseStacks(terminals, count) {
-			refined, err := refineStack(ctx, candidate, lib, bases, target, weights, o, progress, boundaries...)
-			if err != nil {
-				return nil, nil, err
-			}
+		candidates, err := refineStackCandidates(ctx, diverseStacks(terminals, count), lib, bases, target, weights, o, progress, boundaries)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, refined := range candidates {
 			if depthStateLess(refined, best) {
 				best = refined
 			}

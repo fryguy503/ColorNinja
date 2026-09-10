@@ -84,6 +84,40 @@ func (c depthCandidates) thin(ctx context.Context, initial stackState, lib Libra
 	for len(beam) > 0 {
 		next := []stackState{}
 		seen := map[string]bool{}
+		// Buffer only a small batch of independent removals. Every downstream
+		// blend and constraint is still reevaluated; merge in enumeration order.
+		batch := make([]stackState, 0, maxProcessingWorkers)
+		flush := func() error {
+			work := int64(len(batch)) * int64(o.HueForge.MaxLayers()) * int64(max(1, len(target)))
+			workers := processingWorkers(len(batch), work, 256, stackWorkerScratch(o, len(target)))
+			err := parallelRanges(ctx, len(batch), workers, func(ctx context.Context, slot, lo, hi int) error {
+				for i := lo; i < hi; i++ {
+					if err := ctx.Err(); err != nil {
+						return err
+					}
+					candidate := rebuildStack(batch[i].indices, batch[i].runs, lib, o.HueForge)
+					var err error
+					candidate.score, err = stateScore(ctx, candidate, target, weights, o, boundaries...)
+					if err != nil {
+						return err
+					}
+					batch[i] = candidate
+				}
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+			for _, candidate := range batch {
+				if finite(candidate.score) {
+					c.record(candidate)
+					next = append(next, candidate)
+				}
+			}
+			clear(batch)
+			batch = batch[:0]
+			return nil
+		}
 		for _, s := range beam {
 			for pos, n := range s.runs {
 				minimum := 1
@@ -105,19 +139,18 @@ func (c depthCandidates) thin(ctx context.Context, initial stackState, lib Libra
 				seen[key] = true
 				trials++
 				if trials > 4096 {
-					return nil
+					return flush()
 				}
-				candidate := rebuildStack(s.indices, runs, lib, o.HueForge)
-				var err error
-				candidate.score, err = stateScore(ctx, candidate, target, weights, o, boundaries...)
-				if err != nil {
-					return err
-				}
-				if finite(candidate.score) {
-					c.record(candidate)
-					next = append(next, candidate)
+				batch = append(batch, stackState{indices: s.indices, runs: runs})
+				if len(batch) == cap(batch) {
+					if err := flush(); err != nil {
+						return err
+					}
 				}
 			}
+		}
+		if err := flush(); err != nil {
+			return err
 		}
 		sort.SliceStable(next, func(i, j int) bool { return depthStateLess(next[i], next[j]) })
 		beam = next[:min(3, len(next))]

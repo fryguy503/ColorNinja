@@ -4,7 +4,6 @@ import (
 	"context"
 	"image"
 	"math"
-	"runtime"
 	"sync"
 )
 
@@ -50,7 +49,9 @@ func detailSmoothWithTolerance(ctx context.Context, src *image.NRGBA, sigma, col
 			length, lines = h, w
 		}
 		jobs := make(chan int)
-		done := make(chan struct{}, max(1, min(lines, 8, runtime.GOMAXPROCS(0))))
+		scratch := int64(min(length, 8192+2*radius)) * 32
+		work := int64(length) * int64(lines) * int64(2*radius+1)
+		done := make(chan struct{}, processingWorkers(lines, work, 32768, scratch))
 		var workers sync.WaitGroup
 		for worker := 0; worker < cap(done); worker++ {
 			workers.Add(1)
