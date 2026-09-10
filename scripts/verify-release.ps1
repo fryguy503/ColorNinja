@@ -74,3 +74,6 @@ if ($LASTEXITCODE -eq 0) { throw 'Packaged CLI overwrote an existing output with
 $record = [ordered]@{version=$info.version;archiveSHA256=$hash;verifiedFiles=$verified;sourceCommit=$info.sourceCommit;sourceDirty=$info.sourceDirty;signing=$info.signing;cases=$cases;overwriteRefusal='passed';physicalPrintAcceptance='not performed';nativeDialogAcceptance='not performed'}
 $record | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $evidence 'verification.json') -Encoding utf8
 Write-Host "Package verified: $verified files, $($cases.Count) workflows. Evidence: $evidence/verification.json"
+# Negative checks intentionally leave the CLI's exit code nonzero. Report the
+# verifier's success explicitly so CI does not mistake an expected refusal for failure.
+exit 0
