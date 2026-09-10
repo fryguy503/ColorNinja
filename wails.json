@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.1.0",
+    "productVersion": "1.1.5",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.1.0 - Region editing and printable depth snapping"
+    "comments": "1.1.5 - Region drag fix, faster refinement and optional borders"
   }
 }

@@ -51,6 +51,8 @@ type stackState struct {
 	layers, positions []int
 	distances         []float64
 	score             float64
+	// Owned by one palette selection, never retained in beam/refinement states.
+	surfaceCache *stackSurfaceCache
 }
 type stackColorLimitKey struct{}
 

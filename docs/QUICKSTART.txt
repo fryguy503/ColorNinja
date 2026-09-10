@@ -1,4 +1,14 @@
-ColorNinja Studio 1.1.0 - Windows, Linux, and macOS
+ColorNinja Studio 1.1.5 - Windows, Linux, and macOS
+
+NEW IN 1.1.5
+Lasso and Brush now suppress browser image/text dragging while you hold and draw.
+Space-drag and middle-button panning still work. Filament refinement caches
+repeated scoring calculations without changing its search settings.
+
+In Export > HueForge project (.hfp), enable Add a border. Choose internal or
+external placement and width, match the image depth or set a custom height, then
+Refresh preview. Border settings persist with your project; PNG exports remain
+image-only. See docs/borders.md and docs/refinement-performance.md.
 
 REGION EDIT
 Generate a Color Match or filament-stack Color Pop preview, then click Region
@@ -50,7 +60,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.1.0.md for this release's notes.
+docs/releases/v1.1.5.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.

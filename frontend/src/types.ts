@@ -1,4 +1,5 @@
 export type HueForgeOptions = {
+  border?: BorderOptions;
   searchEffort?: "" | "preview" | "refine";
   requiredFilaments?: string;
   baseFilament?: string;
@@ -46,6 +47,33 @@ export type HueForgeOptions = {
   tdTransmission: number;
   tdScale: number;
   baseTransmissionLimit: number;
+};
+export type BorderOptions = {
+  enabled: boolean;
+  placement: "external" | "internal" | "";
+  widthMm: number;
+  heightMm: number;
+};
+export const defaultBorder: BorderOptions = {
+  enabled: false,
+  placement: "external",
+  widthMm: 4,
+  heightMm: 0,
+};
+export type BorderView = {
+  placement: string;
+  widthMm: number;
+  heightMm: number;
+  imageWidthMm: number;
+  imageHeightMm: number;
+  outerWidthMm: number;
+  outerHeightMm: number;
+  topLayer: number;
+  topRGB: number[];
+  extraLayers: number;
+  printHeightMm: number;
+  volumeMm3: number;
+  finalFilament: string;
 };
 export type ColorPopOptions = {
   enabled: boolean;
@@ -390,6 +418,7 @@ export const defaults: Options = {
   trueBlack: true,
   preserveDetails: true,
   hueforge: {
+    border: { ...defaultBorder },
     opticalModel: "hueforge-0.9.4.3-frontlit-v1",
     firstLayerHeight: 0.16,
     lightPreset: "hueforge-default",
@@ -419,6 +448,7 @@ export const defaults: Options = {
   },
 };
 export type SurfaceView = {
+  border?: BorderView;
   volumeMm3?: number;
   meanThicknessMm?: number;
   materialRuns?: {

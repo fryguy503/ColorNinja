@@ -76,6 +76,8 @@
   min-width: 0;
   overflow: hidden;
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
   cursor: crosshair;
 }
 .region-image-frame {
@@ -89,6 +91,7 @@
   display: block;
   image-rendering: pixelated;
   pointer-events: none;
+  -webkit-user-drag: none;
   user-select: none;
 }
 .region-image-frame .region-overlay,

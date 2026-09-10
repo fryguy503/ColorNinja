@@ -46,6 +46,11 @@ func selectStackPalette(ctx context.Context, s stackState, target []Vec, weights
 			}
 			barrier += 1024 * excess
 		}
+		if len(boundaries) > 0 && s.surfaceCache == nil {
+			// Palette and height trials reuse this stack. Allocate only after
+			// the color guards pass, and keep the cache private to this call.
+			s.surfaceCache = newStackSurfaceCache(s)
+		}
 		p.layers = append([]int(nil), baseLayers...)
 		p.positions = append([]int(nil), basePositions...)
 		if err := chooseStackHeights(ctx, s, colors, p.layers, p.positions, ids, target, o, boundaries); err != nil {

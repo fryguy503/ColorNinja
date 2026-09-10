@@ -1,5 +1,11 @@
 # Release validation and remaining acceptance
 
+Version 1.1.5 fixes native drag interference with Region Edit, optimizes repeated
+filament refinement scoring, and adds optional HueForge borders. Exact scorer
+comparisons, bounded-cache tests, border fixtures, persistence and browser checks
+are part of the release gates. See [1.1.5 notes](releases/v1.1.5.md),
+[refinement measurements](refinement-performance.md) and [borders](borders.md).
+
 Version 1.1.0 adds Region Edit and printable depth entry. Engine/service tests
 cover topology, selection geometry, protected footprints, clamping, restoration,
 history, stale requests, malformed projects and exact saved-plan replay. Export

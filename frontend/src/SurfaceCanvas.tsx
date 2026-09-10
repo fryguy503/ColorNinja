@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Result } from "./types";
+import { BorderPreview } from "./BorderPreview";
 
 export function SurfaceCanvas({
   result,
@@ -197,6 +198,15 @@ export function SurfaceCanvas({
           HFP makes {(v.solidifiedFraction * 100).toFixed(2)}% of covered pixels
           fully opaque. PNG retains their partial transparency.
         </p>
+      )}
+      {v.border && (
+        <>
+          <p className="field-help">
+            Surface diagnostics and image material estimates above exclude the
+            frame. Internal borders also reduce the image footprint.
+          </p>
+          <BorderPreview border={v.border} />
+        </>
       )}
     </section>
   );

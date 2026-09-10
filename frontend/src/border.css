@@ -1,0 +1,33 @@
+.border-preview {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.border-preview svg {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  margin-bottom: 12px;
+}
+.border-preview figcaption {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+}
+.border-preview .field-help {
+  margin: 0;
+}
+.border-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #888;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.border-controls {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}

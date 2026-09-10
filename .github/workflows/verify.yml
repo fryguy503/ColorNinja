@@ -34,6 +34,8 @@ jobs:
         run: node ./scripts/verify-ui.cjs
       - name: Region editing and printable depth acceptance
         run: node ./scripts/verify-regions.cjs
+      - name: Optional border controls and export acceptance
+        run: node ./scripts/verify-borders.cjs
       - name: Package and verify extracted application
         run: |
           ./scripts/package.ps1
@@ -54,6 +56,8 @@ jobs:
             artifacts/ui-acceptance/**/failure.txt
             artifacts/region-acceptance/**/verification.json
             artifacts/region-acceptance/**/failure.txt
+            artifacts/border-acceptance/**/summary.json
+            artifacts/border-acceptance/**/failure.txt
           if-no-files-found: error
           retention-days: 14
   native:

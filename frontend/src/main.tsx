@@ -33,6 +33,7 @@ import { invoke, on, desktop } from "./bridge";
 import { Updates } from "./Updates";
 import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
+import { BorderPreview } from "./BorderPreview";
 import { ColorPopPanel } from "./ColorPop";
 import { ColorOrderPanel } from "./ColorOrder";
 import { RegionEditor } from "./RegionEditor";
@@ -66,6 +67,7 @@ import {
   emptyFilter,
   defaultPreferences,
   defaultHeightMap,
+  defaultBorder,
   type Preferences,
   type Options,
   type Source,
@@ -2306,6 +2308,128 @@ function App() {
         controls HueForge's sampling resolution. Partially transparent pixels
         become solid mesh.
       </p>
+      <div className="border-controls">
+        <label className="check-field">
+          <input
+            type="checkbox"
+            checked={options.hueforge.border?.enabled ?? false}
+            onChange={(e) =>
+              changeHF("border", {
+                ...defaultBorder,
+                ...options.hueforge.border,
+                enabled: e.target.checked,
+              })
+            }
+          />
+          Add a border
+        </label>
+        <p className="field-help">
+          Adds a rectangular frame to the HueForge mesh. PNG and layer-map
+          exports contain the image only.
+        </p>
+        {options.hueforge.border?.enabled && (
+          <>
+            <label className="select-field">
+              Border placement
+              <select
+                value={options.hueforge.border.placement || "external"}
+                onChange={(e) =>
+                  changeHF("border", {
+                    ...defaultBorder,
+                    ...options.hueforge.border,
+                    placement: e.target.value as "external" | "internal",
+                  })
+                }
+              >
+                <option value="external">External — keep image size</option>
+                <option value="internal">Internal — shrink image</option>
+              </select>
+            </label>
+            <p className="field-help">
+              {options.hueforge.border.placement === "internal"
+                ? "Shrinks the image proportionally from its shorter side. On rectangular images, the longer overall dimension also becomes smaller."
+                : "Keeps the image size and adds twice the border width to each dimension."}
+            </p>
+            <Numeric
+              label="Border width"
+              value={options.hueforge.border.widthMm}
+              min={0.01}
+              max={100}
+              step={0.01}
+              suffix="mm"
+              onChange={(v) =>
+                changeHF("border", {
+                  ...defaultBorder,
+                  ...options.hueforge.border,
+                  widthMm: v,
+                })
+              }
+            />
+            <label className="check-field">
+              <input
+                type="checkbox"
+                checked={options.hueforge.border.heightMm === 0}
+                onChange={(e) =>
+                  changeHF("border", {
+                    ...defaultBorder,
+                    ...options.hueforge.border,
+                    heightMm: e.target.checked
+                      ? 0
+                      : Number(
+                          (
+                            preview?.result.stack?.plannedDepth ??
+                            options.hueforge.maxDepth
+                          ).toFixed(2),
+                        ),
+                  })
+                }
+              />
+              Match image depth
+            </label>
+            {options.hueforge.border.heightMm !== 0 && (
+              <Numeric
+                label="Border depth"
+                value={options.hueforge.border.heightMm}
+                min={
+                  options.hueforge.firstLayerHeight ||
+                  options.hueforge.layerHeight
+                }
+                max={Math.min(
+                  40,
+                  (options.hueforge.firstLayerHeight ||
+                    options.hueforge.layerHeight) +
+                    997 * options.hueforge.layerHeight,
+                )}
+                step={0.01}
+                suffix="mm"
+                onChange={(v) =>
+                  changeHF("border", {
+                    ...defaultBorder,
+                    ...options.hueforge.border,
+                    heightMm: v,
+                  })
+                }
+              />
+            )}
+            <p className="field-help">
+              Depth is measured from the build plate. The filament stack at that
+              height determines the border color. Taller borders continue the
+              final filament above the image.
+            </p>
+            {!dirty && !busy && preview?.result.surfaceView?.border ? (
+              <BorderPreview
+                border={preview.result.surfaceView.border}
+                imageURL={preview.url}
+              />
+            ) : (
+              <p className="field-help">
+                Refresh the preview to see the frame, dimensions, and border
+                color.
+              </p>
+            )}
+          </>
+        )}
+      </div>
     </>
   );
 

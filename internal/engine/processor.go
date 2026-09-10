@@ -34,6 +34,7 @@ func processingKey(o Options) Options {
 	o.CalibrationNote = ""
 	o.HueForge.MeshMode = ""
 	o.HueForge.MeshCore = ""
+	o.HueForge.Border = BorderOptions{}
 	if (!o.HueForge.ReduceShowThrough && !o.layerOptimization()) || o.Mode != "stack" {
 		o.HueForge.ExportWidthMM = 0
 		o.HueForge.MeshDetailMM = 0
@@ -170,6 +171,7 @@ func cachedGuidanceCandidates(ctx context.Context, ids []int, lib Library, h Hue
 	h.TDSensitivityPercent = 0
 	h.MeshMode = ""
 	h.MeshCore = ""
+	h.Border = BorderOptions{}
 	h.ExportWidthMM = 0
 	h.MeshDetailMM = 0
 	keyRaw, _ := json.Marshal(struct {

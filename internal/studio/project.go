@@ -426,6 +426,10 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 		// Saved Mesh Core displays may describe Beta 5's opaque TD bands. Rebuild
 		// this derived export view after validating the exact saved pixels/heights.
 		result = engine.ReframeResult(result, m.Options)
+		result.SurfaceView, err = engine.BuildSurfaceView(ctx, result, m.Options)
+		if err != nil {
+			return Snapshot{}, err
+		}
 	}
 	// Finish validation before replacing the active document.
 	if err = s.installImage(ctx, &engine.LoadedImage{Image: src, Metadata: m.Metadata}, filepath.Base(m.Name), true, serial); err != nil {

@@ -94,7 +94,15 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		detail = .2
 	}
 	maxLayer := r.Stack.Runs[len(r.Stack.Runs)-1].EndLayer
-	maxDepth := hfpMaxDepth(h, max(maxLayer, h.BaseLayers()+1))
+	border, err := resolveBorder(r, h)
+	if err != nil {
+		return nil, err
+	}
+	printLayer := maxLayer
+	if border != nil {
+		printLayer = max(printLayer, border.TopLayer)
+	}
+	maxDepth := hfpMaxDepth(h, max(printLayer, h.BaseLayers()+1))
 	filaments := make([]hfpFilament, 0, len(r.Stack.Runs))
 	sliders := make([]int, 0, len(r.Stack.Runs))
 	for _, run := range r.Stack.Runs {
@@ -170,6 +178,16 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		doc["lighting_visualizer"] = 1
 		doc["light_intensity"] = int(math.Round(intensity))
 	}
+	if border != nil {
+		doc["borderless"], doc["border_width"], doc["border_height"] = false, border.WidthMM, border.HeightMM
+		doc["external_border"] = border.Placement == "external"
+		doc["colorninja"].(map[string]any)["border"] = border
+		// The physical last run continues above the image. Keep virtual core
+		// endpoints unchanged so border height cannot move image colors.
+		physicalSliders := slices.Clone(sliders)
+		physicalSliders[len(physicalSliders)-1] = printLayer
+		doc["slider_values"] = physicalSliders
+	}
 	if mode == "color-match" {
 		if r.HeightMap != nil {
 			doc["colorninja"].(map[string]any)["heightMap"] = r.HeightMap
@@ -213,6 +231,14 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		doc["disabled_match_layers"] = disabled
 		if compact != nil {
 			doc["disabled_match_layers"] = compact.disabled
+		}
+		if border != nil && printLayer > maxLayer {
+			disabled := slices.Clone(doc["disabled_match_layers"].([]int))
+			for layer := maxLayer + 1; layer <= printLayer+1; layer++ {
+				disabled = append(disabled, layer)
+			}
+			slices.Sort(disabled)
+			doc["disabled_match_layers"] = slices.Compact(disabled)
 		}
 	}
 	// Filament Painting stores filament arrays in reverse order, while

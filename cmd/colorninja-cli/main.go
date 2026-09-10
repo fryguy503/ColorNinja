@@ -86,6 +86,10 @@ func run() error {
 	f.StringVar(&o.HueForge.MeshCore, "hueforge-mesh-core", o.HueForge.MeshCore, "HFP Color Match mesh core: compact-blends (tuned TDs), filament-blends, or legacy-flat (0.01 TD); planned-colors upgrades to compact-blends")
 	f.Float64Var(&o.HueForge.ExportWidthMM, "hueforge-width-mm", 200, "HFP width in mm; aspect ratio is retained")
 	f.Float64Var(&o.HueForge.MeshDetailMM, "hueforge-mesh-detail-mm", .2, "HFP mesh detail spacing in mm")
+	f.BoolVar(&o.HueForge.Border.Enabled, "hueforge-border", false, "Enable a rectangular border in HFP exports")
+	f.StringVar(&o.HueForge.Border.Placement, "hueforge-border-placement", "external", "HFP border placement: external or internal")
+	f.Float64Var(&o.HueForge.Border.WidthMM, "hueforge-border-width-mm", 4, "HFP border width in mm")
+	f.Float64Var(&o.HueForge.Border.HeightMM, "hueforge-border-depth-mm", 0, "HFP border depth in mm; 0 follows the planned image top")
 	f.Float64Var(&o.GuidanceStrength, "hueforge-guidance-strength", o.GuidanceStrength, "pull toward filament-derived hues (0â€“1)")
 	f.BoolVar(&o.TrueBlack, "true-black", o.TrueBlack, "use #000000 for black filaments (set --true-black=false for library colors)")
 	f.BoolVar(&o.PreserveDetails, "preserve-details", o.PreserveDetails, "protect small shapes and coherent color groups; smoothing works with either setting")
@@ -323,6 +327,10 @@ func run() error {
 		if result.Stack != nil {
 			fmt.Printf("Stack: %d filaments Â· %d runs Â· %.2f mm total\n", result.Stack.UniqueFilaments, len(result.Stack.Runs), result.Stack.PlannedDepth)
 		}
+	}
+	if !quiet && result.SurfaceView != nil && result.SurfaceView.Border != nil {
+		b := result.SurfaceView.Border
+		fmt.Printf("HFP border: %s, %.2f mm wide, %.2f mm deep; nominal frame %.2f x %.2f mm; overall print height %.2f mm\n", b.Placement, b.WidthMM, b.HeightMM, b.OuterWidthMM, b.OuterHeightMM, b.PrintHeightMM)
 	}
 	for _, warning := range source.Metadata.Warnings {
 		fmt.Fprintln(os.Stderr, "Warning:", warning)

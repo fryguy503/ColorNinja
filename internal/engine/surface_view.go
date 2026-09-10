@@ -8,6 +8,7 @@ import (
 // SurfaceView is a bounded diagnostic grid, not a native HueForge mesh. Metrics
 // come from every source pixel; the displayed surface is explicitly sampled.
 type SurfaceView struct {
+	Border               *BorderView   `json:"border,omitempty"`
 	VolumeMM3            float64       `json:"volumeMm3"`
 	MeanThicknessMM      float64       `json:"meanThicknessMm"`
 	MaterialRuns         []RunMaterial `json:"materialRuns"`
@@ -43,6 +44,13 @@ func BuildSurfaceView(ctx context.Context, r *Result, o Options) (*SurfaceView, 
 		spacing = .2
 	}
 	height := width * float64(h) / float64(w)
+	border, err := resolveBorder(r, o.HueForge)
+	if err != nil {
+		return nil, err
+	}
+	if border != nil {
+		width, height = border.ImageWidthMM, border.ImageHeightMM
+	}
 	step := math.Max(spacing, math.Max(width, height)/255)
 	nx, ny := max(2, int(math.Ceil(width/step))+1), max(2, int(math.Ceil(height/step))+1)
 	v := &SurfaceView{Width: nx, Height: ny, WidthMM: width, HeightMM: height, RequestedSpacingMM: spacing, SpacingMM: step, PixelMM: width / float64(w), Sampled: step > spacing+1e-9, Layers: make([]uint16, nx*ny)}
@@ -111,5 +119,6 @@ func BuildSurfaceView(ctx context.Context, r *Result, o Options) (*SurfaceView, 
 		}
 	}
 	surfaceMaterial(v, tops, visible, r.Stack, o.HueForge)
+	v.Border = border
 	return v, nil
 }

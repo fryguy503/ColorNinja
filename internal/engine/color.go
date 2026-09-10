@@ -9,9 +9,18 @@ func linear(v float64) float64 {
 	}
 	return math.Pow((v+.055)/1.055, 2.4)
 }
-func LinearRGB(c RGB) Vec {
-	return Vec{linear(float64(c[0])), linear(float64(c[1])), linear(float64(c[2]))}
-}
+
+// Byte channels have only 256 inputs. Retain the exact transfer function while
+// avoiding three power evaluations on every repeated stack-color conversion.
+var linearBytes = func() [256]float64 {
+	var values [256]float64
+	for i := range values {
+		values[i] = linear(float64(i))
+	}
+	return values
+}()
+
+func LinearRGB(c RGB) Vec       { return Vec{linearBytes[c[0]], linearBytes[c[1]], linearBytes[c[2]]} }
 func byteRound(v float64) uint8 { return uint8(math.Floor(math.Max(0, math.Min(255, v)) + .5)) }
 func FromLinear(c Vec) RGB {
 	var out RGB

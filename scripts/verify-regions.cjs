@@ -141,8 +141,70 @@ const errors = [],
   await editor
     .getByRole("combobox", { name: "Selection coverage" })
     .selectOption("pixels");
-  await editor.getByRole("button", { name: "Box", exact: true }).click();
   const frame = page.locator(".region-image-frame");
+  // A selected DOM range can drag its contents even when the image itself has
+  // draggable=false. Exercise held strokes with that browser selection present.
+  await page.evaluate(() => {
+    window.regionNativeDrags = [];
+    document.addEventListener("dragstart", (e) => {
+      if (e.target.closest?.(".region-viewport"))
+        window.regionNativeDrags.push(e.defaultPrevented);
+    });
+  });
+  for (const tool of ["Lasso", "Brush"]) {
+    await editor.getByRole("button", { name: tool, exact: true }).click();
+    for (let stroke = 0; stroke < 3; stroke++) {
+      await frame.evaluate((el) => {
+        const range = document.createRange();
+        range.selectNode(el);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+      });
+      const b = await frame.boundingBox();
+      const offset = stroke * 0.04;
+      const points = [
+        [0.3 + offset, 0.3],
+        [0.5 + offset, 0.3],
+        [0.5 + offset, 0.5],
+        [0.3 + offset, 0.5],
+        [0.3 + offset, 0.3],
+      ];
+      await page.mouse.move(
+        b.x + points[0][0] * b.width,
+        b.y + points[0][1] * b.height,
+      );
+      await page.mouse.down();
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      for (const p of points.slice(1))
+        await page.mouse.move(b.x + p[0] * b.width, b.y + p[1] * b.height, {
+          steps: 8,
+        });
+      await page.mouse.up();
+      await waitReady();
+      assert.deepEqual(
+        await page.evaluate(() =>
+          window.regionNativeDrags.filter((prevented) => !prevented),
+        ),
+        [],
+        `${tool} must not start a native image/selection drag`,
+      );
+      assert.match(
+        await page.locator(".region-summary").innerText(),
+        /[1-9][0-9]* pixels/,
+      );
+      const after = await frame.boundingBox();
+      assert.ok(
+        Math.abs(after.x - b.x) < 0.1 && Math.abs(after.y - b.y) < 0.1,
+        `${tool} must select without panning`,
+      );
+    }
+  }
+  await page.evaluate(() => window.getSelection().removeAllRanges());
+  checks.push(
+    "Repeated held lasso/brush strokes suppress native selected-image dragging without panning",
+  );
+  await editor.getByRole("button", { name: "Box", exact: true }).click();
   const draw = async (points) => {
     const b = await frame.boundingBox();
     await page.mouse.move(
@@ -202,6 +264,13 @@ const errors = [],
   await page.keyboard.up("Space");
   const afterPan = await frame.boundingBox();
   assert.ok(afterPan.x > beforePan.x + 35);
+  await page.mouse.move(viewport.x + 100, viewport.y + 100);
+  await page.mouse.down({ button: "middle" });
+  await page.mouse.move(viewport.x + 130, viewport.y + 115);
+  await page.mouse.up({ button: "middle" });
+  const afterMiddlePan = await frame.boundingBox();
+  assert.ok(afterMiddlePan.x > afterPan.x + 25);
+  checks.push("Space-drag and middle-button panning remain available");
   await editor.getByRole("button", { name: "Lasso", exact: true }).click();
   await draw([
     [0.5, 0.3],

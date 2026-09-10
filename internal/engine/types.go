@@ -38,44 +38,45 @@ type Options struct {
 	HueForge            HueForgeOptions  `json:"hueforge"`
 }
 type HueForgeOptions struct {
-	OpticalModel          string  `json:"opticalModel"`
-	FirstLayerHeight      float64 `json:"firstLayerHeight"`
-	LightPreset           string  `json:"lightPreset"`
-	LayerHeight           float64 `json:"layerHeight"`
-	BaseDepth             float64 `json:"baseDepth"`
-	MaxDepth              float64 `json:"maxDepth"`
-	AutoDepth             bool    `json:"autoDepth"`
-	ReduceShowThrough     bool    `json:"reduceShowThrough"`
-	OptimizeMaterial      bool    `json:"optimizeMaterial"`
-	LayerPreference       string  `json:"layerPreference"`
-	ColorOrder            string  `json:"colorOrder,omitempty"`
-	ColorOrderWeight      float64 `json:"colorOrderWeight"`
-	SearchEffort          string  `json:"searchEffort,omitempty"`
-	RequiredFilaments     string  `json:"requiredFilaments,omitempty"`
-	BaseFilament          string  `json:"baseFilament,omitempty"`
-	HighlightFilament     string  `json:"highlightFilament,omitempty"`
-	HighlightOnlyAtTop    bool    `json:"highlightOnlyAtTop"`
-	SurfaceColorTolerance float64 `json:"surfaceColorTolerance"`
-	DepthTolerance        float64 `json:"depthTolerance"`
-	TDSensitivityPercent  float64 `json:"tdSensitivityPercent"`
-	AnalysisColors        int     `json:"analysisColors"`
-	BeamWidth             int     `json:"beamWidth"`
-	MaxRuns               int     `json:"maxRuns"`
-	MeshMode              string  `json:"meshMode"`
-	MeshCore              string  `json:"meshCore"`
-	ExportWidthMM         float64 `json:"exportWidthMm"`
-	MeshDetailMM          float64 `json:"meshDetailMm"`
-	MaxPerceivedColors    int     `json:"maxPerceivedColors"`
-	TDTransmission        float64 `json:"tdTransmission"`
-	TDScale               float64 `json:"tdScale"`
-	BaseTransmissionLimit float64 `json:"baseTransmissionLimit"`
+	Border                BorderOptions `json:"border"`
+	OpticalModel          string        `json:"opticalModel"`
+	FirstLayerHeight      float64       `json:"firstLayerHeight"`
+	LightPreset           string        `json:"lightPreset"`
+	LayerHeight           float64       `json:"layerHeight"`
+	BaseDepth             float64       `json:"baseDepth"`
+	MaxDepth              float64       `json:"maxDepth"`
+	AutoDepth             bool          `json:"autoDepth"`
+	ReduceShowThrough     bool          `json:"reduceShowThrough"`
+	OptimizeMaterial      bool          `json:"optimizeMaterial"`
+	LayerPreference       string        `json:"layerPreference"`
+	ColorOrder            string        `json:"colorOrder,omitempty"`
+	ColorOrderWeight      float64       `json:"colorOrderWeight"`
+	SearchEffort          string        `json:"searchEffort,omitempty"`
+	RequiredFilaments     string        `json:"requiredFilaments,omitempty"`
+	BaseFilament          string        `json:"baseFilament,omitempty"`
+	HighlightFilament     string        `json:"highlightFilament,omitempty"`
+	HighlightOnlyAtTop    bool          `json:"highlightOnlyAtTop"`
+	SurfaceColorTolerance float64       `json:"surfaceColorTolerance"`
+	DepthTolerance        float64       `json:"depthTolerance"`
+	TDSensitivityPercent  float64       `json:"tdSensitivityPercent"`
+	AnalysisColors        int           `json:"analysisColors"`
+	BeamWidth             int           `json:"beamWidth"`
+	MaxRuns               int           `json:"maxRuns"`
+	MeshMode              string        `json:"meshMode"`
+	MeshCore              string        `json:"meshCore"`
+	ExportWidthMM         float64       `json:"exportWidthMm"`
+	MeshDetailMM          float64       `json:"meshDetailMm"`
+	MaxPerceivedColors    int           `json:"maxPerceivedColors"`
+	TDTransmission        float64       `json:"tdTransmission"`
+	TDScale               float64       `json:"tdScale"`
+	BaseTransmissionLimit float64       `json:"baseTransmissionLimit"`
 }
 
 func DefaultOptions() Options {
 	return Options{HeightMap: DefaultHeightMapOptions(), ColorPop: DefaultColorPopOptions(), Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
 		MinClusterFraction: .005, HistogramBits: 6, Iterations: 24,
 		PreblurSigma: 1.5, Mode: "standard", GuidanceStrength: .8, TrueBlack: true, PreserveDetails: true,
-		HueForge: HueForgeOptions{ColorOrderWeight: 50, MeshCore: "compact-blends", SearchEffort: "preview", SurfaceColorTolerance: 5, DepthTolerance: 1, OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
+		HueForge: HueForgeOptions{Border: DefaultBorderOptions(), ColorOrderWeight: 50, MeshCore: "compact-blends", SearchEffort: "preview", SurfaceColorTolerance: 5, DepthTolerance: 1, OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
 }
 
 // Older projects, presets, and preferences lack the new preservation options.
@@ -113,6 +114,7 @@ func (o *HueForgeOptions) UnmarshalJSON(data []byte) error {
 	v.LayerPreference = ""
 	v.ColorOrder, v.ColorOrderWeight = "", 50
 	v.HighlightOnlyAtTop = false
+	v.Border = DefaultBorderOptions()
 	if err := json.Unmarshal(data, &v); err != nil {
 		return err
 	}
@@ -240,6 +242,9 @@ func (o HueForgeOptions) MaxLayers() int {
 }
 func (o HueForgeOptions) TransitionLayers() int { return o.MaxLayers() - o.BaseLayers() }
 func (o HueForgeOptions) Validate() error {
+	if err := o.Border.validate(o); err != nil {
+		return err
+	}
 	if err := o.validateColorOrder(); err != nil {
 		return err
 	}

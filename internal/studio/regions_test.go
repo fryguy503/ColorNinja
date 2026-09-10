@@ -129,6 +129,7 @@ func TestRegionsStudioHistoryPersistenceAndExports(t *testing.T) {
 	request := s.resultRequest
 	request.ID++
 	request.Options.HueForge.ExportWidthMM = 150
+	request.Options.HueForge.Border = engine.BorderOptions{Enabled: true, Placement: "external", WidthMM: 3, HeightMM: 4}
 	reframed, e := s.Process(request)
 	if e != nil {
 		t.Fatal("display reframe", e)

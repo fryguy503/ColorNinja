@@ -1,0 +1,83 @@
+{
+  "binary": "libMesh.dll",
+  "sha256": "9709f4cf84e98f1eb3ada8994c8a4549e50e14c9f9a0e2ba9ac1e7d6d24d72ad",
+  "function": "BorderMeshUtil::generateRect",
+  "fixtures": [
+    {
+      "imageWidthMm": 200,
+      "imageHeightMm": 100,
+      "widthMm": 4,
+      "heightMm": 3,
+      "minimum": [
+        -4.0,
+        -4.0,
+        0.0
+      ],
+      "maximum": [
+        204.0,
+        104.0,
+        3.0
+      ],
+      "vertices": 16,
+      "triangles": 32,
+      "volumeMm3": 7392.0
+    },
+    {
+      "imageWidthMm": 100,
+      "imageHeightMm": 200,
+      "widthMm": 2,
+      "heightMm": 1.44,
+      "minimum": [
+        -2.0,
+        -2.0,
+        0.0
+      ],
+      "maximum": [
+        102.0,
+        202.0,
+        1.440000057220459
+      ],
+      "vertices": 16,
+      "triangles": 32,
+      "volumeMm3": 1751.0400695800781
+    },
+    {
+      "imageWidthMm": 80,
+      "imageHeightMm": 80,
+      "widthMm": 6,
+      "heightMm": 0.16,
+      "minimum": [
+        -6.0,
+        -6.0,
+        0.0
+      ],
+      "maximum": [
+        86.0,
+        86.0,
+        0.1599999964237213
+      ],
+      "vertices": 16,
+      "triangles": 32,
+      "volumeMm3": 330.2399926185608
+    },
+    {
+      "imageWidthMm": 184,
+      "imageHeightMm": 92,
+      "widthMm": 4,
+      "heightMm": 4,
+      "minimum": [
+        -4.0,
+        -4.0,
+        0.0
+      ],
+      "maximum": [
+        188.0,
+        96.0,
+        4.0
+      ],
+      "vertices": 16,
+      "triangles": 32,
+      "volumeMm3": 9088.000000000004
+    }
+  ]
+}

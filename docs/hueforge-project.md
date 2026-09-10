@@ -14,6 +14,9 @@ and a separate Color Match Mesh Core.
 
 ## Workflow
 
+Development builds also offer [optional internal/external mesh borders](borders.md)
+in the HFP export dialog, with configurable width/depth and a frame preview.
+
 1. Choose **Color Match**, select eligible filaments, and set the filament budget.
 2. Under **Layers**, enable **Allow filament returns** to explore
    schedules such as A → B → A. **Maximum filament runs** limits swaps. The

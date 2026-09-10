@@ -127,6 +127,96 @@ func colorSegmentDistance(v, a, b Vec) float64 {
 	return distance(v, nearest)
 }
 
+type surfaceIntervalKey struct {
+	start, end RGB
+	lo, hi     int
+}
+
+type surfaceInterval struct {
+	detour float64
+	count  int
+	ready  bool
+}
+
+// A palette trial changes source assignments, but an interval between the same
+// endpoint colors and heights has the same physical layers. Keep endpoint order:
+// reversing a segment can change floating-point rounding near a search tie.
+type stackSurfaceCache struct {
+	path      []Vec
+	colors    map[RGB]Vec
+	intervals map[surfaceIntervalKey]surfaceInterval
+	dense     []surfaceInterval
+}
+
+func newStackSurfaceCache(s stackState) *stackSurfaceCache {
+	c := &stackSurfaceCache{
+		path: make([]Vec, len(s.rgbs)), colors: make(map[RGB]Vec, len(s.rgbs)),
+		intervals: make(map[surfaceIntervalKey]surfaceInterval),
+	}
+	for i, rgb := range s.rgbs {
+		v, ok := c.colors[rgb]
+		if !ok {
+			v = toOKLab(rgb)
+			c.colors[rgb] = v
+		}
+		c.path[i] = v
+	}
+	if len(s.rgbs) <= 64 {
+		c.dense = make([]surfaceInterval, len(s.rgbs)*len(s.rgbs))
+	}
+	return c
+}
+
+func (c *stackSurfaceCache) interval(s stackState, start, end RGB, startLayer, endLayer int) surfaceInterval {
+	lo, hi := min(startLayer, endLayer), max(startLayer, endLayer)
+	if hi-lo <= 1 {
+		return surfaceInterval{}
+	}
+	// Ordinary stack layers are contiguous. A bounded direct table avoids
+	// hashing in the innermost boundary loop. Verify the physical endpoints
+	// before using it; arbitrary/noncontiguous inputs retain the general path.
+	denseIndex := -1
+	if len(c.dense) > 0 && len(s.layers) > 0 {
+		a, b := startLayer-s.layers[0], endLayer-s.layers[0]
+		if a >= 0 && a < len(s.rgbs) && b >= 0 && b < len(s.rgbs) &&
+			s.layers[a] == startLayer && s.layers[b] == endLayer && s.rgbs[a] == start && s.rgbs[b] == end {
+			denseIndex = a*len(s.rgbs) + b
+			if v := c.dense[denseIndex]; v.ready {
+				return v
+			}
+		}
+	}
+	key := surfaceIntervalKey{start, end, lo, hi}
+	if denseIndex < 0 {
+		if v, ok := c.intervals[key]; ok {
+			return v
+		}
+	}
+	a, ok := c.colors[start]
+	if !ok {
+		a = toOKLab(start)
+	}
+	b, ok := c.colors[end]
+	if !ok {
+		b = toOKLab(end)
+	}
+	v := surfaceInterval{ready: true}
+	for i, layer := range s.layers {
+		if layer > lo && layer < hi {
+			v.detour += colorSegmentDistance(c.path[i], a, b)
+			v.count++
+		}
+	}
+	// Deep stacks must not retain a quadratic-sized table. Once full, new
+	// intervals still use the exact calculation, just without caching them.
+	if denseIndex >= 0 {
+		c.dense[denseIndex] = v
+	} else if len(c.intervals) < 4096 {
+		c.intervals[key] = v
+	}
+	return v
+}
+
 func stackSurface(s stackState, selected []RGB, layers []int, target []Vec, o Options, boundaries []stackBoundary) StackSurface {
 	stats := StackSurface{BoundaryPairs: len(boundaries)}
 	if len(boundaries) == 0 {
@@ -144,23 +234,17 @@ func stackSurface(s stackState, selected []RGB, layers []int, target []Vec, o Op
 	}
 	// Use unweighted Oklab for the geometric color detour even if the source
 	// matching prioritizes chroma or uses the legacy Lab pipeline.
-	path := make([]Vec, len(s.rgbs))
-	for i, c := range s.rgbs {
-		path[i] = toOKLab(c)
+	cache := s.surfaceCache
+	if cache == nil {
+		cache = newStackSurfaceCache(s)
 	}
 	for _, edge := range boundaries {
 		a, b := assigned[edge.a], assigned[edge.b]
 		lo, hi := min(layers[a], layers[b]), max(layers[a], layers[b])
 		jump := float64(hi-lo) * o.HueForge.LayerHeight
 		stats.MeanHeightJumpMM += edge.weight * jump
-		start, end := toOKLab(selected[a]), toOKLab(selected[b])
-		detour, count := 0., 0
-		for i, layer := range s.layers {
-			if layer > lo && layer < hi {
-				detour += colorSegmentDistance(path[i], start, end)
-				count++
-			}
-		}
+		interval := cache.interval(s, selected[a], selected[b], layers[a], layers[b])
+		detour, count := interval.detour, interval.count
 		// Score integrated color deviation through the vertical interval.
 		// An average lets extra opaque endpoint-colored layers dilute the
 		// offending bands, rewarding padding without improving appearance.

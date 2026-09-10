@@ -451,8 +451,12 @@ export function RegionEditor({
           ref={viewport}
           aria-label="Editable image"
           onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
           onPointerDown={(e) => {
             if (!frame.current) return;
+            // Own the gesture before the browser can select or drag DOM content.
+            // A selected range can drag even though both images are non-draggable.
+            if (e.button === 0 || e.button === 1) e.preventDefault();
             if (e.button === 1 || (e.button === 0 && space.current)) {
               panning.current = {
                 x: e.clientX,
@@ -461,7 +465,6 @@ export function RegionEditor({
                 py: pan.y,
               };
               e.currentTarget.setPointerCapture(e.pointerId);
-              e.preventDefault();
               return;
             }
             if (e.button !== 0 || disabled) return;
