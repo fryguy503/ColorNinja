@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -133,10 +134,8 @@ func New(ctx context.Context, configPath string) *Studio {
 		s.settings.Presets[i].Options = workflowOptions(s.settings.Presets[i].Options)
 	}
 	if s.settings.LibraryPath == "" {
-		candidate := filepath.Join(os.Getenv("APPDATA"), "HueForge", "Filaments", "personal_library.json")
-		if _, e := os.Stat(candidate); e == nil {
-			s.settings.LibraryPath = candidate
-		}
+		homeDir, _ := os.UserHomeDir()
+		s.settings.LibraryPath = detectHueForgeLibrary(runtime.GOOS, homeDir, os.Getenv("APPDATA"))
 	}
 	return s
 }

@@ -9,14 +9,14 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Version `v1.0.1` — Windows, Linux, and macOS.** Color Match and Color Pop are the supported
+**Version `v1.0.2` — Windows, Linux, and macOS.** Color Match and Color Pop are the supported
 stack workflows. Color Match includes a draggable source-color order, adjustable
 preference strength, and automatic recalculation. Backlit, Simple reducer, Filament
 Guide, portable projects, and self-contained HueForge exports remain available.
 The new channel workflows are temporarily disabled.
 
-[Download ColorNinja 1.0.1](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.1)
-· [Release notes](docs/releases/v1.0.1.md)
+[Download ColorNinja 1.0.2](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.2)
+· [Release notes](docs/releases/v1.0.2.md)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
@@ -28,14 +28,14 @@ print validation with your own filaments and lighting.
 
 ## Download and run
 
-Open the [1.0.1 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.1)
+Open the [1.0.2 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.2)
 and choose the archive for your operating system and processor from **Assets**.
 
 | System | Archive | Launch and requirements |
 | --- | --- | --- |
-| Windows x64 | `ColorNinja-1.0.1-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
-| Linux x64 / ARM64 | `ColorNinja-1.0.1-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
-| macOS Intel / Apple Silicon | `ColorNinja-1.0.1-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
+| Windows x64 | `ColorNinja-1.0.2-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
+| Linux x64 / ARM64 | `ColorNinja-1.0.2-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
+| macOS Intel / Apple Silicon | `ColorNinja-1.0.2-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
 
 On Ubuntu 24.04, install the desktop runtime with
 `sudo apt install libgtk-3-0t64 libwebkit2gtk-4.1-0`. Other Linux distributions
@@ -60,7 +60,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.1-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.2-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
@@ -96,10 +96,15 @@ with a selective-color result. See the [Color Pop guide](docs/color-pop.md).
 | **Color Pop** | Keeping selected hues against grayscale | Prepared palette colors, or filaments for separate color/grayscale height bands. Includes a full-color poppy demo. |
 
 **Start with Filament guided for the usual HueForge workflow.** Open the exported
-PNG in HueForge to make the final print plan. The Filaments tab detects the usual
-`%APPDATA%\HueForge\Filaments\personal_library.json` location and lets you choose
-another library. Your library is read-only. Material, brand, TD, and color are
-shown so similarly named filaments remain distinguishable.
+PNG in HueForge to make the final print plan. The Filaments tab automatically
+detects these HueForge library locations when no library has been selected:
+
+- Windows: `%APPDATA%\HueForge\Filaments\personal_library.json`
+- macOS (Intel and Apple Silicon): `~/Library/Containers/com.thehueforge.hueforge/Data/Documents/HueForge/Filaments/personal_library.json`
+
+You can choose another library; ColorNinja remembers your selection across
+relaunches. Your library is read-only. Material, brand, TD, and color are shown
+so similarly named filaments remain distinguishable.
 
 Detail preservation is enabled by default. Guided and stack modes also default
 to **Use true black**, which models eligible black filaments as `#000000` without

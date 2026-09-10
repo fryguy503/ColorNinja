@@ -1,5 +1,18 @@
 # Validation scope
 
+## Version 1.0.2 library discovery
+
+Synthetic libraries exercise the Windows roaming directory and the macOS
+HueForge container path on every test host. Startup tests use each native
+platform's user-directory environment and verify first-launch loading, relaunch,
+and preservation of manually selected libraries. Missing saved files retain
+their load warning; discovery does not silently switch filament inventories.
+Missing or relative user directories and directories named as library files
+are rejected. The fixtures are checked for unintended writes.
+
+These regressions run in the native release matrix. They do not replace manual
+first-launch testing with a real HueForge installation on a clean Mac account.
+
 ## Version 1.0.1 layer planning and native packages
 
 Six synthetic two-spool palettes now reach zero modeled color error in both

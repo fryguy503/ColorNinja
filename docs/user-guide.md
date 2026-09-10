@@ -13,7 +13,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.0.1 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.0.2 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.
@@ -196,11 +196,21 @@ chosen print depth; that headroom is disabled for matching and adds no physical
 layer to Color Match output. The hard ceiling constrains the printable plan.
 CLI: `--hueforge-stack --hueforge-auto-depth --hueforge-max-depth 4.0`.
 
-The usual HueForge library is detected at:
+When no library has been selected, ColorNinja detects the usual HueForge library
+on Windows:
 
 ```text
 %APPDATA%\HueForge\Filaments\personal_library.json
 ```
+
+On macOS (Intel and Apple Silicon):
+
+```text
+~/Library/Containers/com.thehueforge.hueforge/Data/Documents/HueForge/Filaments/personal_library.json
+```
+
+Your saved library selection takes priority over automatic detection. If your
+library is elsewhere, select it once; ColorNinja remembers it across relaunches.
 
 The **Filaments** tab lets you select a library, search colors, filter materials,
 include unowned entries, or allow the primary color of dual-color filaments.

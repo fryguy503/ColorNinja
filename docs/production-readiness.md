@@ -1,5 +1,11 @@
 # Release validation and remaining acceptance
 
+Version 1.0.2 adds automatic discovery of the HueForge library in its macOS
+container on Intel and Apple Silicon. Regression tests cover both platform
+layouts, first launch, relaunch, saved selections, and missing files or user
+directories. See [1.0.2 notes](releases/v1.0.2.md). Native-window, file-dialog,
+and clean-machine acceptance remains open.
+
 Version 1.0.1 adds native Linux x64/ARM64 and macOS Intel/Apple Silicon packages.
 Their release gates include native builds, Go/frontend tests, vet, dependency
 audits, extracted-file hashes, four CLI workflows, and desktop HTTP service

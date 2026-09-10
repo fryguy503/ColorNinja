@@ -1,4 +1,4 @@
-ColorNinja Studio 1.0.1 - Windows, Linux, and macOS
+ColorNinja Studio 1.0.2 - Windows, Linux, and macOS
 
 Layer planning now explores larger layer transfers and alternative thickness
 arrangements. Enabled surface/material/order optimization can also compare
@@ -33,7 +33,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.0.1.md for this release's notes.
+docs/releases/v1.0.2.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.
@@ -90,9 +90,13 @@ share the existing color limit across hue families while keeping essential neutr
 tones. These choices also influence filament selection and Color Match planning.
 
 For filament guidance, open the Filaments tab and choose your HueForge library.
-The usual personal_library.json path is detected automatically. Only eligible
-owned colors are used unless you enable additional entries. Your library is
-read-only. Open guided PNG output in HueForge for the final print plan.
+The usual personal_library.json path is detected automatically on Windows and
+macOS (Intel and Apple Silicon) when no library has been selected:
+Windows: %APPDATA%\HueForge\Filaments\personal_library.json
+macOS: ~/Library/Containers/com.thehueforge.hueforge/Data/Documents/HueForge/Filaments/personal_library.json
+You can select another library; your selection is remembered across relaunches.
+Only eligible owned colors are used unless you enable additional entries. Your
+library is read-only. Open guided PNG output in HueForge for the final print plan.
 
 In the Filaments tab, enable Avoid silk & metallic finishes to keep those
 finishes out of Filament Guide and Color Match. It also excludes pearl,
