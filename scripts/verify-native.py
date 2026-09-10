@@ -22,7 +22,9 @@ def main():
     archive = Path(sys.argv[1]).resolve()
     assert sha(archive) == Path(str(archive) + '.sha256').read_text().split()[0]
     with tempfile.TemporaryDirectory(prefix='colorninja-verify-') as temp:
-        root = Path(temp)
+        # macOS exposes its temporary directory through /var -> /private/var.
+        # Canonicalize the root before comparing it with resolved member paths.
+        root = Path(temp).resolve()
         extracted = root / 'extracted'
         extracted.mkdir()
         if archive.suffix == '.zip':
@@ -37,7 +39,7 @@ def main():
         for line in (package / 'SHA256SUMS.txt').read_text().splitlines():
             expected, relative = line.split('  ', 1)
             file = (package / relative).resolve()
-            assert file.is_relative_to(package) and file not in listed
+            assert file.is_relative_to(package) and file not in listed, relative
             assert sha(file) == expected, relative
             listed.add(file)
         actual = {p.resolve() for p in package.rglob('*') if p.is_file() and p != package / 'SHA256SUMS.txt'}
