@@ -5,7 +5,12 @@ cd "$(dirname "$0")/.."
 platform=$(go env GOOS)
 case "$platform" in
   linux) tags=webkit2_41 ;;
-  darwin) tags= ;;
+  darwin)
+    tags=
+    # Match the Go toolchain's minimum deployment target in the C link step.
+    export CGO_CFLAGS='-mmacosx-version-min=13.0'
+    export CGO_LDFLAGS='-mmacosx-version-min=13.0'
+    ;;
   *) echo 'Use scripts/build.ps1 on Windows.' >&2; exit 1 ;;
 esac
 mkdir -p build/bin artifacts
@@ -18,7 +23,8 @@ npm test --prefix frontend
 npm run build --prefix frontend
 go test -tags "$tags" -json ./... > artifacts/go-tests.jsonl
 go vet -tags "$tags" ./...
-go run ./cmd/artwork
+# Use the committed icon on every architecture. Regenerating its floating-point
+# rasterization during release builds can change tracked PNG/ICO bytes on ARM64.
 "$(go env GOPATH)/bin/wails" build -skipbindings -s -trimpath -tags "$tags" -o ColorNinja
 go build -trimpath -ldflags '-s -w' -o build/bin/colorninja-cli ./cmd/colorninja-cli
 npm audit --prefix frontend

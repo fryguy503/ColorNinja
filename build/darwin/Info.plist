@@ -10,7 +10,7 @@
     <key>CFBundleShortVersionString</key><string>{{.Info.ProductVersion}}</string>
     <key>CFBundleGetInfoString</key><string>{{.Info.Comments}}</string>
     <key>CFBundleIconFile</key><string>iconfile</string>
-    <key>LSMinimumSystemVersion</key><string>12.0</string>
+    <key>LSMinimumSystemVersion</key><string>13.0</string>
     <key>NSHighResolutionCapable</key><true/>
     <key>NSHumanReadableCopyright</key><string>{{.Info.Copyright}}</string>
   </dict>

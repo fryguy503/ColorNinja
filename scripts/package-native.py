@@ -22,7 +22,8 @@ def sha(path):
 def main():
     platform, arch = run('go', 'env', 'GOOS'), run('go', 'env', 'GOARCH')
     assert platform in ('linux', 'darwin') and arch in ('amd64', 'arm64')
-    assert not run('git', 'status', '--porcelain'), 'Release requires clean tracked source'
+    status = run('git', 'status', '--porcelain')
+    assert not status, f'Release requires clean tracked source:\n{status}'
     version = json.loads((ROOT / 'frontend/package.json').read_text())['version']
     suffix = ('macos' if platform == 'darwin' else platform) + '-' + {'amd64': 'x64', 'arm64': 'arm64'}[arch]
     name = f'ColorNinja-{version}-{suffix}'
