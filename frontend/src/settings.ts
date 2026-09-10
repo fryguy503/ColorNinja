@@ -1,4 +1,15 @@
-import type { Options, Filter } from "./types.ts";
+import { defaultColorPop, type Options, type Filter } from "./types.ts";
+
+export function colorPopWorkflow(options: Options, enabled: boolean): Options {
+  return {
+    ...options,
+    mode: enabled && options.mode === "guided" ? "standard" : options.mode,
+    hueforge: enabled
+      ? { ...options.hueforge, opticalModel: "hueforge-0.9.4.3-frontlit-v1" }
+      : options.hueforge,
+    colorPop: { ...defaultColorPop, ...options.colorPop, enabled },
+  };
+}
 
 export function normalizeFilter(filter: Filter): Filter {
   return {
@@ -102,7 +113,11 @@ export function changeProcessingMode(
   options: Options,
   mode: Options["mode"],
 ): Options {
-  return { ...options, mode };
+  return {
+    ...options,
+    mode,
+    colorPop: { ...options.colorPop, enabled: false },
+  };
 }
 
 // Built-in palette presets describe only a color budget.
@@ -116,8 +131,21 @@ export function applySavedPreset(
   preset: Options,
   keepWorkflow = true,
 ): Options {
-  return {
+  const applied: Options = {
     ...structuredClone(preset),
     mode: keepWorkflow ? options.mode : preset.mode,
+    colorPop: {
+      ...(keepWorkflow && !preset.colorPop?.enabled
+        ? options.colorPop
+        : (preset.colorPop ?? defaultColorPop)),
+      enabled: keepWorkflow
+        ? options.colorPop.enabled
+        : !!preset.colorPop?.enabled,
+    },
   };
+  // A saved legacy optical profile cannot switch an active Color Pop stack
+  // away from the model its separate height bands require.
+  if (applied.colorPop.enabled)
+    applied.hueforge.opticalModel = "hueforge-0.9.4.3-frontlit-v1";
+  return applied;
 }

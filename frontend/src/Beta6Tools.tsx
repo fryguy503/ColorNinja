@@ -80,7 +80,8 @@ export function FilamentConstraints({
       <summary>Required spools &amp; stack ends</summary>
       <p className="field-help">
         Required spools count toward the filament budget. Stack ends constrain
-        Global stack; Guided includes these spools as references.
+        Color Match and Color Pop stack planning; Guided includes these spools
+        as references.
       </p>
       {(["baseFilament", "highlightFilament"] as const).map((key, i) => (
         <label key={key}>
@@ -156,11 +157,11 @@ export function GuidedExplanation({
       <summary>Source colors and filament references</summary>
       <p className="field-help">
         Guided output interpolates toward a reference. Different pairs can
-        require incompatible stacks. Compare Global stack to test one common
+        require incompatible stacks. Try Color Match to test one common
         printable order.
       </p>
       <button className="button secondary" onClick={onStack}>
-        Check a global stack
+        Try Color Match
       </button>
       <table>
         <thead>
@@ -294,7 +295,7 @@ export function ComparisonsDialog({
       {!items.length && !saved.length && !busy && (
         <p>
           No comparisons yet. Save the current result, or find alternatives in
-          Global stack.
+          Color Match or Color Pop stack planning.
         </p>
       )}
     </StudioDialog>

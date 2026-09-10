@@ -52,7 +52,14 @@ func hfpMaterial(f Filament) hfpFilament {
 
 func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta ImageMetadata) (map[string]any, error) {
 	if r == nil || r.Stack == nil || r.Image == nil || len(r.Stack.Runs) == 0 {
-		return nil, fmt.Errorf("HFP export requires a current global stack preview")
+		return nil, fmt.Errorf("HFP export requires a current Color Match or Color Pop stack preview")
+	}
+	if r.ColorPop != nil {
+		var err error
+		r, err = colorPopMeshResult(ctx, r)
+		if err != nil {
+			return nil, err
+		}
 	}
 	h := r.Stack.Options
 	if err := h.Validate(); err != nil {
@@ -156,6 +163,10 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		"colorninja": map[string]any{"schemaVersion": 1, "meshCore": core, "opticalModel": h.OpticalModel, "rgbaSHA256": r.SHA256, "librarySHA256": r.Stack.LibrarySHA256, "alphaPolicy": "nonzero alpha becomes solid mesh", "meshRecomputed": mode != "color-match"},
 	}
 	if mode == "color-match" {
+		if r.ColorPop != nil {
+			doc["colorninja"].(map[string]any)["colorPop"] = r.ColorPop
+			doc["colorninja"].(map[string]any)["meshEncoding"] = "unique-rgb-keys-for-fixed-color-pop-bands"
+		}
 		var compact *virtualMesh
 		if core == "compact-blends" {
 			m := compactMesh(r, used)

@@ -3,6 +3,7 @@ import test from "node:test";
 import { defaults, type Options } from "../src/types.ts";
 import {
   applyColorBudget,
+  colorPopWorkflow,
   applyAutoDepth,
   applySavedPreset,
   normalizeFilter,
@@ -13,6 +14,20 @@ import {
   displayedColorBudget,
   applyDisplayedColorBudget,
 } from "../src/settings.ts";
+
+test("Color Pop keeps existing tuning, preserves selection across ordinary presets, and stays opt-in", () => {
+  const original = structuredClone(defaults); original.mode = "guided"; original.colors = 12;
+  const pop = colorPopWorkflow(original, true); pop.colorPop.selection = "selected"; pop.colorPop.colors = "#EE2211";
+  assert.equal(original.colorPop.enabled, false); assert.equal(pop.mode, "standard"); assert.equal(pop.colors, 12);
+  const preset = structuredClone(defaults); preset.colors = 4;
+  const applied = applySavedPreset(pop, preset);
+  assert.equal(applied.colors, 4); assert.deepEqual(applied.colorPop, pop.colorPop);
+  preset.hueforge.opticalModel = "legacy-exponential";
+  const stack = { ...pop, mode: "stack" as const };
+  assert.equal(applySavedPreset(stack, preset).hueforge.opticalModel, "hueforge-0.9.4.3-frontlit-v1");
+  const normal = changeProcessingMode(pop, "stack"); assert.equal(normal.colorPop.enabled, false); assert.equal(normal.colorPop.colors, "#EE2211");
+  const restored = applySavedPreset(normal, pop, false); assert.equal(restored.colorPop.enabled, true); assert.equal(restored.mode, "standard");
+});
 
 test("presets can restore their saved workflow without mutating either settings object", () => {
   const current = structuredClone(defaults);

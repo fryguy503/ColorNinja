@@ -114,6 +114,7 @@ func (a *App) OpenReleasePage(tag string) error {
 	return nil
 }
 func (a *App) UseDemo() (studio.Snapshot, error)              { return a.studio.UseDemo() }
+func (a *App) UseColorPopDemo() (studio.Snapshot, error)      { return a.studio.UseColorPopDemo() }
 func (a *App) LoadImage(path string) (studio.Snapshot, error) { return a.studio.LoadImage(path) }
 func (a *App) OpenImage() (*studio.Snapshot, error) {
 	path, e := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{Title: "Open an image", Filters: []runtime.FileFilter{{DisplayName: "Images", Pattern: "*.png;*.jpg;*.jpeg;*.webp;*.gif;*.tif;*.tiff;*.bmp"}}})

@@ -90,6 +90,8 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 			result, err = s.Initialize()
 		case "UseDemo":
 			result, err = s.UseDemo()
+		case "UseColorPopDemo":
+			result, err = s.UseColorPopDemo()
 		case "LoadImage":
 			var path string
 			if err = get(0, &path); err == nil {

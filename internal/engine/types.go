@@ -16,6 +16,7 @@ func (c RGB) Hex() string { return fmt.Sprintf("#%02X%02X%02X", c[0], c[1], c[2]
 type Vec [3]float64
 
 type Options struct {
+	ColorPop            ColorPopOptions `json:"colorPop"`
 	Colors              int             `json:"colors"`
 	TotalColors         bool            `json:"totalColors"`
 	ColorPriority       string          `json:"colorPriority"`
@@ -65,7 +66,7 @@ type HueForgeOptions struct {
 }
 
 func DefaultOptions() Options {
-	return Options{Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
+	return Options{ColorPop: DefaultColorPopOptions(), Colors: 32, AnalysisMaxPixels: 6291456, NeutralChroma: 8,
 		MinClusterFraction: .005, HistogramBits: 6, Iterations: 24,
 		PreblurSigma: 1.5, Mode: "standard", GuidanceStrength: .8, TrueBlack: true, PreserveDetails: true,
 		HueForge: HueForgeOptions{MeshCore: "compact-blends", SearchEffort: "preview", SurfaceColorTolerance: 5, DepthTolerance: 1, OpticalModel: FrontlitModel, FirstLayerHeight: .16, LightPreset: "hueforge-default", LayerHeight: .08, BaseDepth: .48, MaxDepth: 2.24, AnalysisColors: 32, BeamWidth: 24, MaxPerceivedColors: 64, TDTransmission: .05, TDScale: .1, BaseTransmissionLimit: .1}}
@@ -77,6 +78,7 @@ func DefaultOptions() Options {
 func (o *Options) UnmarshalJSON(data []byte) error {
 	type plainOptions Options
 	value := plainOptions(*o)
+	value.ColorPop = DefaultColorPopOptions()
 	if *o == (Options{}) {
 		value.TrueBlack = true
 		value.PreserveDetails = true
@@ -127,6 +129,9 @@ func (o Options) selectionFraction() float64 {
 }
 func finite(v float64) bool { return !math.IsNaN(v) && !math.IsInf(v, 0) }
 func (o Options) Validate() error {
+	if err := o.ColorPop.validate(o); err != nil {
+		return err
+	}
 	if len(o.CalibrationNote) > 1000 {
 		return fmt.Errorf("calibration note must be at most 1000 bytes")
 	}
@@ -280,6 +285,7 @@ type Quality struct {
 	Max  float64 `json:"maxDeltaE76"`
 }
 type Result struct {
+	ColorPop     *ColorPopInfo    `json:"colorPop,omitempty"`
 	Calibration  *CalibrationInfo `json:"calibration,omitempty"`
 	SurfaceView  *SurfaceView     `json:"surfaceView,omitempty"`
 	Image        *image.NRGBA     `json:"-"`

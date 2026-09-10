@@ -1,13 +1,13 @@
 # HueForge projects and filament returns
 
-Global Stack exports self-contained `.hfp` projects for HueForge 0.9.4.3 using
+Color Match exports self-contained `.hfp` projects for HueForge 0.9.4.3 using
 Front Lit and Filament Painting. The project embeds the reduced image, real
 filament identities and TD, swap positions, dimensions, layer geometry, lighting,
 and a separate Color Match Mesh Core.
 
 ## Workflow
 
-1. Choose **Global stack**, select eligible filaments, and set the filament budget.
+1. Choose **Color Match**, select eligible filaments, and set the filament budget.
 2. Under **Layers**, enable **Allow filament returns** to explore
    schedules such as A → B → A. **Maximum filament runs** limits swaps. The
    filament budget counts unique spools; six runs can use four spools.

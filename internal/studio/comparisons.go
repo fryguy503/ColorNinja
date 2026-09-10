@@ -95,7 +95,7 @@ func (s *Studio) ClearComparisons() error {
 // current rendered result. Applying a candidate uses the normal guarded path.
 func (s *Studio) ComparePlans(req Request) ([]Comparison, error) {
 	if req.Options.Mode != "stack" {
-		return nil, fmt.Errorf("plan comparisons require Global stack")
+		return nil, fmt.Errorf("plan comparisons require Color Match or Color Pop stack planning")
 	}
 	return s.comparePlans(req, "")
 }
@@ -135,6 +135,12 @@ func (s *Studio) comparePlans(req Request, excluded string) ([]Comparison, error
 		return nil, err
 	}
 	names := []string{"Best color", "Cleaner boundaries", "Fewer swaps", "Thinner print"}
+	if req.Options.ColorPop.Enabled {
+		names = []string{"Current bands", "More color height", "Fewer swaps", "Reversed regions"}
+		if req.Options.ColorPop.ColorPercent > 80 {
+			names[1] = "More grayscale height"
+		}
+	}
 	if excluded != "" {
 		names = []string{"Current settings", "Without selected spool"}
 	}
@@ -164,6 +170,23 @@ func (s *Studio) comparePlans(req Request, excluded string) ([]Comparison, error
 				if err != nil {
 					return nil, err
 				}
+			}
+		} else if o.ColorPop.Enabled {
+			switch i {
+			case 1:
+				if o.ColorPop.ColorPercent > 80 {
+					o.ColorPop.ColorPercent -= 10
+				} else {
+					o.ColorPop.ColorPercent += 10
+				}
+			case 2:
+				runs := o.HueForge.MaxRuns
+				if runs == 0 {
+					runs = 8
+				}
+				o.HueForge.MaxRuns = max(1, runs-1)
+			case 3:
+				o.ColorPop.GrayOnTop = !o.ColorPop.GrayOnTop
 			}
 		} else {
 			o.HueForge.ReduceShowThrough = false

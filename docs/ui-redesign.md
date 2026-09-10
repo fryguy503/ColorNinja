@@ -19,7 +19,7 @@ processing requests, and export handlers remain the source of truth.
 | Choose/reload library, library path, embedded-project identity | Filaments; also accessible through File in Simple Reducer |
 | Material filter, avoid silk/metallic, unowned, dual-color primary | Filaments → Library filters |
 | Filament search; brand, material and TD; eligible/skipped counts | Filaments |
-| Front Lit/legacy model; lighting; first/regular layer heights | Layers (Global Stack) or Optics (Filament Guide) |
+| Front Lit/legacy model; lighting; first/regular layer heights | Layers (Color Match) or Optics (Filament Guide) |
 | Base depth, manual/automatic maximum depth, filament returns/run limit | Layers / Optics, as applicable to the workflow |
 | Beam width; analysis colors; legacy TD scale/transmission/base limit | Layers / Optics → Advanced |
 | Auto preview, refresh, cancel, progress, stale results | Inspector footer and status bar |

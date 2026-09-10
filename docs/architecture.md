@@ -14,6 +14,16 @@ preview PNGs use a media handler instead of sending pixels through JSON bindings
 
 ## Image pipeline
 
+The opt-in `colorPop` treatment is separate from the existing `mode` values.
+It classifies normalized original pixels using circular HSV hue distance and
+RGB channel spread, then desaturates unselected pixels with linear-sRGB
+luminance. Each region is smoothed and reduced independently. Stack output
+assigns fixed brightness targets to disjoint bands before a bounded physical
+stack search; it uses the shared Front Lit model and export pipeline. Duplicate
+visible colors receive distinct virtual mesh keys only in HFP export. Quality
+metrics reference the prepared image. See [Color Pop](color-pop.md) for the
+workflow, compatibility limits, and native export validation.
+
 Sources normalize to sRGB and 8-bit non-premultiplied RGBA with orientation
 applied. An alpha-weighted separable joint bilateral filter smooths the
 full-resolution working copy, independently of `preserveDetails`. Both passes use
@@ -156,7 +166,8 @@ Stack predictions require verification in the printing workflow.
 Windows x64 is the release target. Shared engine code is portable, but macOS/Linux
 desktop packaging, dialogs, and non-matrix ICC conversion have not been validated
 as release targets. The generated icon and sample landscape are original code-drawn
-artwork with no remote asset dependency.
+artwork. The Color Pop illustration is an embedded AI-generated PNG with a
+recorded prompt. These assets have no runtime remote dependency.
 
 ## Technical references
 

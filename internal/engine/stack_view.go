@@ -63,6 +63,12 @@ func buildStackCoreView(r *Result) *StackCoreView {
 			fractions[p.StackLayer] += p.PixelFraction
 		}
 	}
+	if r.ColorPop != nil {
+		v.MeshMode = "color-match"
+		v.MeshCore = "legacy-flat"
+		v.HasMeshCore = true
+		used = colorPopMeshColors(r)
+	}
 	bands := meshColorBands(used, r.Stack.Runs[len(r.Stack.Runs)-1].EndLayer)
 	var compact *virtualMesh
 	if v.HasMeshCore && v.MeshCore == "compact-blends" && len(used) > 0 {

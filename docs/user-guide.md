@@ -1,6 +1,6 @@
 # ColorNinja Studio user guide
 
-Beta 6 adds [comparison, constraint, surface, and blended Mesh Core controls](releases/v1.0.0-beta.6.md).
+Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
 For the public Windows beta download and installation steps, see the
@@ -57,7 +57,19 @@ of the current mode and its best use. Click again or press Escape to close it.
 | --- | --- | --- |
 | Simple reducer | Maximum colors **in total** for new desktop settings | A reduced palette without dithering. 8 means at most 8 colors, including neutrals. Older projects retain separate budgets (up to twice the count); Advanced lets you change this. |
 | Filament guided | Maximum eligible filament anchors | Colors pulled toward nominal filament colors and approximate TD-aware pairwise hues. Open the PNG in HueForge for its final print plan. |
-| Global stack | Maximum filaments in one ordered stack | A contiguous layer schedule, reachable palette, and optional layer-index image using the validated HueForge Front Lit calculation. |
+| Color Match | Maximum filaments in one ordered stack | A contiguous layer schedule, reachable palette, and optional layer-index image using the validated HueForge Front Lit calculation. |
+| Color Pop | Total prepared colors, or maximum stack filaments | Keep sampled hues and turn the rest grayscale. Prepare a PNG without a library, or plan separate color/grayscale height bands. |
+
+For Color Pop, start with **Try demo** to compare the full-color poppy with its
+red-and-grayscale result. Pick colors directly from the original, adjust the
+hue range, and inspect **Selection** before exporting. **Prepare image** uses
+the familiar reducer controls; **Plan filament stack** adds height allocation,
+band order, and a boundary gap. See the [Color Pop guide](color-pop.md).
+
+**Color Match** was previously named **Global stack**. The name now follows the
+HueForge workflow of assigning image colors to layer heights. Existing saved
+projects and presets keep their settings and behavior; the CLI still uses
+`--hueforge-stack` for compatibility.
 
 Switching modes preserves your color budget and other tuning. Built-in presets
 change only the color budget; custom presets restore saved tuning while keeping
@@ -128,7 +140,7 @@ use more memory and processing time.
 
 ## Filament libraries and layer maps
 
-In **Global Stack → Layers**, enable **Choose depth automatically**
+In **Color Match → Layers**, enable **Choose depth automatically**
 and enter a **Hard maximum depth**, for example **4.0 mm**. The ceiling includes
 the base and first layer. A value between printable layer heights rounds down.
 The base thickness, spool budget, filament filters, color priority, and run limit
@@ -171,7 +183,7 @@ The library is read-only. Invalid entries and entries outside the active filters
 are excluded. A filter with no eligible colors produces an explanation.
 
 Enable **Avoid silk & metallic finishes** in the Filaments tab to exclude those
-finishes from both Filament Guide and Global Stack, including repeated filament
+finishes from both Filament Guide and Color Match, including repeated filament
 runs. It checks material names, filament names, and tags for silk, metallic,
 pearl, Elixir, and Starlight, without assuming that gold or silver colors are
 metallic. The eligible count updates immediately. This optional filter starts
@@ -179,7 +191,7 @@ off, is saved in preferences and ColorNinja projects, and remains selected when
 changing libraries. Simple Reducer does not use the filament library.
 The CLI equivalent is `--hueforge-avoid-silk-metallic`.
 
-**Use true black** is enabled by default in filament-guided and global-stack
+**Use true black** is enabled by default in filament-guided and Color Match
 modes, including when opening older preferences, projects, and presets. It
 models dark, near-neutral filaments with “Black” in their name as `#000000`;
 other filaments retain their library colors. In guided mode, targets matched
@@ -189,7 +201,7 @@ consistency. Perceptual reduction and zero-strength guidance are unchanged.
 Turn the option off to use the original library colors. Transmission values
 and the library file remain unchanged; reports retain overridden `libraryRGB`.
 
-Guidance is the usual preprocessing workflow. Global stack mode uses
+Guidance is the usual preprocessing workflow. Color Match mode uses
 TD-aware Front Lit layer-color predictions with HueForge 0.9.4.3 compatibility.
 Under **Layers** or **Optics**, match the lighting, first layer height, regular
 layer height, base depth, and maximum total depth. New defaults use a 0.16 mm
@@ -207,7 +219,7 @@ or G-code. The JSON report includes both layer heights, the model, lighting,
 and stack schedule. For layer N above zero, height is first-layer height plus
 `(N - 1) * regular-layer height`.
 
-Global Stack also supports **Allow filament returns**, with a separate run limit
+Color Match also supports **Allow filament returns**, with a separate run limit
 while the filament budget counts unique spools. Open **Export** and select
 **HueForge project (.hfp)** to configure mesh mode/core, width, and detail.
 Start with **Color Match** and **Tuned image colors (recommended)**, then refresh from the

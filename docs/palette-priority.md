@@ -29,7 +29,7 @@ not a saturation adjustment. Nearby shades within 4 or 5.5 working-space units
 respectively are merged. These constants are explicit heuristics, not a learned
 model of beauty or semantic object importance.
 
-Filament Guide and Global Stack use importance weights in their selection
+Filament Guide and Color Match use importance weights in their selection
 objectives. Reported area fractions are recomputed from actual source area;
 whole-image quality remains original-to-output, alpha-weighted CIELAB Delta E76.
 Stack pixels still correspond to exact modeled layer colors. A palette color

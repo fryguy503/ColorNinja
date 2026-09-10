@@ -7,6 +7,22 @@ production compilation, and source formatting checks to pass.
 
 ## Automated coverage
 
+Beta 7 adds Color Pop hue wrapping, grayscale tolerance, transparency, separate
+region budgets, accent survival, old-settings defaults, fixed-band geometry,
+neutral-band materials, duplicate-height mesh keys, cache invalidation, and
+cancellation checks. Portable project tests cover the full-color demo and a
+planned stack, including reopened exports and band comparison alternatives.
+Frontend state tests cover workflow switching, preset compatibility, and
+legacy optical profiles. The final build count is recorded in `BUILD-INFO.json`.
+
+Both band orders of the full 1254 × 1254 demo passed the installed HueForge
+0.9.4.3 native material/blending routines and unmodified Color Match shader:
+zero layer mismatches across 1,572,516 visible pixels and zero physical RGB-byte
+differences. Local evidence is under `artifacts/color-pop-qa`. Browser checks
+covered the picker, mask, side-by-side comparison, mode switching, undo, stack
+controls, and the renamed Color Match help. Physical print verification remains
+separate from these software checks.
+
 Beta 6 adds full-resolution/downsampled detail regressions, unconditional CIELAB
 report checks, alternate matching heights, required-spool survival through
 mapping, cache/fresh equivalence and cancellation, TD sensitivity, comparison
@@ -30,7 +46,7 @@ the gradient used four entries instead of fifteen (TD 0.2–6.3), and the artwor
 used TD 0.78–5.59 with twenty disables removed. Evidence is under
 `artifacts/beta6/td-default-fix` locally.
 
-The Beta 6 build gate currently passes 131 Go tests and eight frontend state
+The Beta 6 build gate passed 131 Go tests and eight frontend state
 tests. A browser pass of the compiled interface covered saving comparisons,
 opening a portable constrained project, generating alternatives, and selecting
 a layer both from the slider and from the image. It also checked the surface

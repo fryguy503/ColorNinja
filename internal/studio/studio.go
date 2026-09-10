@@ -211,7 +211,6 @@ func (s *Studio) installImage(ctx context.Context, loaded *engine.LoadedImage, p
 		UniqueColors: uniqueColors, URL: fmt.Sprintf("/media/source/%d.png", s.revision),
 		Revision: s.revision, Demo: demo, Metadata: loaded.Metadata}
 	if demo {
-		s.source.Name = "Painted dunes"
 		s.source.Path = ""
 	}
 	if !demo {

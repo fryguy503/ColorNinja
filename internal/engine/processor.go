@@ -25,6 +25,9 @@ type Processor struct {
 }
 
 func processingKey(o Options) Options {
+	if !o.ColorPop.Enabled {
+		o.ColorPop = ColorPopOptions{}
+	}
 	o.CalibrationNote = ""
 	o.HueForge.MeshMode = ""
 	o.HueForge.MeshCore = ""

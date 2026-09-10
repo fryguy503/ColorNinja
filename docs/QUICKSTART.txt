@@ -1,10 +1,14 @@
-ColorNinja Studio 1.0.0-beta.6 - Windows x64
+ColorNinja Studio 1.0.0-beta.7 - Windows x64
 
-New in Beta 6: tuned Mesh Core TDs are the default for HueForge project exports,
-including older saved projects. Export a new HFP and reopen it in HueForge to
-replace the previous flat 0.01 TD core. Physical filament TDs stay unchanged.
-Also included: stronger detail preservation, stack diagnostics and comparisons,
-required spools, protected colors, and faster reuse of unchanged processing.
+New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
+Workflow > Color Pop > Try demo to compare the full-color poppy with the result.
+Pick colors from the original, adjust Similar hues, and inspect Selection.
+Prepare a PNG without a library, or use experimental separate height bands
+for a filament stack. See docs/color-pop.md for the complete workflow.
+
+Global stack is now named Color Match. Existing projects, presets, and
+CLI commands retain their behavior. Color Match exports retain tuned Mesh Core
+TDs; Color Pop exports use a separate mesh encoding to preserve their bands.
 
 BETA: This is a testing release. Review output before printing.
 
@@ -30,7 +34,7 @@ retain those separate budgets, so 8 per population can produce up to 16 colors.
 Switching modes preserves your budget. Built-in presets change the budget only. Saved presets
 restore tuning while keeping the current mode. Reset restores mode defaults.
 
-Preserve details is on by default in all three modes. It protects small marks
+Preserve details is on by default in the processing workflows. It protects small marks
 and coherent color groups, and improves constrained color mapping
 and stack planning. Turn it off to disable that extra protection; the CLI
 equivalent is --preserve-details=false. Smoothing works with either setting,
@@ -41,7 +45,7 @@ Color priority offers Overall balance, Distinctive colors, and Vivid colors.
 Try Distinctive colors when similar background shades crowd out important accents.
 Vivid favors colorful accents more strongly, without a saturation boost. Both
 share the existing color limit across hue families while keeping essential neutral
-tones. These choices also influence filament selection and global stack planning.
+tones. These choices also influence filament selection and Color Match planning.
 
 For filament guidance, open the Filaments tab and choose your HueForge library.
 The usual personal_library.json path is detected automatically. Only eligible
@@ -49,21 +53,21 @@ owned colors are used unless you enable additional entries. Your library is
 read-only. Open guided PNG output in HueForge for the final print plan.
 
 In the Filaments tab, enable Avoid silk & metallic finishes to keep those
-finishes out of Filament Guide and Global Stack. It also excludes pearl,
+finishes out of Filament Guide and Color Match. It also excludes pearl,
 Elixir, and Starlight, checking material names, filament names, and tags.
 The option starts off and is saved with library settings and projects.
 CLI: --hueforge-avoid-silk-metallic.
 
-Use true black is on by default in filament-guided and global-stack modes.
+Use true black is on by default in filament-guided and Color Match modes.
 It models dark, near-neutral filaments named Black as #000000. Turn it off to
 use the stored library colors. Your library file and transmission values are
 unchanged. The CLI equivalent to turn it off is --true-black=false.
 
-Global stack mode provides an independent approximate layer plan. Review it
+Color Match mode provides an independent approximate layer plan. Review it
 before printing. Its optional 16-bit layer map stores literal layer numbers
 (0 = transparent); it is not a normalized height image, STL, or G-code.
 
-Global Stack > Layers > Choose depth automatically compares
+Color Match > Layers > Choose depth automatically compares
 printable depths below your Hard maximum depth (for example 4.0 mm, including
 the base). It prefers the thinnest plan within 1% of the best color score found.
 With Reduce layer show-through enabled, this allowance uses the combined color
@@ -77,7 +81,7 @@ layer to inspect its height, material, TD, and image coverage. Striped mesh
 heights are excluded from matching; physical layers still print underneath.
 
 PROJECTS AND PREFERENCES
-Global Stack can reuse a filament after another color: enable Allow filament
+Color Match can reuse a filament after another color: enable Allow filament
 returns under Layers. The budget counts unique spools, while Maximum
 filament runs limits swaps. Export > HueForge project (.hfp) configures Mesh
 Mode, Mesh Core, width, and detail. Start with Color Match / Match planned layers,

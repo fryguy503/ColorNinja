@@ -27,6 +27,11 @@ try {
     Copy-Item -LiteralPath 'docs\QUICKSTART.txt' -Destination (Join-Path $release 'START-HERE.txt')
     Copy-Item -LiteralPath 'README.md', 'LICENSE' -Destination $release
     Copy-Item -LiteralPath 'docs' -Destination (Join-Path $release 'docs') -Recurse
+    # Keep the downloadable demo and its generation record available beside
+    # the embedded copy, using the same relative paths as the user guide.
+    $demoAssets = Join-Path $release 'internal\studio\assets'
+    New-Item -ItemType Directory -Force -Path $demoAssets | Out-Null
+    Copy-Item -LiteralPath 'internal\studio\assets\color-pop-poppy.png', 'internal\studio\assets\README.md' -Destination $demoAssets
     New-Item -ItemType Directory -Path (Join-Path $release 'build') | Out-Null
     Copy-Item -LiteralPath 'build\appicon.png' -Destination (Join-Path $release 'build\appicon.png')
     $notice = [Text.StringBuilder]::new()

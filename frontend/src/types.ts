@@ -31,7 +31,38 @@ export type HueForgeOptions = {
   tdScale: number;
   baseTransmissionLimit: number;
 };
+export type ColorPopOptions = {
+  enabled: boolean;
+  selection: "existing" | "selected";
+  colors: string;
+  hueTolerance: number;
+  grayTolerance: number;
+  colorPercent: number;
+  grayOnTop: boolean;
+  gapLayers: number;
+};
+export const defaultColorPop: ColorPopOptions = {
+  enabled: false,
+  selection: "existing",
+  colors: "",
+  hueTolerance: 25,
+  grayTolerance: 8,
+  colorPercent: 50,
+  grayOnTop: false,
+  gapLayers: 1,
+};
+export type ColorPopInfo = {
+  colorFraction: number;
+  grayFraction: number;
+  selectionPng: string;
+  warning?: string;
+  colorLayers: [number, number];
+  grayLayers: [number, number];
+  gapLayers: number;
+  qualityReference: string;
+};
 export type Options = {
+  colorPop: ColorPopOptions;
   protectedColors?: string;
   calibrationNote?: string;
   colors: number;
@@ -164,6 +195,7 @@ export type StackRun = {
   endHeight: number;
 };
 export type Result = {
+  colorPop?: ColorPopInfo;
   calibration?: {
     note?: string;
     trueBlackOverride: boolean;
@@ -256,6 +288,7 @@ export type Request = {
   filter: Filter;
 };
 export const defaults: Options = {
+  colorPop: { ...defaultColorPop },
   colors: 8,
   totalColors: true,
   colorPriority: "balanced",

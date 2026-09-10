@@ -32,6 +32,7 @@ import { invoke, on, desktop } from "./bridge";
 import { Updates } from "./Updates";
 import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
+import { ColorPopPanel } from "./ColorPop";
 import {
   ProtectedColors,
   FilamentConstraints,
@@ -40,6 +41,7 @@ import {
 } from "./Beta6Tools";
 import {
   applyColorBudget,
+  colorPopWorkflow,
   applyAutoDepth,
   applyColorPriority,
   prioritizesColors,
@@ -244,6 +246,7 @@ function Section({
 }
 
 function Viewer({
+  colorPop,
   source,
   preview,
   busy,
@@ -252,6 +255,7 @@ function Viewer({
   onTogglePalette,
   showPalette,
 }: {
+  colorPop: boolean;
   onInspect: () => void;
   onTogglePalette: () => void;
   showPalette: boolean;
@@ -261,8 +265,11 @@ function Viewer({
   dirty: boolean;
 }) {
   const [view, setView] = useState<
-    "original" | "reduced" | "split" | "side-by-side"
+    "original" | "reduced" | "split" | "side-by-side" | "selection"
   >("reduced");
+  useEffect(() => {
+    if (!colorPop && view === "selection") setView("reduced");
+  }, [colorPop, view]);
   const sideBySide = view === "side-by-side";
   const [split, setSplit] = useState(50);
   const [zoom, setZoom] = useState(1);
@@ -327,25 +334,36 @@ function Viewer({
           role="group"
           aria-label="Preview comparison"
         >
-          {(["original", "reduced", "split", "side-by-side"] as const).map(
-            (v) => (
-              <button
-                key={v}
-                className={view === v ? "active" : ""}
-                aria-pressed={view === v}
-                onClick={() => setView(v)}
-                disabled={v !== "original" && !preview}
-              >
-                {v === "split"
-                  ? "Compare"
-                  : v === "side-by-side"
-                    ? "Side by side"
+          {(
+            [
+              "original",
+              "reduced",
+              "split",
+              "side-by-side",
+              ...(colorPop ? ["selection" as const] : []),
+            ] as const
+          ).map((v) => (
+            <button
+              key={v}
+              className={view === v ? "active" : ""}
+              aria-pressed={view === v}
+              onClick={() => setView(v)}
+              disabled={
+                v !== "original" &&
+                (!preview || (v === "selection" && !preview.result.colorPop))
+              }
+            >
+              {v === "split"
+                ? "Compare"
+                : v === "side-by-side"
+                  ? "Side by side"
+                  : v === "selection"
+                    ? "Selection"
                     : v === "original"
                       ? "Original"
                       : "Result"}
-              </button>
-            ),
-          )}
+            </button>
+          ))}
         </div>
         <div className="zoom-controls">
           <IconButton title="Zoom out" onClick={() => adjustZoom(1 / 1.25)}>
@@ -387,7 +405,7 @@ function Viewer({
       </div>
       {!sideBySide && source && (
         <div className="preview-counts-bar" aria-label="Image color counts">
-          {(view !== "reduced" || !preview) && (
+          {((view !== "reduced" && view !== "selection") || !preview) && (
             <div>
               <strong>Original</strong>
               <ColorCount count={source.uniqueColors} />
@@ -395,8 +413,18 @@ function Viewer({
           )}
           {view !== "original" && (
             <div>
-              <strong>{preview && dirty ? "Previous result" : "Result"}</strong>
-              {preview ? (
+              <strong>
+                {view === "selection"
+                  ? dirty
+                    ? "Previous selection"
+                    : "Selection"
+                  : preview && dirty
+                    ? "Previous result"
+                    : "Result"}
+              </strong>
+              {view === "selection" ? (
+                <span>White = kept in color · dark = grayscale</span>
+              ) : preview ? (
                 <ColorCount count={preview.result.uniqueColors} />
               ) : (
                 <span>Awaiting preview</span>
@@ -489,8 +517,16 @@ function Viewer({
             {preview && view !== "original" && (
               <img
                 draggable={false}
-                alt="Processed image"
-                src={preview.url}
+                alt={
+                  view === "selection"
+                    ? "Color Pop selection mask"
+                    : "Processed image"
+                }
+                src={
+                  view === "selection" && preview.result.colorPop
+                    ? `data:image/png;base64,${preview.result.colorPop.selectionPng}`
+                    : preview.url
+                }
                 style={{
                   clipPath:
                     view === "split" ? `inset(0 0 0 ${split}%)` : undefined,
@@ -734,7 +770,9 @@ function App() {
   };
   const comparePlans = async (excluded?: string) => {
     if (!excluded && options.mode !== "stack") {
-      notify("Choose Global stack to find printable alternatives.");
+      notify(
+        "Choose Color Match or Color Pop stack planning to find printable alternatives.",
+      );
       return;
     }
     const id = ++seq.current;
@@ -868,6 +906,19 @@ function App() {
     seq.current++;
     try {
       applySnapshot(await invoke<Snapshot>("UseDemo"));
+    } catch (e) {
+      handleError(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const colorPopDemo = async () => {
+    setShowFile(false);
+    setLoading(true);
+    seq.current++;
+    try {
+      applySnapshot(await invoke<Snapshot>("UseColorPopDemo"));
+      setTab("adjust");
     } catch (e) {
       handleError(e);
     } finally {
@@ -1147,6 +1198,11 @@ function App() {
     invoke("Cancel").catch(handleError);
   };
   const modeInfo = {
+    "color-pop": [
+      "Color Pop",
+      "Keep selected hues against grayscale, or use colors already isolated in the image.",
+      "Prepare a PNG without a library, or plan a filament stack with separate color and grayscale height bands.",
+    ],
     standard: [
       "Perceptual reduction",
       "Reduces the image to a smaller palette drawn from its own colors. No filament library needed.",
@@ -1158,11 +1214,12 @@ function App() {
       "Best for preparing an image for HueForge, where you choose the final layer plan.",
     ],
     stack: [
-      "Stack planning",
-      "Predicts colors from one ordered filament stack and generates its layer plan.",
-      "Best for exploring filament swaps and layer heights. Predictions are approximate; verify the plan in HueForge.",
+      "Color Match",
+      "Matches image colors to printable blends in one filament stack and assigns their layer heights.",
+      "Best for HueForge's Color Match workflow. Uses your filament colors and TD; review the plan in HueForge.",
     ],
   } as const;
+  const activeWorkflow = options.colorPop.enabled ? "color-pop" : options.mode;
   const selected =
     preview?.result.guidance?.selectedFilaments ??
     preview?.result.stack?.runs.map((r) => r.filament) ??
@@ -1183,9 +1240,14 @@ function App() {
           Workflow
           <select
             aria-label="Processing mode"
-            value={options.mode}
+            value={activeWorkflow}
             onChange={(e) => {
               setModeHelp(null);
+              setTab("adjust");
+              if (e.target.value === "color-pop") {
+                update(colorPopWorkflow(options, true));
+                return;
+              }
               update(
                 changeProcessingMode(
                   options,
@@ -1195,13 +1257,14 @@ function App() {
             }}
           >
             <option value="standard">Simple reducer</option>
+            <option value="color-pop">Color Pop</option>
             <option value="guided">Filament Guide</option>
-            <option value="stack">Global stack · experimental</option>
+            <option value="stack">Color Match · experimental</option>
           </select>
         </label>
         <button
           className="mode-help-toggle"
-          aria-label={`About ${modeInfo[options.mode][0]}`}
+          aria-label={`About ${modeInfo[activeWorkflow][0]}`}
           aria-expanded={modeHelp === options.mode}
           aria-controls="workflow-help"
           onClick={() =>
@@ -1216,8 +1279,8 @@ function App() {
         className="mode-help"
         hidden={modeHelp !== options.mode}
       >
-        <p>{modeInfo[options.mode][1]}</p>
-        <p>{modeInfo[options.mode][2]}</p>
+        <p>{modeInfo[activeWorkflow][1]}</p>
+        <p>{modeInfo[activeWorkflow][2]}</p>
       </div>
     </>
   );
@@ -1309,6 +1372,9 @@ function App() {
       )}
       <button className="text-button" onClick={demo}>
         <ImageIcon size={13} /> Load sample artwork
+      </button>
+      <button className="text-button" onClick={colorPopDemo}>
+        <ImageIcon size={13} /> Load Color Pop demo
       </button>
     </>
   );
@@ -1407,7 +1473,9 @@ function App() {
 
   const advancedTuningContent = (
     <>
-      <ProtectedColors options={options} onChange={update} />
+      {!options.colorPop.enabled && (
+        <ProtectedColors options={options} onChange={update} />
+      )}
       {advanced && (
         <Numeric
           label="Exact budget"
@@ -1608,7 +1676,22 @@ function App() {
 
   const layersContent = (
     <>
-      {options.mode === "stack" && (
+      {options.colorPop.enabled && (
+        <>
+          <p className="field-help">
+            Color Pop uses a fixed thickness and separate height bands.
+            Filaments can return to rebuild shadows in the upper region.
+          </p>
+          <Numeric
+            label="Maximum filament runs"
+            value={options.hueforge.maxRuns || 8}
+            min={1}
+            max={64}
+            onChange={(v) => changeHF("maxRuns", v)}
+          />
+        </>
+      )}
+      {options.mode === "stack" && !options.colorPop.enabled && (
         <label className="select-field">
           Search effort
           <select
@@ -1627,7 +1710,7 @@ function App() {
           </small>
         </label>
       )}
-      {options.mode === "stack" && (
+      {options.mode === "stack" && !options.colorPop.enabled && (
         <>
           <label className="check-field">
             <input
@@ -1712,7 +1795,12 @@ function App() {
           <option value="hueforge-0.9.4.3-frontlit-v1">
             HueForge Front Lit
           </option>
-          <option value="legacy-exponential">Legacy approximation</option>
+          <option
+            value="legacy-exponential"
+            disabled={options.colorPop.enabled}
+          >
+            Legacy approximation
+          </option>
         </select>
       </label>
       {options.hueforge.opticalModel === "hueforge-0.9.4.3-frontlit-v1" && (
@@ -1765,7 +1853,7 @@ function App() {
         suffix="mm"
         onChange={(v) => changeHF("baseDepth", v)}
       />
-      {options.mode === "stack" && (
+      {options.mode === "stack" && !options.colorPop.enabled && (
         <>
           <label className="check-field">
             <input
@@ -1781,7 +1869,9 @@ function App() {
       )}
       <Numeric
         label={
-          options.mode === "stack" && options.hueforge.autoDepth
+          options.mode === "stack" &&
+          options.hueforge.autoDepth &&
+          !options.colorPop.enabled
             ? "Hard maximum depth"
             : "Maximum total depth"
         }
@@ -1898,71 +1988,87 @@ function App() {
 
   const hfpContent = (
     <>
-      <label className="select-field">
-        Mesh mode
-        <select
-          value={options.hueforge.meshMode || "color-match"}
-          onChange={(e) =>
-            changeHF("meshMode", e.target.value as HueForgeOptions["meshMode"])
-          }
-        >
-          <option value="color-match">Color Match</option>
-          <option value="combo">Combo</option>
-          <option value="color-aware">Color Aware</option>
-          <option value="color-pop">Color Pop</option>
-        </select>
-      </label>
-      {!options.hueforge.meshMode ||
-      options.hueforge.meshMode === "color-match" ? (
+      {options.colorPop.enabled ? (
+        <p className="field-help">
+          Color Pop exports the planned height bands and physical filament stack
+          using Color Match. Keep the exported mesh mode to retain this
+          separation and preview.
+        </p>
+      ) : (
         <>
           <label className="select-field">
-            Mesh core
+            Mesh mode
             <select
-              value={
-                !options.hueforge.meshCore ||
-                options.hueforge.meshCore === "planned-colors"
-                  ? "compact-blends"
-                  : options.hueforge.meshCore
-              }
+              value={options.hueforge.meshMode || "color-match"}
               onChange={(e) =>
                 changeHF(
-                  "meshCore",
-                  e.target.value as HueForgeOptions["meshCore"],
+                  "meshMode",
+                  e.target.value as HueForgeOptions["meshMode"],
                 )
               }
             >
-              <option value="compact-blends">
-                Tuned image colors (recommended)
-              </option>
-              <option value="filament-blends">Use filament blends</option>
-              <option value="legacy-flat">Flat image colors (legacy)</option>
+              <option value="color-match">Color Match</option>
+              <option value="combo">Combo</option>
+              <option value="color-aware">Color Aware</option>
+              <option value="color-pop">Color Pop</option>
             </select>
           </label>
-          <p className="field-help">
-            Tuned image colors fits Mesh Core TDs for blending while retaining
-            the planned heights. It removes unnecessary disables and uses fewer
-            IMAGE entries where possible. These TDs control virtual image
-            colors; your real filament TDs in the Color Core stay unchanged.
-          </p>
-          {options.hueforge.meshCore === "legacy-flat" && (
+          {!options.hueforge.meshMode ||
+          options.hueforge.meshMode === "color-match" ? (
+            <>
+              <label className="select-field">
+                Mesh core
+                <select
+                  value={
+                    !options.hueforge.meshCore ||
+                    options.hueforge.meshCore === "planned-colors"
+                      ? "compact-blends"
+                      : options.hueforge.meshCore
+                  }
+                  onChange={(e) =>
+                    changeHF(
+                      "meshCore",
+                      e.target.value as HueForgeOptions["meshCore"],
+                    )
+                  }
+                >
+                  <option value="compact-blends">
+                    Tuned image colors (recommended)
+                  </option>
+                  <option value="filament-blends">Use filament blends</option>
+                  <option value="legacy-flat">
+                    Flat image colors (legacy)
+                  </option>
+                </select>
+              </label>
+              <p className="field-help">
+                Tuned image colors fits Mesh Core TDs for blending while
+                retaining the planned heights. It removes unnecessary disables
+                and uses fewer IMAGE entries where possible. These TDs control
+                virtual image colors; your real filament TDs in the Color Core
+                stay unchanged.
+              </p>
+              {options.hueforge.meshCore === "legacy-flat" && (
+                <p className="field-help">
+                  Legacy export uses opaque 0.01 TD image colors and disables
+                  unused heights. Select Tuned image colors to enable blending.
+                </p>
+              )}
+              {options.hueforge.meshCore === "filament-blends" && (
+                <p className="field-help">
+                  Filament blends copies the physical print schedule into both
+                  cores and restricts matching to the selected heights.
+                </p>
+              )}
+            </>
+          ) : (
             <p className="field-help">
-              Legacy export uses opaque 0.01 TD image colors and disables unused
-              heights. Select Tuned image colors to enable blending.
-            </p>
-          )}
-          {options.hueforge.meshCore === "filament-blends" && (
-            <p className="field-help">
-              Filament blends copies the physical print schedule into both cores
-              and restricts matching to the selected heights.
+              HueForge will rebuild heights in this mode. Its mesh and colors
+              can differ from this preview. Use Color Match to retain the
+              planned color-to-layer assignments.
             </p>
           )}
         </>
-      ) : (
-        <p className="field-help">
-          HueForge will rebuild heights in this mode. Its mesh and colors can
-          differ from this preview. Use Color Match to retain the planned
-          color-to-layer assignments.
-        </p>
       )}
       <Numeric
         label="Export width"
@@ -2037,7 +2143,8 @@ function App() {
         </label>
         <p className="field-help">
           Excludes silk, metallic, pearl, Elixir, and Starlight from Filament
-          Guide and Global Stack. Checks material, name, and tags.
+          Guide, Color Match, and Color Pop stack planning. Checks material,
+          name, and tags.
         </p>
         <label className="check-field">
           <input
@@ -2302,6 +2409,7 @@ function App() {
       <div className="studio-layout">
         <main className="image-workspace">
           <Viewer
+            colorPop={options.colorPop.enabled}
             source={source}
             preview={preview}
             busy={busy}
@@ -2373,7 +2481,7 @@ function App() {
                           .filter((c) => c.pixelFraction > 0)
                           .map((c) => (
                             <span
-                              key={c.hex}
+                              key={`${c.hex}:${c.stackLayer ?? 0}`}
                               title={`${c.hex} · ${pct(c.pixelFraction)}`}
                               style={{
                                 background: c.hex,
@@ -2388,10 +2496,13 @@ function App() {
                           .map((c) => (
                             <button
                               className="palette-swatch"
-                              key={c.hex}
+                              key={`${c.hex}:${c.stackLayer ?? 0}`}
                               title={`Copy ${c.hex} · ${pct(c.pixelFraction)} of visible pixels`}
                               onClick={async (event) => {
-                                if (event.shiftKey) {
+                                if (
+                                  event.shiftKey &&
+                                  !options.colorPop.enabled
+                                ) {
                                   const colors = (options.protectedColors ?? "")
                                     .split(",")
                                     .filter(Boolean);
@@ -2449,7 +2560,13 @@ function App() {
                           </strong>
                         </div>
                         <div className="stat-row">
-                          <span title="Alpha-weighted mean CIE76 distance from the original">
+                          <span
+                            title={
+                              preview.result.colorPop
+                                ? "Alpha-weighted mean CIE76 distance from the prepared Color Pop image, after intentional desaturation"
+                                : "Alpha-weighted mean CIE76 distance from the original"
+                            }
+                          >
                             Mean color distance <Info size={11} />
                           </span>
                           <strong>
@@ -2638,6 +2755,7 @@ function App() {
                 onClick={() => {
                   const n = copy(defaults);
                   n.mode = options.mode;
+                  n.colorPop.enabled = options.colorPop.enabled;
                   n.colors = 8;
                   update(n);
                 }}
@@ -2675,6 +2793,17 @@ function App() {
           )}
           <div className="controls-scroll">
             <div hidden={tab !== "adjust"}>
+              {options.colorPop.enabled && (
+                <ColorPopPanel
+                  options={options}
+                  update={update}
+                  source={source}
+                  info={preview?.result.colorPop}
+                  stale={dirty || busy}
+                  demo={colorPopDemo}
+                  disabled={loading}
+                />
+              )}
               {tuningContent}
               {options.mode !== "standard" && (
                 <button
@@ -2757,11 +2886,15 @@ function App() {
           />
           <i />{" "}
           <span>
-            {options.mode === "standard"
-              ? "Perceptual reduction"
-              : options.mode === "guided"
-                ? "Filament guidance"
-                : "Stack planning"}
+            {options.colorPop.enabled
+              ? options.mode === "stack"
+                ? "Color Pop · stack"
+                : "Color Pop · image"
+              : options.mode === "standard"
+                ? "Perceptual reduction"
+                : options.mode === "guided"
+                  ? "Filament guidance"
+                  : "Color Match"}
           </span>
         </div>
       </footer>

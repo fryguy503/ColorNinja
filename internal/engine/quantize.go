@@ -439,6 +439,9 @@ func (p *Processor) process(ctx context.Context, src *image.NRGBA, o Options, li
 	if src == nil {
 		return nil, fmt.Errorf("no image loaded")
 	}
+	if o.ColorPop.Enabled {
+		return processColorPop(ctx, src, o, lib, progress)
+	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

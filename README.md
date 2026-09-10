@@ -9,13 +9,12 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Current beta: `v1.0.0-beta.6` — Windows x64.** This release
-build adds stronger detail preservation, physical-scale stack diagnostics,
-search alternatives, required spools, protected colors, saved comparisons,
-reusable processing stages, and tuned Mesh Core TDs by default. See the
-[Beta 6 notes](docs/releases/v1.0.0-beta.6.md) and [acceptance checklist](docs/beta6-plan.md).
+**Current beta: `v1.0.0-beta.7` — Windows x64.** This release adds Color Pop
+with hue selection, separate color/grayscale height bands, and a full-color
+poppy demo. Global stack is now named Color Match. See the
+[Beta 7 notes](docs/releases/v1.0.0-beta.7.md) and [validation scope](docs/validation.md).
 
-[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.6)
+[Download the Windows beta](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.7)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
@@ -25,8 +24,8 @@ reusable processing stages, and tuned Mesh Core TDs by default. See the
 If you already have a Windows ZIP, start at step 2. Local builds are packaged in
 `build/releases`.
 
-1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.6)
-   and download **`ColorNinja-1.0.0-beta.6-windows-x64.zip`** from **Assets**.
+1. Open the [beta release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0-beta.7)
+   and download **`ColorNinja-1.0.0-beta.7-windows-x64.zip`** from **Assets**.
 2. Extract the entire ZIP to a folder you can write to.
 3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
 4. Choose a mode, adjust the color budget, compare the preview, and choose **Export → Full-resolution PNG**.
@@ -46,16 +45,19 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-beta.6-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.0-beta.7-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
+
+Choose **Workflow → Color Pop → Try demo** to compare a full-color original
+with a selective-color result. See the [Color Pop guide](docs/color-pop.md).
 
 - Reduce colors without dithering, with independent smoothing and detail preservation.
 - Prioritize distinctive or vivid colors while simplifying similar shades.
 - Optionally exclude silk, metallic, and related finishes from filament selection.
 - Use owned filament colors and transmission distance (TD) from a HueForge library.
-- Plan a Front Lit global stack, optionally reuse filaments in later runs,
+- Plan a Front Lit filament stack with Color Match, optionally reuse filaments in later runs,
   choose depth below a hard maximum, and inspect an interactive stack map.
 - Optionally reduce layer show-through by considering neighboring image colors
   when choosing stack order and layer allocation.
@@ -75,7 +77,8 @@ Get-FileHash .\ColorNinja-1.0.0-beta.6-windows-x64.zip -Algorithm SHA256
 | --- | --- | --- |
 | **Simple reducer** | Simplifying an image without a filament library | New desktop settings use a total limit: 8 means at most 8 colors, including neutrals. Advanced can restore separate budgets. |
 | **Filament guided** | Preparing a PNG for final planning in HueForge | Maximum eligible filament anchors; nominal colors and approximate TD-aware blends guide the palette. |
-| **Global stack** | Exploring a single ordered filament/layer plan | Maximum filaments in one stack, using TD-aware Front Lit color predictions. |
+| **Color Match** | Exploring a single ordered filament/layer plan | Maximum filaments in one stack, using TD-aware Front Lit color predictions. |
+| **Color Pop** | Keeping selected hues against grayscale | Prepared palette colors, or filaments for separate color/grayscale height bands. Includes a full-color poppy demo. |
 
 **Start with Filament guided for the usual HueForge workflow.** Open the exported
 PNG in HueForge to make the final print plan. The Filaments tab detects the usual
@@ -131,7 +134,7 @@ Run these commands from the extracted release folder:
   --hueforge-library "$env:APPDATA\HueForge\Filaments\personal_library.json" `
   --colors 8 --palette-json guided.json
 
-# Explore a global stack and export its layer-index image.
+# Create a Color Match plan and export its layer-index image.
 .\colorninja-cli.exe input.png -o stack.png `
   --hueforge-library "$env:APPDATA\HueForge\Filaments\personal_library.json" `
   --colors 4 --hueforge-stack --palette-json stack.json `
@@ -179,7 +182,7 @@ For frontend development:
 - [User guide](docs/user-guide.md): controls, shortcuts, libraries, projects, and CLI options.
 - [Architecture](docs/architecture.md): image engine, optical model, and desktop integration.
 - [Validation](docs/validation.md): automated coverage and manual testing boundaries.
-- [Beta release notes](docs/releases/v1.0.0-beta.2.md).
+- [Beta release notes](docs/releases/v1.0.0-beta.7.md).
 - [Python reference](docs/python-reference.md): the original implementation retained for regression comparison.
 
 Please [open an issue](https://github.com/fryguy503/ColorNinja/issues) with your
