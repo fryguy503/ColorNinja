@@ -2,9 +2,9 @@
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "ColorNinja",
   "outputfilename": "ColorNinja",
-  "frontend:install": "node ../.tools/npm/package/bin/npm-cli.js ci",
-  "frontend:build": "node ../.tools/npm/package/bin/npm-cli.js run build",
-  "frontend:dev:watcher": "node ../.tools/npm/package/bin/npm-cli.js run dev",
+  "frontend:install": "npm ci",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "ColorNinja",
