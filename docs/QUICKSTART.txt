@@ -1,4 +1,17 @@
-ColorNinja Studio 1.0.3 - Windows, Linux, and macOS
+ColorNinja Studio 1.1.0 - Windows, Linux, and macOS
+
+REGION EDIT
+Generate a Color Match or filament-stack Color Pop preview, then click Region
+Edit above the result. Lasso several regions, choose a target layer and Assign
+layer. Click, Polygon, Box and Brush are also available, with whole-region or
+pixel coverage. Refine selections, smooth/flatten heights, clean up speckles,
+protect groups, undo/redo and compare Before edits. Done returns to the normal
+workspace. Save a .colorninja project to retain exact editable groups; edited
+projects require 1.1.0 or later. See docs/region-editing.md for the complete guide.
+
+Base depth now snaps when you leave the field or press Enter. With a 0.16 mm
+first layer and 0.08 mm regular layers, 0.86 becomes 0.88 mm. Manual maximum depth
+snaps too; automatic depth retains its hard ceiling.
 
 Processing automatically uses multiple CPU cores, with bounded workers and
 working-memory estimates. See docs/performance.md for measurements and limits.
@@ -37,7 +50,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.0.3.md for this release's notes.
+docs/releases/v1.1.0.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.

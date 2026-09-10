@@ -9,33 +9,36 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Version `v1.0.3` — Windows, Linux, and macOS.** Color Match and Color Pop are the supported
-stack workflows. Color Match includes a draggable source-color order, adjustable
+**Version `v1.1.0` — Windows, Linux, and macOS.** Color Match and Color Pop are the supported
+stack workflows. Region Edit adds lasso, click, polygon, box and brush selection,
+layer assignment, height adjustment, cleanup tools and persistent edit groups.
+Base depth snaps to a printable layer height when you finish typing.
+Color Match includes a draggable source-color order, adjustable
 preference strength, and automatic recalculation. Backlit, Simple reducer, Filament
 Guide, portable projects, and self-contained HueForge exports remain available.
 The new channel workflows are temporarily disabled.
 
-[Download ColorNinja 1.0.3](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.3)
-· [Release notes](docs/releases/v1.0.3.md)
+[Download ColorNinja 1.1.0](https://github.com/fryguy503/ColorNinja/releases/tag/v1.1.0)
+· [Release notes](docs/releases/v1.1.0.md)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
 
-See the [color-order guide](docs/color-order.md) and
+See the [Region Edit guide](docs/region-editing.md), [color-order guide](docs/color-order.md) and
 [validation and remaining acceptance work](docs/production-readiness.md).
 The packages have no publisher signature; macOS builds are not notarized. Software checks do not replace physical
 print validation with your own filaments and lighting.
 
 ## Download and run
 
-Open the [1.0.3 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.3)
+Open the [1.1.0 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.1.0)
 and choose the archive for your operating system and processor from **Assets**.
 
 | System | Archive | Launch and requirements |
 | --- | --- | --- |
-| Windows x64 | `ColorNinja-1.0.3-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
-| Linux x64 / ARM64 | `ColorNinja-1.0.3-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
-| macOS Intel / Apple Silicon | `ColorNinja-1.0.3-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
+| Windows x64 | `ColorNinja-1.1.0-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
+| Linux x64 / ARM64 | `ColorNinja-1.1.0-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
+| macOS Intel / Apple Silicon | `ColorNinja-1.1.0-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
 
 On Ubuntu 24.04, install the desktop runtime with
 `sudo apt install libgtk-3-0t64 libwebkit2gtk-4.1-0`. Other Linux distributions
@@ -60,7 +63,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.3-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.1.0-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does

@@ -35,6 +35,7 @@ import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
 import { ColorPopPanel } from "./ColorPop";
 import { ColorOrderPanel } from "./ColorOrder";
+import { RegionEditor } from "./RegionEditor";
 import {
   ProtectedColors,
   FilamentConstraints,
@@ -43,6 +44,8 @@ import {
 } from "./Beta6Tools";
 import {
   applyColorBudget,
+  applyPrintDimension,
+  type PrintDimension,
   colorPopWorkflow,
   applyAutoDepth,
   applyColorPriority,
@@ -141,10 +144,12 @@ function Numeric({
   step = 1,
   suffix,
   help,
+  commitValue,
 }: {
   label: string;
   value: number;
-  onChange: (v: number) => void;
+  onChange?: (v: number) => void;
+  commitValue?: (v: number) => number;
   min: number;
   max: number;
   step?: number;
@@ -170,9 +175,26 @@ function Numeric({
           onChange={(e) => {
             setDraft(e.target.value);
             const n = e.target.valueAsNumber;
-            if (Number.isFinite(n) && n >= min && n <= max) onChange(n);
+            if (!commitValue && Number.isFinite(n) && n >= min && n <= max)
+              onChange?.(n);
           }}
-          onBlur={() => setDraft(String(value))}
+          onBlur={() => {
+            const n = Number(draft);
+            setDraft(
+              String(
+                commitValue &&
+                  draft.trim() !== "" &&
+                  Number.isFinite(n) &&
+                  n >= min &&
+                  n <= max
+                  ? commitValue(n)
+                  : value,
+              ),
+            );
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.currentTarget.blur();
+          }}
         />
         {suffix && <small>{suffix}</small>}
       </div>
@@ -261,7 +283,17 @@ function Viewer({
   onInspect,
   onTogglePalette,
   showPalette,
+  regionOpen,
+  onRegionOpen,
+  onRegionPreview,
+  nextRegionID,
+  onRegionBusy,
 }: {
+  regionOpen: boolean;
+  onRegionOpen: (open: boolean) => void;
+  onRegionPreview: (preview: Preview) => void;
+  nextRegionID: () => number;
+  onRegionBusy: (busy: boolean) => void;
   colorPop: boolean;
   onInspect: () => void;
   onTogglePalette: () => void;
@@ -296,7 +328,7 @@ function Viewer({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [sideBySide, source?.revision]);
+  }, [sideBySide, source?.revision, regionOpen]);
   useEffect(() => {
     setPan({ x: 0, y: 0 });
     setZoom(1);
@@ -333,7 +365,19 @@ function Viewer({
     };
     el.addEventListener("wheel", wheel, { passive: false });
     return () => el.removeEventListener("wheel", wheel);
-  }, [fit]);
+  }, [fit, regionOpen]);
+  if (regionOpen && source && preview?.result.stack)
+    return (
+      <RegionEditor
+        source={source}
+        preview={preview}
+        dirty={dirty}
+        onExit={() => onRegionOpen(false)}
+        onPreview={onRegionPreview}
+        nextID={nextRegionID}
+        onBusy={onRegionBusy}
+      />
+    );
   return (
     <section className="workspace">
       <div className="viewer-toolbar">
@@ -374,6 +418,18 @@ function Viewer({
           ))}
         </div>
         <div className="zoom-controls">
+          <button
+            className="text-button"
+            disabled={
+              busy ||
+              !preview?.result.stack ||
+              (dirty && !preview?.result.regionEdits)
+            }
+            onClick={() => onRegionOpen(true)}
+          >
+            <Pencil size={15} />
+            Region Edit
+          </button>
           <IconButton title="Zoom out" onClick={() => adjustZoom(1 / 1.25)}>
             <Minus size={15} />
           </IconButton>
@@ -690,6 +746,9 @@ function App() {
   const [history, setHistory] = useState<Options[]>([]),
     [historyIndex, setHistoryIndex] = useState(-1);
   const seq = useRef(0);
+  const [regionOpen, setRegionOpen] = useState(false),
+    [regionBusy, setRegionBusy] = useState(false);
+  useEffect(() => setRegionOpen(false), [source?.revision]);
   const live = useRef({ source, options, libraryPath, filter, preview, dirty });
   live.current = { source, options, libraryPath, filter, preview, dirty };
   const initialized = useRef(false);
@@ -760,6 +819,11 @@ function App() {
     key: K,
     value: HueForgeOptions[K],
   ) => update({ ...options, hueforge: { ...options.hueforge, [key]: value } });
+  const changePrintDimension = (field: PrintDimension, value: number) => {
+    const next = applyPrintDimension(options, field, value);
+    update(next);
+    return next.hueforge[field];
+  };
   const undo = () => {
     if (historyIndex > 0) {
       setHistoryIndex(historyIndex - 1);
@@ -991,6 +1055,7 @@ function App() {
     }
   };
   const exportFile = async (kind: string) => {
+    if (regionBusy) return;
     setShowExport(false);
     const p = live.current.preview;
     if (!p || live.current.dirty) return;
@@ -1037,6 +1102,7 @@ function App() {
     await run();
   };
   const saveProject = async () => {
+    if (regionBusy) return;
     const run = async (path?: string) => {
       const output = await invoke<string>(
         "SaveProject",
@@ -2004,7 +2070,7 @@ function App() {
         max={1}
         step={0.01}
         suffix="mm"
-        onChange={(v) => changeHF("firstLayerHeight", v)}
+        commitValue={(v) => changePrintDimension("firstLayerHeight", v)}
       />
       <Numeric
         label="Layer height"
@@ -2013,16 +2079,17 @@ function App() {
         max={1}
         step={0.01}
         suffix="mm"
-        onChange={(v) => changeHF("layerHeight", v)}
+        commitValue={(v) => changePrintDimension("layerHeight", v)}
       />
       <Numeric
         label="Base depth"
         value={options.hueforge.baseDepth}
-        min={0.01}
+        min={options.hueforge.firstLayerHeight || options.hueforge.layerHeight}
         max={20}
-        step={0.08}
+        step={options.hueforge.layerHeight}
         suffix="mm"
-        onChange={(v) => changeHF("baseDepth", v)}
+        commitValue={(v) => changePrintDimension("baseDepth", v)}
+        help="Snaps to the nearest first layer plus whole regular layers when you finish typing."
       />
       {options.mode === "stack" && (
         <>
@@ -2045,11 +2112,15 @@ function App() {
             : "Maximum total depth"
         }
         value={options.hueforge.maxDepth}
-        min={0.02}
+        min={Number(
+          (options.hueforge.baseDepth + options.hueforge.layerHeight).toFixed(
+            8,
+          ),
+        )}
         max={40}
-        step={options.hueforge.autoDepth ? 0.01 : 0.08}
+        step={options.hueforge.autoDepth ? 0.01 : options.hueforge.layerHeight}
         suffix="mm"
-        onChange={(v) => changeHF("maxDepth", v)}
+        commitValue={(v) => changePrintDimension("maxDepth", v)}
       />
 
       <Section title="Layer planning help">
@@ -2489,6 +2560,7 @@ function App() {
     !preview ||
     dirty ||
     busy ||
+    regionBusy ||
     comparing ||
     loading ||
     exporting ||
@@ -2530,14 +2602,14 @@ function App() {
           <IconButton
             title="Save project (Ctrl+S)"
             onClick={saveProject}
-            disabled={!source || loading || exporting}
+            disabled={!source || loading || exporting || regionBusy}
           >
             <Save size={17} />
           </IconButton>
           <button
             className="button primary"
             onClick={() => setShowExport(true)}
-            disabled={exporting || loading}
+            disabled={exporting || loading || regionBusy}
           >
             {exporting ? (
               <LoaderCircle className="spin" size={16} />
@@ -2548,13 +2620,22 @@ function App() {
           </button>
         </div>
       </header>
-      <div className="studio-layout">
+      <div className={`studio-layout${regionOpen ? " region-editing" : ""}`}>
         <main className="image-workspace">
           <Viewer
+            regionOpen={regionOpen}
+            onRegionOpen={setRegionOpen}
+            onRegionPreview={(p) => {
+              if (live.current.source?.revision !== p.revision) return;
+              seq.current = Math.max(seq.current, p.id);
+              setPreview(p);
+            }}
+            nextRegionID={() => ++seq.current}
+            onRegionBusy={setRegionBusy}
             colorPop={options.colorPop.enabled}
             source={source}
             preview={preview}
-            busy={busy}
+            busy={busy || regionBusy}
             dirty={dirty}
             showPalette={showPalette}
             onTogglePalette={() => setShowPalette(!showPalette)}
@@ -2563,7 +2644,7 @@ function App() {
               setResultTab("insights");
             }}
           />
-          {showPalette && (
+          {showPalette && !regionOpen && (
             <section className="results-panel" aria-label="Output panel">
               <div className="results-heading">
                 <div

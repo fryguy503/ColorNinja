@@ -1,5 +1,11 @@
 # ColorNinja Studio user guide
 
+Version 1.1.0 adds **Region Edit** above generated stack previews. Lasso several
+regions and assign a layer once, or use click, polygon, box and brush tools with
+selection refinement, height cleanup, protected groups and undo/redo. Base depth
+snaps to a printable value when you finish typing. See the
+[Region Edit guide](region-editing.md) and [release notes](releases/v1.1.0.md).
+
 Version 1.0.3 adds adaptive parallel processing and a Side by side pane-swap
 button. See [release notes](releases/v1.0.3.md) and [performance](performance.md).
 
@@ -16,7 +22,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.0.3 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.1.0 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.

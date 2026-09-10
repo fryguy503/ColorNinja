@@ -6,6 +6,37 @@ import {
   type Filter,
 } from "./types.ts";
 
+export type PrintDimension =
+  | "firstLayerHeight"
+  | "layerHeight"
+  | "baseDepth"
+  | "maxDepth";
+export function applyPrintDimension(
+  options: Options,
+  field: PrintDimension,
+  value: number,
+): Options {
+  if (!Number.isFinite(value) || value <= 0) return options;
+  const h = { ...options.hueforge, [field]: value };
+  const first = h.firstLayerHeight || h.layerHeight;
+  const snap = (v: number, minLayers: number, maxLayers: number) => {
+    const layers = Math.max(
+      minLayers,
+      Math.min(maxLayers, Math.round((v - first) / h.layerHeight + 1e-9) + 1),
+    );
+    return Number((first + (layers - 1) * h.layerHeight).toFixed(8));
+  };
+  h.baseDepth = snap(h.baseDepth, 1, 4095);
+  const minimum = Number((h.baseDepth + h.layerHeight).toFixed(8));
+  h.maxDepth = h.autoDepth
+    ? Math.max(
+        minimum,
+        Math.min(h.maxDepth, Number((first + 4095 * h.layerHeight).toFixed(8))),
+      )
+    : Math.max(minimum, snap(h.maxDepth, 2, 4096));
+  return { ...options, hueforge: h };
+}
+
 export function heightWorkflow(options: Options, mode: HeightMode): Options {
   return normalizeWorkflowExport({
     ...options,

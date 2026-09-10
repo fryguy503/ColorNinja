@@ -261,6 +261,12 @@ export type StackRun = {
   endHeight: number;
 };
 export type Result = {
+  regionEdits?: {
+    groups: number;
+    changedPixels: number;
+    qualityReference: string;
+    warning: string;
+  };
   heightMap?: HeightMapInfo;
   colorPop?: ColorPopInfo;
   calibration?: {

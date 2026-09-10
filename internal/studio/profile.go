@@ -91,6 +91,7 @@ func (s *Studio) Export(kind, path string, id, revision uint64, overwrite bool, 
 	// Freeze the document so every exported file contains the same source,
 	// rendered result and filament snapshot even if another image opens.
 	export := &Studio{ctx: s.ctx, image: s.image, source: source, result: r, resultRequest: req, resultLibrary: library, embeddedLibrary: library}
+	export.regions = s.regions
 	s.mu.RUnlock()
 	if r == nil || req.ID != id || req.Revision != revision || source.Revision != revision {
 		return fmt.Errorf("generate a current preview before exporting")

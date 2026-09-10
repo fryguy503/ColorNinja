@@ -63,7 +63,7 @@ func buildStackCoreView(r *Result) *StackCoreView {
 			fractions[p.StackLayer] += p.PixelFraction
 		}
 	}
-	if r.ColorPop != nil || r.HeightMap != nil || r.Stack.Options.backlit() {
+	if r.RegionEdits != nil || r.ColorPop != nil || r.HeightMap != nil || r.Stack.Options.backlit() {
 		v.MeshMode = "color-match"
 		v.MeshCore = "legacy-flat"
 		v.HasMeshCore = true

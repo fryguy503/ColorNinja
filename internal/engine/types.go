@@ -323,6 +323,7 @@ type Quality struct {
 	Max  float64 `json:"maxDeltaE76"`
 }
 type Result struct {
+	RegionEdits  *RegionSummary   `json:"regionEdits,omitempty"`
 	HeightMap    *HeightMapInfo   `json:"heightMap,omitempty"`
 	ColorPop     *ColorPopInfo    `json:"colorPop,omitempty"`
 	Calibration  *CalibrationInfo `json:"calibration,omitempty"`

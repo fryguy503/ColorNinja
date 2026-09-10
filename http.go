@@ -111,6 +111,19 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 			if err = get(0, &req); err == nil {
 				result, err = s.Process(req)
 			}
+		case "RegionEditor":
+			var id, revision uint64
+			if err = get(0, &id); err == nil {
+				err = get(1, &revision)
+			}
+			if err == nil {
+				result, err = s.RegionEditor(id, revision)
+			}
+		case "EditRegions":
+			var command studio.RegionCommand
+			if err = get(0, &command); err == nil {
+				result, err = s.EditRegions(command)
+			}
 		case "ComparePlans", "CaptureComparison":
 			var req studio.Request
 			if err = get(0, &req); err == nil {

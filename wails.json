@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.0.3",
+    "productVersion": "1.1.0",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.0.3 - Adaptive parallel processing and comparison pane swapping"
+    "comments": "1.1.0 - Region editing and printable depth snapping"
   }
 }

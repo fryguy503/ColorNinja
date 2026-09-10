@@ -32,6 +32,8 @@ jobs:
         run: ./scripts/audit.ps1
       - name: Browser acceptance against compiled application
         run: node ./scripts/verify-ui.cjs
+      - name: Region editing and printable depth acceptance
+        run: node ./scripts/verify-regions.cjs
       - name: Package and verify extracted application
         run: |
           ./scripts/package.ps1
@@ -50,6 +52,8 @@ jobs:
             artifacts/dependency-audit/**
             artifacts/ui-acceptance/**/verification.json
             artifacts/ui-acceptance/**/failure.txt
+            artifacts/region-acceptance/**/verification.json
+            artifacts/region-acceptance/**/failure.txt
           if-no-files-found: error
           retention-days: 14
   native:

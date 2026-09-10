@@ -89,6 +89,7 @@ type Document struct {
 	Filter        engine.LibraryFilter `json:"filter"`
 }
 type Studio struct {
+	regions         *regionSession
 	processor       engine.Processor
 	ctx             context.Context
 	mu              sync.RWMutex
@@ -207,6 +208,7 @@ func (s *Studio) installImage(ctx context.Context, loaded *engine.LoadedImage, p
 	s.revision++
 	s.image = loaded.Image
 	s.result = nil
+	s.regions = nil
 	s.resultLibrary = nil
 	s.projectPath = ""
 	s.source = Source{Name: filepath.Base(path), Path: path,
@@ -308,6 +310,42 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 		s.mu.Unlock()
 		return nil, fmt.Errorf("image changed; refresh the preview")
 	}
+	if s.regions != nil && len(s.regions.Document.Groups) > 0 {
+		if !engine.SameRegionPlanOptions(req.Options, s.resultRequest.Options) || req.LibraryPath != s.resultRequest.LibraryPath || !sameRegionFilter(req.Filter, s.resultRequest.Filter) {
+			s.mu.Unlock()
+			return nil, fmt.Errorf("this result has region edits; reset them in Region Edit before generating a different stack")
+		}
+		if s.cancel != nil {
+			s.cancel()
+		}
+		ctx, cancel := context.WithCancel(s.ctx)
+		s.cancel = cancel
+		s.job++
+		job, previous := s.job, s.result
+		s.mu.Unlock()
+		defer cancel()
+		s.worker.Lock()
+		defer s.worker.Unlock()
+		r := engine.ReframeResult(previous, req.Options)
+		view, err := engine.BuildSurfaceView(ctx, r, req.Options)
+		if err != nil {
+			return nil, err
+		}
+		r.SurfaceView = view
+		s.mu.Lock()
+		if s.job != job || s.revision != req.Revision {
+			s.mu.Unlock()
+			return nil, context.Canceled
+		}
+		s.result, s.resultRequest, s.resultJob = r, req, job
+		s.settings.Options = req.Options
+		p := &Preview{ID: req.ID, Revision: req.Revision, URL: fmt.Sprintf("/media/result/%d.png", job), Result: r, Options: req.Options}
+		s.mu.Unlock()
+		if err = s.saveSettings(); err != nil {
+			p.Warning = "Preview ready, but preferences could not be saved: " + err.Error()
+		}
+		return p, nil
+	}
 	if s.cancel != nil {
 		s.cancel()
 	}
@@ -357,6 +395,7 @@ func (s *Studio) Process(req Request) (*Preview, error) {
 		return nil, context.Canceled
 	}
 	s.result = r
+	s.regions = nil
 	s.resultLibrary = libraryRaw
 	s.resultRequest = req
 	s.resultJob = job
@@ -536,6 +575,8 @@ func (s *Studio) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == s.source.URL {
 		img = s.image
 		dpi = s.source.Metadata.DPI
+	} else if s.regions != nil && r.URL.Path == fmt.Sprintf("/media/region-base/%d/%s.png", s.revision, s.regions.Base.SHA256) {
+		img = s.regions.Base.Image
 	} else if s.result != nil && r.URL.Path == fmt.Sprintf("/media/result/%d.png", s.resultJob) {
 		img = s.result.Image
 	}

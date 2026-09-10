@@ -54,7 +54,7 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 	if r == nil || r.Stack == nil || r.Image == nil || len(r.Stack.Runs) == 0 {
 		return nil, fmt.Errorf("HFP export requires a current filament stack preview")
 	}
-	if r.ColorPop != nil || r.HeightMap != nil || r.Stack.Options.backlit() {
+	if r.RegionEdits != nil || r.ColorPop != nil || r.HeightMap != nil || r.Stack.Options.backlit() {
 		var err error
 		r, err = colorPopMeshResult(ctx, r)
 		if err != nil {
@@ -178,6 +178,10 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 		if r.ColorPop != nil {
 			doc["colorninja"].(map[string]any)["colorPop"] = r.ColorPop
 			doc["colorninja"].(map[string]any)["meshEncoding"] = "unique-rgb-keys-for-fixed-color-pop-bands"
+		}
+		if r.RegionEdits != nil {
+			doc["colorninja"].(map[string]any)["regionEdits"] = r.RegionEdits
+			doc["colorninja"].(map[string]any)["meshEncoding"] = "unique-rgb-keys-for-region-heights"
 		}
 		var compact *virtualMesh
 		if core == "compact-blends" {

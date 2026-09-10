@@ -1,5 +1,14 @@
 # Release validation and remaining acceptance
 
+Version 1.1.0 adds Region Edit and printable depth entry. Engine/service tests
+cover topology, selection geometry, protected footprints, clamping, restoration,
+history, stale requests, malformed projects and exact saved-plan replay. Export
+tests include Color Pop and Backlit. Browser checks use the real compiled Go
+service for lasso/polygon/box/brush, zoom/pan, undo/redo, depth snapping, resizing
+and portable exports. See [1.1.0 notes](releases/v1.1.0.md) and the
+[Region Edit guide](region-editing.md). Native HueForge Spot Fix group interchange
+and physical-print accuracy are not established by these checks.
+
 Version 1.0.3 adds adaptive parallel processing and comparison pane swapping.
 Checks cover deterministic results across CPU limits, bounded workers and
 working-memory estimates, cancellation, race detection, and browser pane

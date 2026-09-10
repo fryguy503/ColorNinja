@@ -83,12 +83,16 @@ func (s *Studio) writeProject(w io.Writer, req Request) error {
 	}
 	s.mu.RLock()
 	src, source := s.image, s.source
+	regions := s.regions
 	var result *engine.Result
 	var library []byte
 	if s.result != nil && sameSettings(req, s.resultRequest) {
 		result, library = s.result, s.resultLibrary
 	}
 	s.mu.RUnlock()
+	if regions != nil && len(regions.Document.Groups) > 0 && result == nil {
+		return fmt.Errorf("restore the edited preview's settings or reset its region edits before saving new settings")
+	}
 	if src == nil || source.Revision != req.Revision {
 		return fmt.Errorf("image changed; save again")
 	}
@@ -108,6 +112,9 @@ func (s *Studio) writeProject(w io.Writer, req Request) error {
 		}
 	}
 	m := projectManifest{"ColorNinja project", 2, source.Name, source.Metadata, req.Options, req.Filter, map[string]string{}}
+	if regions != nil && len(regions.Document.Groups) > 0 {
+		m.SchemaVersion = 3
+	}
 	z := zip.NewWriter(w)
 	entry := func(name string, fn func(io.Writer) error) error {
 		out, err := z.Create(name)
@@ -130,6 +137,21 @@ func (s *Studio) writeProject(w io.Writer, req Request) error {
 		}
 	}
 	if result != nil {
+		if m.SchemaVersion == 3 {
+			base := engine.ReframeResult(regions.Base, req.Options)
+			if err := entry("region-base.png", func(w io.Writer) error { return engine.WritePNG(s.ctx, w, regions.Base.Image, source.Metadata.DPI) }); err != nil {
+				return err
+			}
+			if err := entry("region-base.json", func(w io.Writer) error { return json.NewEncoder(w).Encode(base) }); err != nil {
+				return err
+			}
+			if err := entry("region-base-layers.bin", func(w io.Writer) error { return binary.Write(w, binary.LittleEndian, regions.Base.LayerMap) }); err != nil {
+				return err
+			}
+			if err := entry("region-edits.json", func(w io.Writer) error { return json.NewEncoder(w).Encode(regions.Document) }); err != nil {
+				return err
+			}
+		}
 		if err := entry("result.png", func(w io.Writer) error { return engine.WritePNG(s.ctx, w, result.Image, source.Metadata.DPI) }); err != nil {
 			return err
 		}
@@ -203,6 +225,10 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	}
 	defer z.Close()
 	limits := map[string]uint64{"project.json": 1 << 20, "source.png": 512 << 20, "result.png": 512 << 20, "result.json": 32 << 20, "filaments.json": maxLibraryBytes, "layers.bin": 2 * engine.MaxImagePixels}
+	limits["region-base.png"] = 128 << 20
+	limits["region-base.json"] = 32 << 20
+	limits["region-base-layers.bin"] = 2 * engine.RegionMaxPixels
+	limits["region-edits.json"] = 64 << 20
 	entries := map[string]*zip.File{}
 	for _, f := range z.File {
 		limit, ok := limits[f.Name]
@@ -235,7 +261,7 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	if err = json.Unmarshal(raw, &m); err != nil {
 		return Snapshot{}, err
 	}
-	if m.Format != "ColorNinja project" || m.SchemaVersion != 2 {
+	if m.Format != "ColorNinja project" || (m.SchemaVersion != 2 && m.SchemaVersion != 3) {
 		return Snapshot{}, fmt.Errorf("unsupported ColorNinja project version")
 	}
 	if err = m.Options.Validate(); err != nil {
@@ -316,12 +342,85 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	} else if entries["result.png"] != nil || entries["layers.bin"] != nil {
 		return Snapshot{}, fmt.Errorf("incomplete saved result")
 	}
+	var regions *regionSession
+	if m.SchemaVersion == 3 {
+		if result == nil || result.RegionEdits == nil {
+			return Snapshot{}, fmt.Errorf("edited project is missing its result")
+		}
+		base := &engine.Result{}
+		raw, err = checked("region-base.json")
+		if err != nil {
+			return Snapshot{}, err
+		}
+		if err = json.Unmarshal(raw, base); err != nil {
+			return Snapshot{}, err
+		}
+		raw, err = checked("region-base.png")
+		if err != nil {
+			return Snapshot{}, err
+		}
+		base.Image, err = projectPNG(raw)
+		if err != nil {
+			return Snapshot{}, err
+		}
+		if base.RegionEdits != nil || base.Image.Bounds() != src.Bounds() || fmt.Sprintf("%x", sha256.Sum256(base.Image.Pix)) != base.SHA256 {
+			return Snapshot{}, fmt.Errorf("invalid region baseline image")
+		}
+		raw, err = checked("region-base-layers.bin")
+		if err != nil {
+			return Snapshot{}, err
+		}
+		if len(raw) != 2*src.Bounds().Dx()*src.Bounds().Dy() {
+			return Snapshot{}, fmt.Errorf("invalid region baseline dimensions")
+		}
+		base.LayerMap = make([]uint16, len(raw)/2)
+		if err = binary.Read(bytes.NewReader(raw), binary.LittleEndian, base.LayerMap); err != nil {
+			return Snapshot{}, err
+		}
+		if err = validateProjectStack(base, m.Options); err != nil {
+			return Snapshot{}, err
+		}
+		var doc engine.RegionDocument
+		raw, err = checked("region-edits.json")
+		if err != nil {
+			return Snapshot{}, err
+		}
+		if err = json.Unmarshal(raw, &doc); err != nil {
+			return Snapshot{}, err
+		}
+		if err = doc.Validate(base); err != nil {
+			return Snapshot{}, err
+		}
+		replayed, e := engine.ApplyRegionDocument(ctx, base, src, m.Options, doc)
+		if e != nil {
+			return Snapshot{}, e
+		}
+		if replayed.SHA256 != result.SHA256 || !slices.Equal(replayed.LayerMap, result.LayerMap) {
+			return Snapshot{}, fmt.Errorf("saved region edits and result disagree")
+		}
+		result = replayed
+		index, e := engine.BuildRegionIndex(ctx, result, base)
+		if e != nil {
+			return Snapshot{}, e
+		}
+		regions = &regionSession{Base: base, Document: doc, Index: index, Mask: make([]bool, len(base.LayerMap)), Version: 1}
+	} else {
+		if result != nil && result.RegionEdits != nil {
+			return Snapshot{}, fmt.Errorf("region edits require a version 3 project")
+		}
+		for _, name := range []string{"region-base.png", "region-base.json", "region-base-layers.bin", "region-edits.json"} {
+			if entries[name] != nil {
+				return Snapshot{}, fmt.Errorf("unexpected region data in a legacy project")
+			}
+		}
+	}
 	// Validate old options and the saved image/layers before migrating the
 	// export choice. The cached preview's print plan remains intact.
 	paused := m.Options.HeightMap.Mode != "" && m.Options.HeightMap.Mode != "color-match"
 	m.Options = workflowOptions(m.Options)
 	if paused {
 		result = nil
+		regions = nil
 	} // Never display cached channel heights as a Color Match preview.
 	if result != nil && result.Stack != nil {
 		// Saved Mesh Core displays may describe Beta 5's opaque TD bands. Rebuild
@@ -351,6 +450,7 @@ func (s *Studio) OpenProject(path string) (Snapshot, error) {
 	}
 	s.settings.Options, s.settings.Filter = m.Options, m.Filter
 	s.result, s.resultLibrary = result, library
+	s.regions = regions
 	s.resultJob = s.job
 	s.resultRequest = Request{s.job, s.revision, m.Options, s.settings.LibraryPath, m.Filter}
 	s.mu.Unlock()
