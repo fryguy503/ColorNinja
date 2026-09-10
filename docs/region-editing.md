@@ -110,9 +110,27 @@ describe the manually edited plan are cleared.
 
 The HueForge project embeds separate height-transport color keys so identical
 predicted RGB values at different heights remain distinguishable. The displayed
-and exported result PNG retains the predicted physical colors. Region groups
-are ColorNinja project data, not native HueForge Spot Fix groups. Check the
-imported height plan in HueForge before printing.
+and exported result PNG retains the predicted physical colors.
+
+HFP export also creates **native HueForge SpotFix groups** for resolved edits
+that can transfer exactly as whole connected regions. These changes are applied
+to the unedited portion of the embedded image once, rather than being both baked
+and applied again. Assign layer (including the flatten tools) uses one native
+SpotFix with an explicit target height. A relative edit can split into several
+SpotFixes when its pixels need different net adjustments, including clamping.
+HueForge uses its own numbered groups; the HFP's `colorninja.spotFixExport`
+metadata records their original ColorNinja names and IDs.
+
+HueForge snaps imported footprints to whole regions and gives active groups
+exclusive ownership. Pixel selections that split a connected region, unsafe
+merges after baking or native layer quantization, and exceptionally complex groups keep their
+exact final appearance baked into the image instead. They do not appear as
+misleading or expanded native selections. Overlapping edits are resolved into
+disjoint net changes; disabled and superseded history, names, locks and ordered
+undo remain in the ColorNinja document. Native bypass removes the corresponding
+net change, not an intermediate step of ColorNinja history. Keep the companion
+`.colorninja` project to continue editing the complete document. Existing HFPs
+need to be exported again from that project to gain native SpotFix entries.
 
 The editor supports images up to 4096 pixels on either side and 16,777,216 pixels,
 128 groups, up to one million region labels and one million compressed footprint
@@ -125,9 +143,9 @@ Unit and service tests cover topology, masks, clamping, protection, restoration,
 history, stale requests, malformed projects, exact reopening and height export,
 including Color Pop and Backlit. Browser acceptance uses the compiled Go service
 for selection, edit/undo/redo, zoom/pan alignment, depth entry, resizing and
-save/reopen/export. Ghidra analysis of HueForge 0.9.4.3 informed the region model;
-these checks do not establish native Spot Fix group interchange, all native
-mesh paths or physical-print accuracy.
+save/reopen/export. HueForge 0.9.4.3 compatibility fixtures also cover SpotFix
+interchange, group footprints and resulting pixel heights. These checks do not establish every mesh
+path or physical-print accuracy.
 
 ## Printable depth entry
 

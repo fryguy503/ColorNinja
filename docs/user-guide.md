@@ -1,5 +1,11 @@
 # ColorNinja Studio user guide
 
+Version 1.1.6 exports compatible whole-region edits as HueForge SpotFix groups.
+Re-export your ColorNinja project to include them in an HFP. Borders gain a
+printable color selector and a visible depth field with nearest-layer snapping.
+See [Region Edit](region-editing.md), [borders](borders.md), and the
+[1.1.6 release notes](releases/v1.1.6.md).
+
 Version 1.1.5 fixes interrupted lasso/brush gestures and speeds up filament order
 refinement. **Export → HueForge project (.hfp) → Add a border** adds an optional
 internal or external rectangular frame, with width/depth controls and a preview.
@@ -28,7 +34,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.1.5 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.1.6 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.

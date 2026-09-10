@@ -33,9 +33,8 @@ Six synthetic two-spool palettes now reach zero modeled color error in both
 Preview and Refine. Regression coverage checks block-transfer bounds, retained
 allocation alternatives, strict color and height constraints, cancellation,
 determinism, and search/export palette agreement. Local native HueForge 0.9.4.3
-checks found zero RGB-byte differences for all twelve returned plans. Private
-decompilation and native-reference artifacts are stored outside the repository;
-committed tests contain synthetic data only.
+checks found zero RGB-byte differences for all twelve returned plans.
+Committed tests contain synthetic data only.
 
 The CI workflow builds Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon
 on native runners. Linux uses Ubuntu 24.04 and WebKitGTK 4.1; macOS uses version

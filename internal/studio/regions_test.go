@@ -90,6 +90,62 @@ func TestRegionEditsColorPopAndBacklit(t *testing.T) {
 		})
 	}
 }
+
+func TestRegionNativeSpotFixSurvivesPortableProject(t *testing.T) {
+	s, p := regionStudio(t)
+	state, err := s.RegionEditor(p.ID, p.Revision)
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := p.Result.Image.Bounds().Dx()
+	point := -1
+	for i, layer := range p.Result.LayerMap {
+		if int(layer) > p.Result.Stack.Options.BaseLayers() {
+			point = i
+			break
+		}
+	}
+	if point < 0 {
+		t.Fatal("fixture has no raised region")
+	}
+	state = regionAction(t, s, state, RegionCommand{Action: "select", Selection: engine.RegionSelection{Tool: "click", Scope: "touch", Combine: "replace", Points: []engine.RegionPoint{{X: float64(point%w) + .5, Y: float64(point/w) + .5}}}})
+	state = regionAction(t, s, state, RegionCommand{Action: "shift", Value: -1, Name: "Native handoff"})
+	dir := t.TempDir()
+	project := filepath.Join(dir, "native.colorninja")
+	if err := s.SaveProject(project, s.resultRequest, false); err != nil {
+		t.Fatal(err)
+	}
+	fresh := New(context.Background(), filepath.Join(dir, "fresh.json"))
+	defer fresh.Shutdown()
+	snap, err := fresh.OpenProject(project)
+	if err != nil {
+		t.Fatal(err)
+	}
+	output := filepath.Join(dir, "native.hfp")
+	if err := fresh.Export("hfp", output, snap.Preview.ID, snap.Preview.Revision, false); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var hfp struct {
+		Version int `json:"spotfix_version"`
+		Fixes   []struct {
+			Delta   int               `json:"delta"`
+			Regions []json.RawMessage `json:"regions"`
+		} `json:"spot_fixes"`
+	}
+	if err := json.Unmarshal(raw, &hfp); err != nil {
+		t.Fatal(err)
+	}
+	if hfp.Version != 2 || len(hfp.Fixes) != 1 || hfp.Fixes[0].Delta != -1 || len(hfp.Fixes[0].Regions) == 0 {
+		t.Fatalf("native groups lost on reopen: %+v", hfp)
+	}
+	if snap.Preview.Result.SHA256 != state.Preview.Result.SHA256 {
+		t.Fatal("export changed edited image")
+	}
+}
 func TestRegionsStudioHistoryPersistenceAndExports(t *testing.T) {
 	s, p := regionStudio(t)
 	basePix := append([]byte(nil), p.Result.Image.Pix...)

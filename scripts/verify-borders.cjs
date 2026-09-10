@@ -121,6 +121,25 @@ const checks = [],
   checks.push(
     "Border defaults off; enabling requires refresh; external frame preserves image pixels",
   );
+  const color = dialog.getByRole("combobox", { name: "Border color", exact: true });
+  assert.equal(await color.isDisabled(), false);
+  const choices = await color.locator("option").evaluateAll((rows) => rows.map((r) => ({ value: r.value, text: r.textContent })));
+  const chosen = choices.find((c) => c.value && c.value !== "#" + p.result.surfaceView.border.topRGB.map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase());
+  assert(chosen, "fixture needs multiple printable border colors");
+  await color.selectOption(chosen.value);
+  assert.equal(await dialog.getByRole("checkbox", { name: "Match image depth" }).isChecked(), false);
+  assert.equal(await color.isDisabled(), true, "stale stack cannot supply color choices");
+  p = await refresh();
+  assert.equal("#" + p.result.surfaceView.border.topRGB.map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase(), chosen.value);
+  assert.equal(p.result.rgbaSHA256, base.result.rgbaSHA256);
+  const depth = dialog.getByRole("spinbutton", { name: "Border depth", exact: true });
+  await depth.fill("0.86");
+  await depth.press("Tab");
+  assert.equal(await depth.inputValue(), "0.88");
+  p = await refresh();
+  assert.equal(p.result.surfaceView.border.heightMm, .88);
+  assert.equal(await color.inputValue(), "#" + p.result.surfaceView.border.topRGB.map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase());
+  checks.push("Border color selection sets printable depth; entered depth snaps and updates the color; image pixels stay unchanged");
   await dialog
     .getByRole("combobox", { name: "Border placement" })
     .selectOption("internal");

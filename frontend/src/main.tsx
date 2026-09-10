@@ -34,6 +34,8 @@ import { Updates } from "./Updates";
 import { StudioDialog } from "./StudioDialog";
 import { StackInspector } from "./StackInspector";
 import { BorderPreview } from "./BorderPreview";
+import { BorderColorPicker } from "./BorderColorPicker";
+import { snapBorderDepth } from "./border";
 import { ColorPopPanel } from "./ColorPop";
 import { ColorOrderPanel } from "./ColorOrder";
 import { RegionEditor } from "./RegionEditor";
@@ -2365,6 +2367,23 @@ function App() {
                 })
               }
             />
+            <BorderColorPicker
+              colors={preview?.result.stack?.layerColors ?? []}
+              depth={
+                options.hueforge.border.heightMm ||
+                preview?.result.stack?.plannedDepth ||
+                options.hueforge.maxDepth
+              }
+              options={options.hueforge}
+              stale={dirty || busy}
+              onChange={(heightMm) =>
+                changeHF("border", {
+                  ...defaultBorder,
+                  ...options.hueforge.border,
+                  heightMm,
+                })
+              }
+            />
             <label className="check-field">
               <input
                 type="checkbox"
@@ -2386,31 +2405,42 @@ function App() {
               />
               Match image depth
             </label>
-            {options.hueforge.border.heightMm !== 0 && (
-              <Numeric
-                label="Border depth"
-                value={options.hueforge.border.heightMm}
-                min={
-                  options.hueforge.firstLayerHeight ||
-                  options.hueforge.layerHeight
-                }
-                max={Math.min(
-                  40,
-                  (options.hueforge.firstLayerHeight ||
-                    options.hueforge.layerHeight) +
-                    997 * options.hueforge.layerHeight,
-                )}
-                step={0.01}
-                suffix="mm"
-                onChange={(v) =>
-                  changeHF("border", {
-                    ...defaultBorder,
-                    ...options.hueforge.border,
-                    heightMm: v,
-                  })
-                }
-              />
-            )}
+            <Numeric
+              label="Border depth"
+              value={
+                options.hueforge.border.heightMm ||
+                preview?.result.stack?.plannedDepth ||
+                options.hueforge.maxDepth
+              }
+              min={
+                options.hueforge.firstLayerHeight ||
+                options.hueforge.layerHeight
+              }
+              max={Math.min(
+                40,
+                (options.hueforge.firstLayerHeight ||
+                  options.hueforge.layerHeight) +
+                  997 * options.hueforge.layerHeight,
+              )}
+              step={options.hueforge.layerHeight}
+              suffix="mm"
+              commitValue={(v) => {
+                const heightMm = snapBorderDepth(v, options.hueforge);
+                if (
+                  options.hueforge.border?.heightMm === 0 &&
+                  v ===
+                    (preview?.result.stack?.plannedDepth ||
+                      options.hueforge.maxDepth)
+                )
+                  return v;
+                changeHF("border", {
+                  ...defaultBorder,
+                  ...options.hueforge.border,
+                  heightMm,
+                });
+                return heightMm;
+              }}
+            />
             <p className="field-help">
               Depth is measured from the build plate. The filament stack at that
               height determines the border color. Taller borders continue the
@@ -3415,6 +3445,14 @@ function App() {
           </label>
           {exportKind === "hfp" && options.mode === "stack" && (
             <div className="hfp-settings">{hfpContent}</div>
+          )}
+          {exportKind === "hfp" && preview?.result.regionEdits && (
+            <p className="field-help" role="status">
+              Whole-region edits export as native HueForge SpotFixes. Groups may
+              split by layer adjustment. Selections HueForge cannot represent
+              exactly keep their edited appearance in the image. Save the
+              ColorNinja project for names, locks and complete edit history.
+            </p>
           )}
           <label className="export-profile-option">
             <input

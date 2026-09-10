@@ -54,6 +54,19 @@ func hueForgeProject(ctx context.Context, r *Result, sourceName string, meta Ima
 	if r == nil || r.Stack == nil || r.Image == nil || len(r.Stack.Runs) == 0 {
 		return nil, fmt.Errorf("HFP export requires a current filament stack preview")
 	}
+	if r.regionBase != nil && r.regionDocument != nil {
+		input, fixes, info, err := regionHFPInput(ctx, r)
+		if err != nil {
+			return nil, err
+		}
+		doc, err := hueForgeProject(ctx, input, sourceName, meta)
+		if err != nil {
+			return nil, err
+		}
+		doc["spotfix_version"], doc["spot_fixes"] = 2, fixes
+		doc["colorninja"].(map[string]any)["spotFixExport"] = info
+		return doc, nil
+	}
 	if r.RegionEdits != nil || r.ColorPop != nil || r.HeightMap != nil || r.Stack.Options.backlit() {
 		var err error
 		r, err = colorPopMeshResult(ctx, r)

@@ -1,5 +1,13 @@
 # Release validation and remaining acceptance
 
+Version 1.1.6 adds HueForge SpotFix interchange and synchronized border color/depth
+controls. Regression coverage includes whole-region ownership, overlapping edits,
+clamping, target-layer assignment, transparency, partial-selection fallback,
+project round trips, depth snapping and border color selection. Twelve HueForge
+0.9.4.3 compatibility fixtures preserve the expected pixel heights. See the
+[1.1.6 notes](releases/v1.1.6.md), [Region Edit](region-editing.md) and
+[borders](borders.md). Physical-print and full native-window acceptance remain open.
+
 Version 1.1.5 fixes native drag interference with Region Edit, optimizes repeated
 filament refinement scoring, and adds optional HueForge borders. Exact scorer
 comparisons, bounded-cache tests, border fixtures, persistence and browser checks
@@ -12,8 +20,8 @@ history, stale requests, malformed projects and exact saved-plan replay. Export
 tests include Color Pop and Backlit. Browser checks use the real compiled Go
 service for lasso/polygon/box/brush, zoom/pan, undo/redo, depth snapping, resizing
 and portable exports. See [1.1.0 notes](releases/v1.1.0.md) and the
-[Region Edit guide](region-editing.md). Native HueForge Spot Fix group interchange
-and physical-print accuracy are not established by these checks.
+[Region Edit guide](region-editing.md). These earlier checks did not cover HueForge SpotFix interchange.
+Version 1.1.6 adds the coverage described above; physical-print accuracy remains open.
 
 Version 1.0.3 adds adaptive parallel processing and comparison pane swapping.
 Checks cover deterministic results across CPU limits, bounded workers and

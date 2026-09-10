@@ -328,22 +328,24 @@ type Quality struct {
 	Max  float64 `json:"maxDeltaE76"`
 }
 type Result struct {
-	RegionEdits  *RegionSummary   `json:"regionEdits,omitempty"`
-	HeightMap    *HeightMapInfo   `json:"heightMap,omitempty"`
-	ColorPop     *ColorPopInfo    `json:"colorPop,omitempty"`
-	Calibration  *CalibrationInfo `json:"calibration,omitempty"`
-	SurfaceView  *SurfaceView     `json:"surfaceView,omitempty"`
-	Image        *image.NRGBA     `json:"-"`
-	Palette      []PaletteEntry   `json:"palette"`
-	SourceSize   [2]int           `json:"sourceSize"`
-	AnalysisSize [2]int           `json:"analysisSize"`
-	UniqueColors int              `json:"uniqueColors"`
-	Quality      Quality          `json:"quality"`
-	SHA256       string           `json:"rgbaSHA256"`
-	Guidance     *GuidancePlan    `json:"guidance,omitempty"`
-	Stack        *StackPlan       `json:"stack,omitempty"`
-	StackView    *StackCoreView   `json:"stackView,omitempty"`
-	LayerMap     []uint16         `json:"-"`
+	regionBase     *Result
+	regionDocument *RegionDocument
+	RegionEdits    *RegionSummary   `json:"regionEdits,omitempty"`
+	HeightMap      *HeightMapInfo   `json:"heightMap,omitempty"`
+	ColorPop       *ColorPopInfo    `json:"colorPop,omitempty"`
+	Calibration    *CalibrationInfo `json:"calibration,omitempty"`
+	SurfaceView    *SurfaceView     `json:"surfaceView,omitempty"`
+	Image          *image.NRGBA     `json:"-"`
+	Palette        []PaletteEntry   `json:"palette"`
+	SourceSize     [2]int           `json:"sourceSize"`
+	AnalysisSize   [2]int           `json:"analysisSize"`
+	UniqueColors   int              `json:"uniqueColors"`
+	Quality        Quality          `json:"quality"`
+	SHA256         string           `json:"rgbaSHA256"`
+	Guidance       *GuidancePlan    `json:"guidance,omitempty"`
+	Stack          *StackPlan       `json:"stack,omitempty"`
+	StackView      *StackCoreView   `json:"stackView,omitempty"`
+	LayerMap       []uint16         `json:"-"`
 }
 type Progress struct {
 	Stage    string  `json:"stage"`

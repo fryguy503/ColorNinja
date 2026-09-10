@@ -352,6 +352,14 @@ const errors = [],
     p.revision,
     path.join(output, "regions.hfp"),
   );
+  const hfp = JSON.parse(fs.readFileSync(path.join(output, "regions.hfp")));
+  assert.equal(hfp.spotfix_version, 2);
+  assert(Array.isArray(hfp.spot_fixes));
+  assert(hfp.colorninja.spotFixExport.document.groups.length >= 2);
+  for (const fix of hfp.spot_fixes) {
+    assert(fix.regions.length > 0);
+    assert(fix.footprint.rle.length > 0);
+  }
   await api(
     "Export",
     "layers",
@@ -362,6 +370,11 @@ const errors = [],
   const savedHash = p.result.rgbaSHA256;
   const reopened = await api("OpenProject", project);
   assert.equal(reopened.preview.result.rgbaSHA256, savedHash);
+  await api("Export", "hfp", reopened.preview.id, reopened.preview.revision, path.join(output, "reopened.hfp"));
+  const reopenedHFP = JSON.parse(fs.readFileSync(path.join(output, "reopened.hfp")));
+  assert.deepEqual(reopenedHFP.spot_fixes, hfp.spot_fixes);
+  assert.deepEqual(reopenedHFP.colorninja.spotFixExport, hfp.colorninja.spotFixExport);
+  checks.push("Native SpotFix records and complete ColorNinja edit metadata survive project reopening and re-export");
   await page.reload();
   await page.getByRole("button", { name: "Region Edit", exact: true }).click();
   await waitReady();

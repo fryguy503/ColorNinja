@@ -31,3 +31,13 @@
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+.border-color-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.border-color-control select {
+  flex: 1;
+  min-width: 0;
+}

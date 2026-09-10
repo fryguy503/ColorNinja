@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/draw"
 	"math"
+	"slices"
 )
 
 type RegionGroup struct {
@@ -113,6 +114,16 @@ func ApplyRegionDocument(ctx context.Context, base *Result, src *image.NRGBA, o 
 		return r, nil
 	}
 	r := *base
+	// Keep the immutable replay inputs for native HueForge SpotFix export.
+	// These are deliberately absent from result JSON; portable projects already
+	// store their baseline and document separately and replay them on open.
+	r.regionBase = base
+	copyDoc := d
+	copyDoc.Groups = slices.Clone(d.Groups)
+	for i := range copyDoc.Groups {
+		copyDoc.Groups[i].Mask = slices.Clone(d.Groups[i].Mask)
+	}
+	r.regionDocument = &copyDoc
 	r.Image = image.NewNRGBA(base.Image.Bounds())
 	draw.Draw(r.Image, r.Image.Bounds(), base.Image, base.Image.Rect.Min, draw.Src)
 	r.LayerMap = append([]uint16(nil), base.LayerMap...)

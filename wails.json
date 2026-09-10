@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.1.5",
+    "productVersion": "1.1.6",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.1.5 - Region drag fix, faster refinement and optional borders"
+    "comments": "1.1.6 - HueForge SpotFix export and border color/depth controls"
   }
 }

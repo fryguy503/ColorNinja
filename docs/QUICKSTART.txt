@@ -1,6 +1,17 @@
-ColorNinja Studio 1.1.5 - Windows, Linux, and macOS
+ColorNinja Studio 1.1.6 - Windows, Linux, and macOS
 
-NEW IN 1.1.5
+NEW IN 1.1.6
+Compatible whole-region edits now appear in HueForge's SpotFix list. Re-export
+an existing .colorninja project to add them to a new HFP. Selections that cannot
+transfer exactly retain their appearance in the image; keep your ColorNinja
+project for the complete editable history. See docs/region-editing.md.
+
+Borders now have a color selector using the printable colors in your stack and
+a visible depth field. Choosing a color sets its layer depth; entering a depth
+snaps to the nearest printable layer (0.86 becomes 0.88 mm with 0.16/0.08 layers).
+See docs/borders.md.
+
+RETAINED FROM 1.1.5
 Lasso and Brush now suppress browser image/text dragging while you hold and draw.
 Space-drag and middle-button panning still work. Filament refinement caches
 repeated scoring calculations without changing its search settings.
@@ -60,7 +71,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.1.5.md for this release's notes.
+docs/releases/v1.1.6.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.
