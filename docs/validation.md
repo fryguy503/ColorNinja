@@ -1,5 +1,27 @@
 # Validation scope
 
+## Version 1.0.1 layer planning and native packages
+
+Six synthetic two-spool palettes now reach zero modeled color error in both
+Preview and Refine. Regression coverage checks block-transfer bounds, retained
+allocation alternatives, strict color and height constraints, cancellation,
+determinism, and search/export palette agreement. Local native HueForge 0.9.4.3
+checks found zero RGB-byte differences for all twelve returned plans. Private
+decompilation and native-reference artifacts are stored outside the repository;
+committed tests contain synthetic data only.
+
+The CI workflow builds Windows x64, Linux x64/ARM64, and macOS Intel/Apple Silicon
+on native runners. Linux uses Ubuntu 24.04 and WebKitGTK 4.1; macOS uses version
+15. `scripts/build-native.sh` runs tests, vet, frontend checks, dependency audits,
+and native packaging. `scripts/verify-native.py` verifies every extracted file,
+executes four CLI workflows, and starts the packaged desktop HTTP service.
+Windows retains its compiled-app browser and extracted-package checks. Native
+Linux/macOS window, dialog, and clean-machine acceptance remains separate.
+
+The search remains bounded and heuristic. Exact synthetic palettes and agreement
+with tested native blend calculations do not establish global optimality or
+physical-print accuracy.
+
 ## Release candidate 1
 
 The new native-reference corpus contains 656 Standard/Combo/Max/Scaled Max

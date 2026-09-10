@@ -22,7 +22,7 @@ func validStackOrder(ids []int, o Options) bool {
 }
 
 // rebuildStack evaluates a complete, physically reachable stack after changing
-// its order, filaments, or layer allocation. The base thickness stays fixed.
+// its order, filaments, or layer allocation. The minimum base stays fixed.
 func rebuildStack(ids, runs []int, lib Library, h HueForgeOptions) stackState {
 	s := stackState{indices: append([]int(nil), ids...), runs: append([]int(nil), runs...)}
 	s.current = baseOptics(lib.Filaments[ids[0]], h)
@@ -54,12 +54,25 @@ func rebuildStack(ids, runs []int, lib Library, h HueForgeOptions) stackState {
 // same capped, culled palette objective used by the final export.
 func refineStack(ctx context.Context, initial stackState, lib Library, bases []int, target []Vec, weights []float64, o Options, progress Reporter, boundaries ...stackBoundary) (stackState, error) {
 	best := initial
+	// Revisited schedules cannot become improvements as the incumbent improves.
+	// Bound the cache independently of library size and the layer ceiling.
+	seen := map[string]bool{}
 	for pass := 0; pass < 16; pass++ {
 		if err := report(ctx, progress, "Refining filament order and layers", .63+.015*float64(pass)/16); err != nil {
 			return best, err
 		}
 		next := best
 		try := func(ids, runs []int) error {
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+			key := stackScheduleKey(ids, runs)
+			if seen[key] {
+				return nil
+			}
+			if len(seen) < 8192 {
+				seen[key] = true
+			}
 			if !validStackOrder(ids, o) || !completeConstraints(ids, lib, o) || !contains(bases, ids[0]) {
 				return nil
 			}
@@ -118,14 +131,16 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 				continue
 			}
 			for other := 0; other < len(best.indices); other++ {
-				if pos == other {
+				if pos == other || (other == 0 && !o.HueForge.compatibleOptics()) {
 					continue
 				}
-				runs := append([]int(nil), best.runs...)
-				runs[pos]--
-				runs[other]++
-				if err := try(best.indices, runs); err != nil {
-					return best, err
+				for _, transfer := range layerTransfers(best.runs[pos]-minimum, o.HueForge.SearchEffort) {
+					runs := append([]int(nil), best.runs...)
+					runs[pos] -= transfer
+					runs[other] += transfer
+					if err := try(best.indices, runs); err != nil {
+						return best, err
+					}
 				}
 			}
 		}

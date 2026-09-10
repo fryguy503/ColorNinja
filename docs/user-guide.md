@@ -13,7 +13,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For the Windows 1.0 download and installation steps, see the
+For Windows, Linux, and macOS 1.0.1 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.
@@ -28,6 +28,18 @@ Open `build/bin/ColorNinja-Studio.exe`, or extract a portable archive from
 `build/releases` and open `ColorNinja.exe` inside it. The GUI requires Windows
 x64 and Microsoft Edge WebView2 Runtime. The CLI does not require WebView2.
 The Windows 1.0 executables are unsigned.
+
+Linux x64 and ARM64 builds target Ubuntu 24.04 and need GTK 3 / WebKitGTK 4.1;
+run `./ColorNinja` from the extracted folder. macOS Intel and Apple Silicon
+builds contain `ColorNinja.app` and are tested on macOS 15. The CLI is named
+`colorninja-cli` on both platforms. macOS builds are not notarized. Native-window
+and file-dialog acceptance on Linux/macOS remains open. Common matrix ICC profiles
+are supported; convert other profiled images to sRGB before importing.
+
+Version 1.0.1 improves complete-stack layer allocation in Preview and Refine.
+Enabled surface, material, and layer-order objectives also consider nearby
+reachable colors and their heights within the configured color-error allowance.
+No additional setting is enabled automatically; see the [release notes](releases/v1.0.1.md).
 
 1. Choose **File → Open image**, drop an image into the window, or try the built-in artwork under **File → Recent images**.
 2. Start with **Simple reducer**, choose the maximum colors, and select
@@ -359,7 +371,7 @@ the PNG succeeds, the CLI explicitly reports which output was saved.
 
 ## Build from source
 
-The supplied scripts target Windows x64. Install Node.js 24 LTS, then run:
+For Windows x64, install Node.js 24 LTS, then run:
 
 ```powershell
 .\scripts\bootstrap.ps1
@@ -372,6 +384,13 @@ Bootstrap installs pinned Go 1.27.1, npm 12.0.2, and Wails 2.15.0 tools inside
 Build checks formatting, frontend regression tests, TypeScript, Go tests, and
 `go vet`, generates the original application icon, and builds the executables.
 Package creates a new portable ZIP with licenses, build information, and hashes.
+
+On Linux/macOS, install Go 1.27.1, Node 24.19.0, npm 12.0.2, and Python 3.13.
+Linux needs `libgtk-3-dev`, `libwebkit2gtk-4.1-dev`, `build-essential`, and
+`pkg-config`; macOS needs Xcode command-line tools. Run `bash scripts/build-native.sh`
+from a clean source checkout, then `python3 scripts/verify-native.py <archive>`.
+Native packaging requires a clean Git tree. CI runs these checks separately on
+Linux x64/ARM64 and macOS Intel/Apple Silicon, alongside the Windows checks.
 
 To build while an older executable is open, use the same alternative name for
 both scripts: `-GuiName ColorNinja-Next.exe`. The scripts never stop running apps.

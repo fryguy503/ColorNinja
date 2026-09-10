@@ -1,2 +1,3 @@
 # Keep Prettier's source line endings consistent on Windows checkouts.
 frontend/src/** text eol=lf
+scripts/*.sh text eol=lf

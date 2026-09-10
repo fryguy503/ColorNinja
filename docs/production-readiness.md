@@ -1,5 +1,13 @@
 # Release validation and remaining acceptance
 
+Version 1.0.1 adds native Linux x64/ARM64 and macOS Intel/Apple Silicon packages.
+Their release gates include native builds, Go/frontend tests, vet, dependency
+audits, extracted-file hashes, four CLI workflows, and desktop HTTP service
+startup. Native-window, file-dialog, clean-machine, and signing/notarization
+acceptance for these platforms remains open. See [1.0.1 notes](releases/v1.0.1.md)
+for platform requirements and the layer-planning changes. The checklist below
+records the earlier Windows release scope.
+
 Version 1.0 focuses release scope on Color Match and Color Pop. New channel workflows
 are paused; their retained engine fixtures are development evidence only.
 This work extends the existing Beta 7 development changes. A checked item means

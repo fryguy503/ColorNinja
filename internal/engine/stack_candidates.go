@@ -1,11 +1,50 @@
 package engine
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
+
+func stackScheduleKey(ids, runs []int) string {
+	key := make([]byte, 0, len(ids)*12)
+	for i, id := range ids {
+		key = strconv.AppendInt(key, int64(id), 10)
+		key = append(key, ':')
+		key = strconv.AppendInt(key, int64(runs[i]), 10)
+		key = append(key, ',')
+	}
+	return string(key)
+}
+
+// Enumerate small moves exactly and sample the full donor range in deep
+// stacks. Always include one layer and the entire legal block so refinement
+// can cross flat or temporarily worse intermediate allocations.
+func layerTransfers(available int, effort string) []int {
+	limit := 16
+	if effort == "refine" {
+		limit = 32
+	}
+	out := make([]int, 0, min(available, limit))
+	for i := 1; i <= min(available, limit); i++ {
+		n := i
+		if available > limit && i > limit/2 {
+			n = limit/2 + (available-limit/2)*(i-limit/2)/(limit-limit/2)
+		}
+		out = append(out, n)
+	}
+	return out
+}
 
 func diverseStacks(states []stackState, limit int) []stackState {
+	if limit <= 0 {
+		return nil
+	}
 	out := []stackState{}
 	seen := map[string]bool{}
 	for _, s := range states {
+		if !finite(s.score) {
+			continue
+		}
 		key := fmt.Sprint(s.indices)
 		if seen[key] {
 			continue
@@ -16,7 +55,42 @@ func diverseStacks(states []stackState, limit int) []stackState {
 			break
 		}
 	}
+	// Preserve the original distinct-order winners, then retain at most one
+	// separated allocation per order. Nearby swap heights do not all deserve
+	// a slot, but a different substrate thickness can open a new blend basin.
+	for _, winner := range out[:len(out):len(out)] {
+		var alternative stackState
+		separation := 1
+		for _, s := range states {
+			if !finite(s.score) || !sameInts(s.indices, winner.indices) {
+				continue
+			}
+			a, b, d := 0, 0, 0
+			for i := 0; i+1 < len(s.runs); i++ {
+				a, b = a+s.runs[i], b+winner.runs[i]
+				d = max(d, max(a-b, b-a))
+			}
+			if d > separation {
+				alternative, separation = s, d
+			}
+		}
+		if separation > 1 {
+			out = append(out, alternative)
+		}
+	}
 	return out
+}
+
+func sameInts(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // Move a whole filament run with its thickness. Swapping identities alone

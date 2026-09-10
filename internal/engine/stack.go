@@ -81,44 +81,8 @@ func uniqueStack(s stackState) ([]RGB, []int, []int) {
 	return colors, layers, positions
 }
 func stateScore(ctx context.Context, s stackState, target []Vec, weights []float64, o Options, boundaries ...stackBoundary) (float64, error) {
-	colors, layers, _ := uniqueStack(s)
-	ids, _, v, e := selectReachable(ctx, o.colorVectors(colors), target, weights, o.HueForge.MaxPerceivedColors, o.selectionFraction())
-	if e != nil {
-		return 0, e
-	}
-	barrier, searching := 0., ctx.Value(layerSearchBarrierKey{}) == true
-	if limit, ok := ctx.Value(stackColorLimitKey{}).(float64); ok && v > limit {
-		if !searching {
-			return math.Inf(1), e
-		}
-		barrier = 1024 * (v - limit) * (v - limit)
-	}
-	if o.layerOptimization() {
-		selected := make([]RGB, len(ids))
-		for i, id := range ids {
-			selected[i] = colors[id]
-		}
-		if excess := layerColorExcess(ctx, selected, target, o); excess > 0 {
-			if !searching {
-				return math.Inf(1), nil
-			}
-			barrier += 1024 * excess
-		}
-	}
-	if e = chooseStackHeights(ctx, s, colors, layers, nil, ids, target, o, boundaries); e != nil {
-		return 0, e
-	}
-	if !enforceHeightConstraints(ctx, s, colors, layers, nil, ids, target, o, boundaries) {
-		return math.Inf(1), nil
-	}
-	if len(boundaries) > 0 || o.materialOptimization() || o.layerOptimization() {
-		selected, heights := make([]RGB, len(ids)), make([]int, len(ids))
-		for i, id := range ids {
-			selected[i], heights[i] = colors[id], layers[id]
-		}
-		v = math.Sqrt(v*v + barrier + stackGeometryPenalty(ctx, s, selected, heights, target, o, boundaries))
-	}
-	return v, e
+	p, err := selectStackPalette(ctx, s, target, weights, o, boundaries)
+	return p.score, err
 }
 func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Options, progress Reporter, boundaries ...stackBoundary) ([]PaletteEntry, *StackPlan, error) {
 	required, requiredBase, requiredTop, constraintErr := constraintIDs(lib, o)
@@ -421,7 +385,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		return nil, nil, fmt.Errorf("no stack fits the required base and highlight")
 	}
 	if h.compatibleOptics() || o.PreserveDetails || len(boundaries) > 0 {
-		count := 3
+		count := 4
 		if h.SearchEffort == "refine" {
 			count = 8
 		}
@@ -472,17 +436,15 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		}
 		depthSelection = &DepthSelection{h.MaxDepth, h.Height(h.MaxLayers()), len(depths), bestScore, best.score, tolerance, metric}
 	}
-	colors, layers, positions := uniqueStack(best)
-	ids, masses, rms, e := selectReachable(ctx, o.colorVectors(colors), target, weights, h.MaxPerceivedColors, o.selectionFraction())
+	selection, e := selectStackPalette(ctx, best, target, weights, o, boundaries)
 	if e != nil {
 		return nil, nil, e
 	}
-	if e = chooseStackHeights(ctx, best, colors, layers, positions, ids, target, o, boundaries); e != nil {
-		return nil, nil, e
-	}
-	if !enforceHeightConstraints(ctx, best, colors, layers, positions, ids, target, o, boundaries) {
+	if !finite(selection.score) {
 		return nil, nil, fmt.Errorf("no selected output reaches the required spools; adjust the palette, constraints or depth")
 	}
+	colors, layers, positions := selection.colors, selection.layers, selection.positions
+	ids, masses, rms := selection.ids, selection.masses, selection.colorRMS
 	if o.prioritizeColors() || o.ProtectedColors != "" {
 		selected := make([]Vec, len(ids))
 		for i, id := range ids {
@@ -524,6 +486,9 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	if o.materialOptimization() {
 		plan.SearchMethod += "-area-weighted-material-penalty"
 	}
+	if len(boundaries) > 0 || o.materialOptimization() || o.layerOptimization() {
+		plan.SearchMethod += "-joint-color-height-selection"
+	}
 	if o.customColorOrder() {
 		plan.SearchMethod += "-weighted-color-order"
 	}
@@ -556,6 +521,7 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 	}
 	if h.compatibleOptics() || o.PreserveDetails || len(boundaries) > 0 {
 		plan.SearchMethod += "-diverse-complete-stack-refinement"
+		plan.SearchMethod += "-block-transfers-allocation-alternatives"
 		if h.SearchEffort == "refine" {
 			plan.SearchMethod += "-structural-moves"
 		}

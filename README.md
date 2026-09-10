@@ -9,50 +9,58 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Version `v1.0.0` — Windows x64.** Color Match and Color Pop are the supported
+**Version `v1.0.1` — Windows, Linux, and macOS.** Color Match and Color Pop are the supported
 stack workflows. Color Match includes a draggable source-color order, adjustable
 preference strength, and automatic recalculation. Backlit, Simple reducer, Filament
 Guide, portable projects, and self-contained HueForge exports remain available.
 The new channel workflows are temporarily disabled.
 
-[Download ColorNinja 1.0](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0)
-· [Release notes](docs/releases/v1.0.0.md)
+[Download ColorNinja 1.0.1](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.1)
+· [Release notes](docs/releases/v1.0.1.md)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
 
 See the [color-order guide](docs/color-order.md) and
 [validation and remaining acceptance work](docs/production-readiness.md).
-The Windows executables are unsigned. Software checks do not replace physical
+The packages have no publisher signature; macOS builds are not notarized. Software checks do not replace physical
 print validation with your own filaments and lighting.
 
 ## Download and run
 
-If you already have a Windows ZIP, start at step 2. Local builds are packaged in
-`build/releases`.
+Open the [1.0.1 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.1)
+and choose the archive for your operating system and processor from **Assets**.
 
-1. Open the [1.0 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.0.0)
-   and download **`ColorNinja-1.0.0-windows-x64.zip`** from **Assets**.
-2. Extract the entire ZIP to a folder you can write to.
-3. Open **`ColorNinja.exe`**. Try the built-in artwork, or open your own image.
-4. Choose a mode, adjust the color budget, compare the preview, and choose **Export → Full-resolution PNG**.
+| System | Archive | Launch and requirements |
+| --- | --- | --- |
+| Windows x64 | `ColorNinja-1.0.1-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
+| Linux x64 / ARM64 | `ColorNinja-1.0.1-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
+| macOS Intel / Apple Silicon | `ColorNinja-1.0.1-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
 
-The desktop app requires Windows x64 and the
-[Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
-The build is unsigned, so Windows may display a publisher or reputation warning.
-Python, Node.js, and Go are **not required to run the release**. The CLI does not
-require WebView2. macOS and Linux binaries are not included in this beta.
+On Ubuntu 24.04, install the desktop runtime with
+`sudo apt install libgtk-3-0t64 libwebkit2gtk-4.1-0`. Other Linux distributions
+need compatible GTK, WebKitGTK and glibc libraries; older distributions are not
+covered by these builds. Windows may show a publisher warning. On macOS, after
+trying to open the app, use **System Settings → Privacy & Security → Open Anyway**
+if Gatekeeper blocks this unnotarized download. Only approve your verified download.
 
-The portable ZIP includes the desktop app, `colorninja-cli.exe`, a quick-start
+Try the built-in artwork, or open an image. Choose a mode, adjust the color budget,
+compare the preview, then choose **Export → Full-resolution PNG**.
+Python, Node.js, and Go are **not required to run the release**. Linux and macOS
+support common matrix ICC profiles; convert images using other ICC profiles to
+sRGB before importing. Native window and file-dialog acceptance on these new
+platforms remains open.
+
+Each archive includes the desktop app, CLI (`colorninja-cli` on Linux/macOS), a quick-start
 guide, documentation, MIT and third-party license notices, build information,
 and checksums. GitHub's **Source code** archives are for building the project;
-choose the Windows ZIP to run the compiled app.
+choose a platform archive to run the compiled app.
 
 To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.0.0-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.0.1-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does

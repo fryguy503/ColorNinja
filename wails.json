@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.0.0",
+    "productVersion": "1.0.1",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.0.0 - Color Match ordering and Color Pop stable release"
+    "comments": "1.0.1 - Improved layer allocation and native Linux and macOS builds"
   }
 }

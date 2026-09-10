@@ -1,4 +1,8 @@
-ColorNinja Studio 1.0.0 - Windows x64
+ColorNinja Studio 1.0.1 - Windows, Linux, and macOS
+
+Layer planning now explores larger layer transfers and alternative thickness
+arrangements. Enabled surface/material/order optimization can also compare
+nearby reachable colors and heights within the existing color-error allowance.
 
 Color Match and Color Pop are the current stack workflows. The new channel
 workflows are temporarily disabled. Older channel projects open in Color Match
@@ -29,7 +33,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.0.0.md for this release's notes.
+docs/releases/v1.0.1.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.
@@ -43,9 +47,16 @@ TDs; Color Pop exports use a separate mesh encoding to preserve their bands.
 
 Review the planned heights and colors in HueForge before printing.
 
-Extract this folder, then double-click ColorNinja.exe.
-The GUI needs Microsoft Edge WebView2 Runtime. Python, Node.js, and Go are
-not required to run these executables. This build is unsigned.
+Extract the complete archive for your platform and processor.
+Windows x64: open ColorNinja.exe; the GUI needs Microsoft Edge WebView2 Runtime.
+Linux x64/ARM64: run ./ColorNinja. Builds target Ubuntu 24.04; install the GUI
+runtime with: sudo apt install libgtk-3-0t64 libwebkit2gtk-4.1-0
+macOS Intel/Apple Silicon: open ColorNinja.app. Builds are tested on macOS 15.
+The packages have no publisher signature and macOS builds are not notarized.
+If macOS blocks a verified download, try opening it and then use System Settings
+> Privacy & Security > Open Anyway. Python, Node.js, and Go are not required.
+On Linux/macOS, convert images with unsupported ICC profiles to sRGB first.
+See README.md for platform limits and checksum instructions.
 
 GET STARTED
 Open an image or try the built-in artwork. Adjust the color budget and detail
