@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.2.0",
+    "productVersion": "1.2.1",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.2.0 - TD1/S devices, filament library management and profile imports"
+    "comments": "1.2.1 - Avoid duplicate save and export overwrite confirmations"
   }
 }

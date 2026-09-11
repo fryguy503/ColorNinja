@@ -1,6 +1,11 @@
-ColorNinja Studio 1.2.0 - Windows, Linux, and macOS
+ColorNinja Studio 1.2.1 - Windows, Linux, and macOS
 
-NEW IN 1.2.0
+NEW IN 1.2.1
+Saving or exporting over an existing file no longer repeats the native Save As
+replacement prompt. A changed filename or existing companion file still needs
+its own approval. New files retain protection against accidental overwrites.
+
+RETAINED FROM 1.2.0
 Open Filament library in the toolbar to add, edit, duplicate and manage spools.
 The first edit creates a ColorNinja copy of an external library; later saves
 keep backups. Export your library as HueForge-compatible JSON.
@@ -85,7 +90,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.2.0.md for this release's notes.
+docs/releases/v1.2.1.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.

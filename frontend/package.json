@@ -1,7 +1,7 @@
 {
   "name": "colorninja-studio",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.ts",

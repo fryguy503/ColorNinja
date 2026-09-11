@@ -1,5 +1,9 @@
 # ColorNinja Studio user guide
 
+Version 1.2.1 removes duplicate overwrite prompts after the native Save As
+dialog confirms replacement. Changed filenames and companion files still require
+separate approval. See the [1.2.1 release notes](releases/v1.2.1.md).
+
 Version 1.2.0 adds **Filament library** management, **Import profiles**, and
 **TD1 / TD1S** USB measurements and maintenance. Import a copied profile page
 or HTML/CSV file from 3D Filament Profiles, then use your device to replace its
@@ -41,7 +45,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.2.0 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.2.1 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.

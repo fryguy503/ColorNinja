@@ -154,10 +154,11 @@ func (a *App) SaveProfile(name string, req studio.Request) (string, error) {
 	if e != nil || path == "" {
 		return "", e
 	}
+	saveDialogPath := path
 	if filepath.Ext(path) == "" {
 		path += ".colorninja-profile.json"
 	}
-	overwrite, e := a.confirmOverwrite(path)
+	overwrite, e := a.confirmOverwrite(path, saveDialogPath)
 	if e != nil {
 		return "", e
 	}
@@ -184,10 +185,11 @@ func (a *App) SaveProject(req studio.Request) (string, error) {
 	if e != nil || path == "" {
 		return "", e
 	}
+	saveDialogPath := path
 	if !strings.EqualFold(filepath.Ext(path), ".colorninja") {
 		path += ".colorninja"
 	}
-	overwrite, e := a.confirmOverwrite(path)
+	overwrite, e := a.confirmOverwrite(path, saveDialogPath)
 	if e != nil {
 		return "", e
 	}
@@ -204,18 +206,25 @@ func (a *App) OpenProject() (*studio.Snapshot, error) {
 	s, e := a.studio.OpenProject(path)
 	return &s, e
 }
-func (a *App) confirmOverwrite(path string) (bool, error) {
-	return confirmOverwrite(path, func(options runtime.MessageDialogOptions) (string, error) {
+func (a *App) confirmOverwrite(path, saveDialogPath string) (bool, error) {
+	return confirmOverwrite(path, saveDialogPath, func(options runtime.MessageDialogOptions) (string, error) {
 		return runtime.MessageDialog(a.ctx, options)
 	})
 }
 
-func confirmOverwrite(path string, showDialog func(runtime.MessageDialogOptions) (string, error)) (bool, error) {
+// saveDialogPath is the unmodified path returned by a successful native save
+// dialog, which already confirms replacement. Use "" for companion files.
+func confirmOverwrite(path, saveDialogPath string, showDialog func(runtime.MessageDialogOptions) (string, error)) (bool, error) {
 	if _, e := os.Stat(path); os.IsNotExist(e) {
 		return false, nil
 	} else if e != nil {
 		return false, e
 	}
+	if path == saveDialogPath {
+		return true, nil
+	}
+	// An appended extension or a companion names a different file, so the
+	// native dialog's approval does not cover it.
 	// Wails uses native Yes/No buttons on Windows, ignoring custom button labels.
 	// Match those responses on every platform and keep No as the safe default.
 	choice, e := showDialog(runtime.MessageDialogOptions{Type: runtime.QuestionDialog, Title: "Replace existing file?", Message: filepath.Base(path) + " already exists. Replace it?", Buttons: []string{"Yes", "No"}, DefaultButton: "No", CancelButton: "No"})
@@ -244,22 +253,23 @@ func (a *App) Export(kind string, id, revision uint64) (string, error) {
 	if e != nil || path == "" {
 		return "", e
 	}
+	saveDialogPath := path
 	if !strings.EqualFold(filepath.Ext(path), ext) {
 		path += ext
 	}
-	overwrite, e := a.confirmOverwrite(path)
+	overwrite, e := a.confirmOverwrite(path, saveDialogPath)
 	if e != nil {
 		return "", e
 	}
 	profileOverwrite, projectOverwrite := false, false
 	if s.Settings.Preferences.ExportProfile {
 		if kind != "project" {
-			projectOverwrite, e = a.confirmOverwrite(studio.ProjectPath(path))
+			projectOverwrite, e = a.confirmOverwrite(studio.ProjectPath(path), "")
 			if e != nil {
 				return "", e
 			}
 		}
-		profileOverwrite, e = a.confirmOverwrite(studio.ProfilePath(path))
+		profileOverwrite, e = a.confirmOverwrite(studio.ProfilePath(path), "")
 		if e != nil {
 			return "", e
 		}
