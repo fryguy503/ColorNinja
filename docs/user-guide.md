@@ -1,5 +1,12 @@
 # ColorNinja Studio user guide
 
+Version 1.2.0 adds **Filament library** management, **Import profiles**, and
+**TD1 / TD1S** USB measurements and maintenance. Import a copied profile page
+or HTML/CSV file from 3D Filament Profiles, then use your device to replace its
+TD while retaining the original color if desired. See the
+[filament and device guide](filament-management.md) and
+[1.2.0 release notes](releases/v1.2.0.md).
+
 Version 1.1.6 exports compatible whole-region edits as HueForge SpotFix groups.
 Re-export your ColorNinja project to include them in an HFP. Borders gain a
 printable color selector and a visible depth field with nearest-layer snapping.
@@ -34,7 +41,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.1.6 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.2.0 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.
@@ -237,8 +244,13 @@ library is elsewhere, select it once; ColorNinja remembers it across relaunches.
 
 The **Filaments** tab lets you select a library, search colors, filter materials,
 include unowned entries, or allow the primary color of dual-color filaments.
-The library is read-only. Invalid entries and entries outside the active filters
-are excluded. A filter with no eligible colors produces an explanation.
+The toolbar's **Filament library** button opens **My library**, **Import profiles**,
+and **TD1 / TD1S**. Edit filament details and ownership, import online profiles,
+or replace a profile's TD with a USB measurement. External libraries become a
+ColorNinja copy on the first edit; subsequent edits have backups. See the
+[filament management and TD1/S guide](filament-management.md).
+Invalid entries and entries outside the active filters are excluded from planning,
+while the editor retains them. A filter with no eligible colors produces an explanation.
 
 Enable **Avoid silk & metallic finishes** in the Filaments tab to exclude those
 finishes from both Filament Guide and Color Match, including repeated filament

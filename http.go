@@ -58,7 +58,11 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		var args []json.RawMessage
-		if e := json.NewDecoder(http.MaxBytesReader(w, r.Body, 2<<20)).Decode(&args); e != nil {
+		bodyLimit := int64(2 << 20)
+		if r.URL.Path == "/api/ImportFilamentProfiles" || r.URL.Path == "/api/ImportCopiedFilamentProfile" {
+			bodyLimit = 12 << 20
+		}
+		if e := json.NewDecoder(http.MaxBytesReader(w, r.Body, bodyLimit)).Decode(&args); e != nil {
 			http.Error(w, e.Error(), 400)
 			return
 		}
@@ -71,6 +75,8 @@ func serveDevelopment(address, configPath string, assets fs.FS) error {
 		var result any
 		var err error
 		switch strings.TrimPrefix(r.URL.Path, "/api/") {
+		case "FilamentCatalog", "EditFilament", "ImportFilamentProfiles", "ImportCopiedFilamentProfile", "TD1Ports", "TD1State", "ConnectTD1", "DisconnectTD1", "TD1Operation", "ExportFilamentLibrary":
+			result, err = integrationAPI(s, strings.TrimPrefix(r.URL.Path, "/api/"), get)
 		case "Version":
 			result = appVersion()
 		case "SavePreferences":

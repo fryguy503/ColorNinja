@@ -32,6 +32,8 @@ import {
 import { invoke, on, desktop } from "./bridge";
 import { Updates } from "./Updates";
 import { StudioDialog } from "./StudioDialog";
+import { FilamentManager } from "./FilamentManager";
+import { remapFilamentKeys } from "./filamentTypes";
 import { StackInspector } from "./StackInspector";
 import { BorderPreview } from "./BorderPreview";
 import { BorderColorPicker } from "./BorderColorPicker";
@@ -681,6 +683,7 @@ function Viewer({
 }
 
 function App() {
+  const [showFilamentManager, setShowFilamentManager] = useState(false);
   const [preferences, setPreferences] = useState<Preferences>(
     copy(defaultPreferences),
   );
@@ -782,6 +785,7 @@ function App() {
           s.settings.options,
           s.settings.libraryPath ?? "",
           normalizeFilter({ ...copy(emptyFilter), ...s.settings.filter }),
+          s.library?.sha256 ?? "",
         ])
       : "";
     if (s.preview) {
@@ -849,7 +853,12 @@ function App() {
     libraryPath: live.current.libraryPath,
     filter: live.current.filter,
   });
-  const stateKey = JSON.stringify([options, libraryPath, filter]);
+  const stateKey = JSON.stringify([
+    options,
+    libraryPath,
+    filter,
+    library?.sha256 ?? "",
+  ]);
   const captureComparison = async () => {
     try {
       setSavedComparisons(
@@ -2465,6 +2474,12 @@ function App() {
 
   const libraryContent = (
     <>
+      <button
+        className="button secondary full"
+        onClick={() => setShowFilamentManager(true)}
+      >
+        <SwatchBook size={15} /> Manage library · TD1/S · import profiles
+      </button>
       <button className="button secondary full" onClick={chooseLibrary}>
         <FolderOpen size={15} />{" "}
         {libraryPath ? "Change library" : "Load filament library"}
@@ -2746,6 +2761,13 @@ function App() {
           {dirty && source && <i title="Settings differ from the preview" />}
         </div>
         <div className="header-actions">
+          <button
+            className="button secondary"
+            disabled={loading || regionBusy}
+            onClick={() => setShowFilamentManager(true)}
+          >
+            <SwatchBook size={16} /> Filament library
+          </button>
           <button
             className="button secondary"
             disabled={!source || loading}
@@ -3306,6 +3328,43 @@ function App() {
           </span>
         </div>
       </footer>
+      {showFilamentManager && (
+        <FilamentManager
+          path={libraryPath}
+          onClose={() => setShowFilamentManager(false)}
+          onChanged={(catalog) => {
+            seq.current++;
+            setLibraryPath(catalog.path);
+            setLibrary(catalog.library);
+            setFilter(catalog.filter);
+            setPreview(null);
+            setDirty(true);
+            renderedKey.current = "";
+            const changes = catalog.keyChanges ?? {};
+            const remap = (o: Options): Options => ({
+              ...o,
+              hueforge: {
+                ...o.hueforge,
+                requiredFilaments: remapFilamentKeys(
+                  o.hueforge.requiredFilaments,
+                  changes,
+                ),
+                baseFilament: remapFilamentKeys(
+                  o.hueforge.baseFilament,
+                  changes,
+                ),
+                highlightFilament: remapFilamentKeys(
+                  o.hueforge.highlightFilament,
+                  changes,
+                ),
+              },
+            });
+            setOptions(remap);
+            setHistory((h) => h.map(remap));
+            if (catalog.warning) notify(catalog.warning, true);
+          }}
+        />
+      )}
       {showFile && (
         <StudioDialog
           title="File"

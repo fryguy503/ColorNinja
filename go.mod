@@ -4,18 +4,21 @@ go 1.25.0
 
 require (
 	github.com/disintegration/imaging v1.6.2
+	github.com/google/uuid v1.6.0
 	github.com/mandykoh/prism v0.35.3
 	github.com/wailsapp/wails/v2 v2.15.0
+	go.bug.st/serial v1.6.4
 	golang.org/x/image v0.45.0
+	golang.org/x/net v0.56.0
 	golang.org/x/sys v0.47.0
 )
 
 require (
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/creack/goselect v0.1.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jchv/go-winloader v0.0.0-20210711035445-715c2860da7e // indirect
 	github.com/labstack/echo/v4 v4.13.3 // indirect
@@ -36,6 +39,5 @@ require (
 	github.com/wailsapp/go-webview2 v1.0.22 // indirect
 	github.com/wailsapp/mimetype v1.4.1 // indirect
 	golang.org/x/crypto v0.53.0 // indirect
-	golang.org/x/net v0.56.0 // indirect
 	golang.org/x/text v0.41.0 // indirect
 )

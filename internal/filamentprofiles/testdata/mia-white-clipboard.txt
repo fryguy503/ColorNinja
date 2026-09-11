@@ -1,0 +1,202 @@
+3D Filament Profiles
+
+3D Filament Profiles
+3D Filament Profiles
+Filaments
+Brands & Materials
+Hardware
+More
+/
+Anycubic
+/
+PLA
+/
+Basic
+/
+Details
+Anycubic
+PLA
+Basic
+Mia White
+Color
+Color
+Mia White
+
+RGB
+\#F1E9E0&#x20;
+Material
+PLA
+
+Material Type
+Basic
+
+Technical Details
+Density:	1.24g/cm³
+Diameter:	1.75mm
+Nominal Weight:	1000g
+Softening Temperature:	55°C
+Chamber Temperature:&#x9;
+Ironing Flow:	10%
+Ironing Speed:	30mm/s
+Shrinkage:	0.2%
+Empty Spool Weight:	212g
+Pressure Advance (K-Value):&#x9;
+Product Details
+AnycubicProduct Image
+Manufacturer's SKU:
+AHPLMH-107
+GTIN / EAN / UPC:
+No data
+Official Product Link:
+anycubic (US)
+In Stock
+Filament with Spool - 1kg
+
+SKU: AHPLMH-107
+
+$15.99
+Updated:
+16h ago
+Price on Amazon
+Sep 10, 2026, 5:31 AM
+Limited time deal
+15% off
+Typical price:
+$14.24
+Datasheet
+Mechanical
+X-Y	Z
+Tensile Strength	48 MPa	28 MPa
+Tensile Modulus	2534 MPa&#x9;
+Elongation at Break	8 %&#x9;
+Flexural Strength	90 MPa&#x9;
+Flexural Modulus	3360 MPa&#x9;
+Thermal
+HDT at 0.45 MPa	54°C
+Vicat Softening	55°C
+Glass Transition (Tg)	61.2°C
+Melting Temperature	166°C
+Other
+Melt Flow Rate	5.7 g/10 min
+Max Print Speed	200mm/s
+Values extracted from the manufacturer's .
+
+Temperatures
+Nozzle
+190-230°C
+Bed
+55-65°C
+Fan Speed
+Fan Speed Min
+100%
+Bridge
+100%
+Disable For
+?
+First Layer Speeds
+Walls
+50mm/s
+Infill
+100mm/s
+Other Layers
+Outer Wall
+200mm/s
+Top Surface
+200mm/s
+Tested Color Data
+Measured RGB
+?
+Flow Characteristics
+Max Volumetric Speed
+12mm³/s
+Flow Ratio
+0.98
+Drying Info
+Drying Temp
+50°C
+Dry Time
+6h
+AMS Compatibility
+AMS Lite (L)
+L
+AMS (A)
+A
+AMS 2 Pro (A2)
+A2
+AMS HT (HT)
+HT
+AMS Adapter:
+Build Plates
+Smooth PEI
+Textured PEI
+Cool Plate
+Swatch Card Label
+Expanded
+
+50mm x 30mm
+
+PLA Basic
+Mia White
+\#F1E9E0
+Nozzle:
+Bed Temp:
+Flow Ratio:
+TD:
+190-230°C
+55-65°C
+0.98
+
+Classic
+40mm x 30mm
+
+Expanded
+50mm x 30mm
+
+Compact
+40mm x 25mm
+
+Slim
+40mm x 12mm
+
+Optimized for slicers
+40mm x 30mm
+
+Vertical
+30mm x 40mm
+
+Vertical Bold
+30mm x 40mm
+
+Vertical Compact
+25mm x 40mm
+
+PDF File
+
+Nozzle Temp
+
+Bed Temp
+
+Flow Ratio
+
+Transmission Distance (TD)
+
+RGB text
+Use the View button to open the label in a new tab for immediate printing, or Download to save it locally.
+
+The Classic card is designed for 40mm x 30mm labels . Vertical versions (30×40mm and 25×40mm) are also available. Recommended printers are .
+
+Labels are designed for the swatches you can print from this model: . You can also find mounts for your storage and AMS units on the same page.
+
+There are two file formats for the  and other simple image formats:
+
+Labelife Image - uses the above generated image for the whole label (better for matching what is shown here)
+Labelife Native - uses native Labelife controls for manual editing of the label. This version has some cross-platform compatibility issues.
+PNG Image - a simple image of the label in PNG format
+SVG Image - a simple image of the label in SVG format
+PDF - a PDF file containing just the label
+Printing this page using your browser's print function also prints the swatch card for any apps that only take PDF files
+
+Last Updated: 18 hours ago
+
+
+Translation issue

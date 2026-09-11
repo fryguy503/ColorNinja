@@ -5,6 +5,7 @@ package studio
 import (
 	"bytes"
 	"colorninja/internal/engine"
+	"colorninja/internal/td1"
 	"context"
 	"encoding/json"
 	"errors"
@@ -89,12 +90,16 @@ type Document struct {
 	Filter        engine.LibraryFilter `json:"filter"`
 }
 type Studio struct {
+	TD1             *td1.Manager
 	regions         *regionSession
 	processor       engine.Processor
 	ctx             context.Context
 	mu              sync.RWMutex
 	worker          sync.Mutex
 	settingsMu      sync.Mutex
+	libraryMu       sync.Mutex
+	deviceMu        sync.Mutex
+	recoveryPlan    *td1.RecoveryPlan
 	cancel          context.CancelFunc
 	loadCancel      context.CancelFunc
 	loadSerial      uint64
@@ -120,6 +125,7 @@ func New(ctx context.Context, configPath string) *Studio {
 	o.TotalColors = true
 	s := &Studio{ctx: ctx, configPath: configPath, settings: Settings{SchemaVersion: 1, Options: o, Presets: []Preset{}, Recent: []string{}, Filter: engine.LibraryFilter{MaterialTypes: []string{}, ExcludedIDs: []int{}}}}
 	s.settings.Preferences.CheckOnStartup = true
+	s.TD1 = td1.New()
 	if raw, e := os.ReadFile(configPath); e == nil {
 		saved := Settings{Preferences: s.settings.Preferences}
 		if e = json.Unmarshal(raw, &saved); e == nil && saved.SchemaVersion == 1 && saved.Options.Validate() == nil {
@@ -293,6 +299,9 @@ func (s *Studio) Cancel() {
 	s.job++
 }
 func (s *Studio) Shutdown() {
+	if s.TD1 != nil {
+		s.TD1.Disconnect()
+	}
 	s.Cancel()
 	s.mu.Lock()
 	if s.loadCancel != nil {

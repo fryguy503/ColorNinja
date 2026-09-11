@@ -1,6 +1,20 @@
-ColorNinja Studio 1.1.6 - Windows, Linux, and macOS
+ColorNinja Studio 1.2.0 - Windows, Linux, and macOS
 
-NEW IN 1.1.6
+NEW IN 1.2.0
+Open Filament library in the toolbar to add, edit, duplicate and manage spools.
+The first edit creates a ColorNinja copy of an external library; later saves
+keep backups. Export your library as HueForge-compatible JSON.
+
+Import profiles names 3D Filament Profiles (3dfilamentprofiles.com) as the preferred
+source. Search in your browser, then import copied detail-page text or saved
+HTML/CSV. Direct online search is not used. Keep the source URL with your import.
+
+Connect a TD1 or TD1S by USB, open TD1 / TD1S, and measure a filament sample.
+Apply its TD to an existing spool or add a new filament. Replacing the profile
+color is optional. Device controls include settings, calibration, diagnostics,
+backups and firmware maintenance. See docs/filament-management.md.
+
+RETAINED FROM 1.1.6
 Compatible whole-region edits now appear in HueForge's SpotFix list. Re-export
 an existing .colorninja project to add them to a new HFP. Selections that cannot
 transfer exactly retain their appearance in the image; keep your ColorNinja
@@ -71,7 +85,7 @@ Choose depth automatically now tests shortening interior runs too, checking the
 full blend path and appearance before removing layers. Desktop HFP exports use
 HueForge Color Match to preserve planned heights; old mesh-mode settings migrate.
 See docs/print-optimization.md for the overview and measured comparisons, and
-docs/releases/v1.1.6.md for this release's notes.
+docs/releases/v1.2.0.md for this release's notes.
 
 New in Beta 7: Color Pop keeps selected hues against grayscale. Choose
 Workflow > Color Pop > Try demo to compare the full-color poppy with the result.
