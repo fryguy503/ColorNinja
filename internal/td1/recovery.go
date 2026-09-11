@@ -52,9 +52,15 @@ func RecoveryVolume(volume string) (string, string, error) {
 	if e != nil {
 		return "", "", e
 	}
-	resolved, e := filepath.EvalSymlinks(dir)
-	if e != nil || !strings.EqualFold(dir, resolved) {
+	info, e := os.Lstat(dir)
+	if e != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 		return "", "", fmt.Errorf("select the actual RPI-RP2 bootloader volume")
+	}
+	// OS parent aliases (such as macOS /var and Windows 8.3 names) are valid.
+	// Keep the resolved location in the reviewed plan, but reject a linked volume.
+	dir, e = filepath.EvalSymlinks(dir)
+	if e != nil {
+		return "", "", fmt.Errorf("cannot resolve the RPI-RP2 bootloader volume: %w", e)
 	}
 	f, e := os.Open(filepath.Join(dir, "INFO_UF2.TXT"))
 	if e != nil {
@@ -65,11 +71,11 @@ func RecoveryVolume(volume string) (string, string, error) {
 	if e != nil || len(raw) > 4096 {
 		return "", "", fmt.Errorf("cannot read bootloader identification")
 	}
-	info := string(raw)
-	if !strings.Contains(info, "Board-ID: RPI-RP2") || !strings.Contains(info, "UF2 Bootloader") {
+	board := string(raw)
+	if !strings.Contains(board, "Board-ID: RPI-RP2") || !strings.Contains(board, "UF2 Bootloader") {
 		return "", "", fmt.Errorf("selected volume is not an RP2040 bootloader")
 	}
-	return dir, info, nil
+	return dir, board, nil
 }
 func PlanRecovery(raw []byte, volume string) (RecoveryPlan, error) {
 	p := RecoveryPlan{SHA256: fmt.Sprintf("%x", sha256.Sum256(raw)), Size: len(raw), Blocks: len(raw) / 512}

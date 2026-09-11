@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -125,14 +126,21 @@ func (s *Studio) managedLibrary(path string) bool {
 	if err != nil {
 		return false
 	}
-	if filepath.Dir(abs) != dir || !strings.HasPrefix(filepath.Base(abs), "library-") || filepath.Ext(abs) != ".json" {
+	if !strings.HasPrefix(filepath.Base(abs), "library-") || filepath.Ext(abs) != ".json" {
 		return false
 	}
-	resolved, err := filepath.EvalSymlinks(abs)
+	// Compare directory identities so system aliases and Windows short names
+	// still identify our library. A linked file itself is never managed.
+	file, err := os.Lstat(abs)
+	if err != nil || !file.Mode().IsRegular() {
+		return false
+	}
+	parent, err := os.Stat(filepath.Dir(abs))
 	if err != nil {
 		return false
 	}
-	return strings.EqualFold(resolved, abs)
+	managed, err := os.Stat(dir)
+	return err == nil && os.SameFile(parent, managed)
 }
 func (s *Studio) catalogBytes(path string) ([]byte, error) {
 	if path == "" {

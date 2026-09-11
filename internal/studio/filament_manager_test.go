@@ -81,6 +81,42 @@ func TestFilamentEditPreservesOriginalAndUnfilteredRecords(t *testing.T) {
 		t.Fatal("stale edit overwrote newer library")
 	}
 }
+func TestManagedLibraryAcceptsParentAliasesButNotLinkedFiles(t *testing.T) {
+	dir := t.TempDir()
+	real := filepath.Join(dir, "config")
+	managed := filepath.Join(real, "libraries")
+	if err := os.MkdirAll(managed, 0700); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(managed, "library-test.json")
+	if err := os.WriteFile(path, []byte(editableLibrary), 0600); err != nil {
+		t.Fatal(err)
+	}
+	alias := filepath.Join(dir, "config-alias")
+	if err := os.Symlink(real, alias); err != nil {
+		t.Skipf("directory links unavailable: %v", err)
+	}
+	s := New(context.Background(), filepath.Join(real, "settings.json"))
+	defer s.Shutdown()
+	if !s.managedLibrary(filepath.Join(alias, "libraries", "library-test.json")) {
+		t.Fatal("parent alias hid the managed library")
+	}
+	linked := filepath.Join(managed, "library-linked.json")
+	if err := os.Symlink(path, linked); err != nil {
+		t.Fatal(err)
+	}
+	if s.managedLibrary(linked) {
+		t.Fatal("linked file treated as managed")
+	}
+	outside := filepath.Join(dir, "library-test.json")
+	if err := os.WriteFile(outside, []byte(editableLibrary), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if s.managedLibrary(outside) {
+		t.Fatal("external file treated as managed")
+	}
+}
+
 func TestEmptyLibraryAndUnknownTDRemainEditable(t *testing.T) {
 	s := New(context.Background(), filepath.Join(t.TempDir(), "settings.json"))
 	defer s.Shutdown()
