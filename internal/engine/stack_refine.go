@@ -48,6 +48,10 @@ func rebuildStack(ids, runs []int, lib Library, h HueForgeOptions) stackState {
 	return s
 }
 
+func refinedStackLess(a, b stackState) bool {
+	return a.score < b.score-1e-9 || (math.Abs(a.score-b.score) <= 1e-9 && len(a.indices) < len(b.indices))
+}
+
 // A beam judges incomplete prefixes before their useful later blends exist.
 // Refine completed stacks so an early greedy choice cannot permanently consume
 // the layers needed for a different shade. Every accepted move improves the
@@ -92,12 +96,12 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 					d[j] = math.Min(d[j], distance(t, lab))
 				}
 			}
-			if dot(weights, d) >= next.score*next.score-1e-12 {
+			if dot(weights, d) > next.score*next.score+1e-12 {
 				return nil
 			}
 			var err error
 			s.score, err = stateScore(ctx, s, target, weights, o, boundaries...)
-			if err == nil && s.score < next.score-1e-9 {
+			if err == nil && refinedStackLess(s, next) {
 				next = s
 			}
 			return err
@@ -144,6 +148,14 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 				}
 			}
 		}
+		// Removing redundant swaps is part of every search effort. Preview
+		// previously kept one-layer detours because only deep search could
+		// change the number of runs, even when merging improved the result.
+		if o.HueForge.compatibleOptics() || o.HueForge.SearchEffort == "refine" {
+			if err := mergeStackRuns(best, try); err != nil {
+				return best, err
+			}
+		}
 		if o.HueForge.SearchEffort == "refine" {
 			if err := structuralMoves(best, lib, o, try); err != nil {
 				return best, err
@@ -154,7 +166,7 @@ func refineStack(ctx context.Context, initial stackState, lib Library, bases []i
 				return best, err
 			}
 		}
-		if next.score >= best.score-1e-9 {
+		if !refinedStackLess(next, best) {
 			break
 		}
 		best = next

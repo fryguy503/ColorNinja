@@ -329,6 +329,11 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 			}
 		}
 	}
+	var simplifyErr error
+	best, simplifyErr = simplifyStack(ctx, best, lib, bases, target, weights, o, progress, boundaries)
+	if simplifyErr != nil {
+		return nil, nil, simplifyErr
+	}
 	var depthSelection *DepthSelection
 	if h.AutoDepth {
 		if err := depths.thin(ctx, best, lib, target, weights, o, boundaries...); err != nil {
@@ -338,6 +343,10 @@ func planStack(ctx context.Context, palette []PaletteEntry, lib Library, o Optio
 		if h.compatibleOptics() || o.PreserveDetails || len(boundaries) > 0 {
 			var err error
 			best, err = refineStack(ctx, best, lib, bases, target, weights, o, progress, boundaries...)
+			if err != nil {
+				return nil, nil, err
+			}
+			best, err = simplifyStack(ctx, best, lib, bases, target, weights, o, progress, boundaries)
 			if err != nil {
 				return nil, nil, err
 			}

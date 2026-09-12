@@ -34,6 +34,14 @@ the result. Search and refinement evaluate returns using cumulative Front Lit
 blending. Returns start off to preserve existing plans. Enabling them widens the
 search and can take longer; the bounded search does not prove a global optimum.
 
+Both Normal preview and Deeper refinement merge redundant filament runs. When a
+run has no visible surface pixels, the planner also checks simpler schedules
+with adjusted layer allocations. It accepts these only when the optimization
+score is no worse and the existing color and filament constraints still hold.
+Buried layers can affect the colors above them, so zero surface coverage alone
+does not mean a run can be discarded. Automatic depth then compares the simpler
+schedule using the saved depth allowance.
+
 ## Reduce layer show-through
 
 Under **Layers**, enable **Reduce layer show-through** for detailed images whose

@@ -119,8 +119,9 @@ func relocateRuns(s stackState, o Options, try func([]int, []int) error) error {
 	return nil
 }
 
-// Structural moves conserve depth and respect the unique-spool/run budgets.
-func structuralMoves(s stackState, lib Library, o Options, try func([]int, []int) error) error {
+// Absorb a run into either neighbor and coalesce adjacent uses of the same
+// spool. Rebuild the complete optical stack before accepting any such move.
+func mergeStackRuns(s stackState, try func([]int, []int) error) error {
 	for p := 1; p < len(s.indices); p++ {
 		for _, neighbor := range []int{p - 1, p + 1} {
 			if neighbor >= len(s.indices) {
@@ -144,6 +145,11 @@ func structuralMoves(s stackState, lib Library, o Options, try func([]int, []int
 			}
 		}
 	}
+	return nil
+}
+
+// Structural moves conserve depth and respect the unique-spool/run budgets.
+func structuralMoves(s stackState, lib Library, o Options, try func([]int, []int) error) error {
 	for p, n := range s.runs {
 		minimum := 1
 		if p == 0 {
