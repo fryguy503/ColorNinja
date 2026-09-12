@@ -1,5 +1,10 @@
 # ColorNinja Studio user guide
 
+Version 1.2.2 removes unnecessary filament switches by evaluating simpler runs
+with adjusted layer allocations. Refresh an existing project's preview to generate
+the new plan before saving and exporting. Buried material needed for visible
+blends is retained. See the [1.2.2 release notes](releases/v1.2.2.md).
+
 Version 1.2.1 removes duplicate overwrite prompts after the native Save As
 dialog confirms replacement. Changed filenames and companion files still require
 separate approval. See the [1.2.1 release notes](releases/v1.2.1.md).
@@ -45,7 +50,7 @@ under Layers. Simple reducer and Filament Guide are unchanged.
 Beta 7 adds [Color Pop, a full-color demo, and the Color Match workflow name](releases/v1.0.0-beta.7.md).
 See the [calibration protocol](calibration.md) for RGB/TD provenance and print checks.
 
-For Windows, Linux, and macOS 1.2.1 downloads and installation steps, see the
+For Windows, Linux, and macOS 1.2.2 downloads and installation steps, see the
 [project README](../README.md). The paths under `build/bin` in this guide refer
 to a source checkout; the portable release uses `ColorNinja.exe` and
 `colorninja-cli.exe` directly in the extracted folder.

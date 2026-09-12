@@ -13,8 +13,8 @@
   "info": {
     "companyName": "ColorNinja",
     "productName": "ColorNinja Studio",
-    "productVersion": "1.2.1",
+    "productVersion": "1.2.2",
     "copyright": "Copyright (c) 2026 Fryguy",
-    "comments": "1.2.1 - Avoid duplicate save and export overwrite confirmations"
+    "comments": "1.2.2 - Remove unnecessary filament switches during stack planning"
   }
 }

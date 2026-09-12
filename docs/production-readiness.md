@@ -1,5 +1,13 @@
 # Release validation and remaining acceptance
 
+Version 1.2.2 checks simpler filament schedules in both search modes and favors
+fewer runs on equal scores. Regression tests reproduce a buried return whose
+direct merge is initially worse, then verify that reallocating the simpler
+schedule improves the objective. Coverage includes required spools, optically
+necessary buried layers, determinism and cancellation. The saved-project check
+verifies every layer assignment and the exported run schedule. See the
+[1.2.2 notes](releases/v1.2.2.md). Physical print acceptance remains separate.
+
 Version 1.1.6 adds HueForge SpotFix interchange and synchronized border color/depth
 controls. Regression coverage includes whole-region ownership, overlapping edits,
 clamping, target-layer assignment, transparency, partial-selection fallback,

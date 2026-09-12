@@ -9,8 +9,10 @@ artwork for HueForge. It combines a Go image engine, a Wails desktop interface,
 and a command-line tool. Image processing happens locally; no account or cloud
 service is required.
 
-**Version `v1.2.1` — Windows, Linux, and macOS.** This patch removes duplicate
-overwrite prompts after the native Save As dialog confirms replacing a file.
+**Version `v1.2.2` — Windows, Linux, and macOS.** This patch removes unnecessary
+filament switches by merging redundant runs and adjusting their layer allocations.
+Both Normal preview and Deeper refinement check simpler schedules while preserving
+the existing color and filament constraints.
 It includes TD1/S USB measurements, an editable filament library, and local imports from 3D Filament
 Profiles. Open **Filament library** in the toolbar to manage spools, import a
 profile, or replace its TD with your device's measurement.
@@ -24,8 +26,8 @@ preference strength, and automatic recalculation. Backlit, Simple reducer, Filam
 Guide, portable projects, and self-contained HueForge exports remain available.
 The new channel workflows are temporarily disabled.
 
-[Download ColorNinja 1.2.1](https://github.com/fryguy503/ColorNinja/releases/tag/v1.2.1)
-· [Release notes](docs/releases/v1.2.1.md)
+[Download ColorNinja 1.2.2](https://github.com/fryguy503/ColorNinja/releases/tag/v1.2.2)
+· [Release notes](docs/releases/v1.2.2.md)
 · [User guide](docs/user-guide.md)
 · [Report a bug](https://github.com/fryguy503/ColorNinja/issues)
 · [MIT license](LICENSE)
@@ -40,14 +42,14 @@ print validation with your own filaments and lighting.
 
 ## Download and run
 
-Open the [1.2.1 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.2.1)
+Open the [1.2.2 release](https://github.com/fryguy503/ColorNinja/releases/tag/v1.2.2)
 and choose the archive for your operating system and processor from **Assets**.
 
 | System | Archive | Launch and requirements |
 | --- | --- | --- |
-| Windows x64 | `ColorNinja-1.2.1-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
-| Linux x64 / ARM64 | `ColorNinja-1.2.1-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
-| macOS Intel / Apple Silicon | `ColorNinja-1.2.1-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
+| Windows x64 | `ColorNinja-1.2.2-windows-x64.zip` | Extract, then open `ColorNinja.exe`; requires [WebView2](https://developer.microsoft.com/en-us/microsoft-edge/webview2/). |
+| Linux x64 / ARM64 | `ColorNinja-1.2.2-linux-x64.tar.gz` / `linux-arm64.tar.gz` | Extract, then run `./ColorNinja`; built on Ubuntu 24.04 with GTK 3 and WebKitGTK 4.1. |
+| macOS Intel / Apple Silicon | `ColorNinja-1.2.2-macos-x64.zip` / `macos-arm64.zip` | Extract, then open `ColorNinja.app`; native builds tested on macOS 15. |
 
 On Ubuntu 24.04, install the desktop runtime with
 `sudo apt install libgtk-3-0t64 libwebkit2gtk-4.1-0`. Other Linux distributions
@@ -72,7 +74,7 @@ To verify the downloaded archive in PowerShell, compare its SHA-256 with the
 release's `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\ColorNinja-1.2.1-windows-x64.zip -Algorithm SHA256
+Get-FileHash .\ColorNinja-1.2.2-windows-x64.zip -Algorithm SHA256
 ```
 
 ## What it does
